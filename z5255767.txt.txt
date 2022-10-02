@@ -1,0 +1,14 @@
+Week 1
+Formed group and discussed project with group. Have decided to select project 1 for the assigment. 
+Decided on system architecture with the team. Lachlan created the jira group and facebook group for us to stay in contact. I created a discords channel for the group to communicate too. Discord has been decided to be our primary soure of contact outside of Jira.
+Decided on our teams structure:
+Lachlan and Goce on frontend.
+Owen, Elijah, Jeffrey on backend.
+Decided on name for team: Code Chefs
+Week 2
+Everyone chipped in to create user stories and come up with ideas for novelty functionality.
+Decided on the system architecture once more and reviewed Goce's written documentation.
+Discussed novelties with tutor and came up with new ones.
+Week 3
+Working on proposal. Assigned user stories/acceptance criteria to everyone. I completed the user stories and acceptence criteria for the novelty function: cook book section. This section was decided to be placed in sprint 3. Team had finished assigning sprints to each of the user stories.
+I completed the screens and the storyboard for the cook book function. Assisted Jeffrey and helped discuss some of the user stories with Jeffrey and created the storyboards for the sprint 1 user stories. Decided on all 3 novelties.
