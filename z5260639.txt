@@ -1,0 +1,155 @@
+##########################
+#  COMP3900 Work Diary   #
+# Goce (George) Pacarski #
+#        z5260639        #
+##########################
+
+Week 1
+=======
+Tuesday
+--------
+First lecture introduced the course including how to plan the project.
+I don't know anyone in my tutorial yet and therefore haven't formed a team at
+this point (I'm in the Thursday evening in-person tutorial). All the projects
+look interesting, however the meal recommendation system would probably be the
+one I would pick. The technology stack I'd like to work with includes javascript
+(vanilla using fetch/ajax or ReactJS), html, css, SQL (sqlite, mysql/mariadb, or
+postgresql), and python (flask, json, etc). The webapp should have a good user
+experience, be responsive (i.e. mobile friendly) and secure.
+
+Thursday
+---------
+The group was formed today, consisting of 5 members. We decided we would do
+project 1, the meal recommendation system. We decided Lachlan Bailey would be
+the scrum master, and then proceed to create and link Jira and GitHub accounts.
+We also decided we would use a 3 sprint structure as this works best with the
+two progressive and one final demos. Then we discussed the programming languages
+and tools we could use for the project. We considered the most suitable
+structure is to use python3 and PostgreSQL for the backend and ReactJS for the
+frontend. Next we need to come up with the user stories and objectives for the
+project.
+
+Friday
+-------
+Did some brainstorming regarding what the website should be able to do,
+and wrote some user stories. Also did a test run to determine if the current
+ReactJS version will work on CSE or Ubuntu 20.04 LTS, which wasn't successful.
+These systems must be upgraded to nodejs version 14 or greater, given lower
+versions are now EOL, and any attempt to create a ReactJS app fails completely.
+A test ReactJS app works correctly on a Debian 11 WSL with upgraded nodejs
+(version 16.17.0) and npm (version 8.19.2).
+
+Saturday
+---------
+Wrote the Background section of the proposal, and added it to confluence.
+
+Sunday
+-------
+Wrote a guide to installing NodeJS, NPM and Yarn help team members know what
+would be needed to build a ReactJS based frontend.
+
+################################################################################
+
+Week 2
+=======
+Monday
+-------
+More planning on what technolgies the website would use. Specifically the pros
+and cons of using PostgreSQL versus SQLite.
+
+Tuesday
+--------
+Group meeting. As a groups we came up with seven objectives (epics), and several
+more user stories (currently have just over 40 user stories). Grouped those user
+stories into objectives. Also came up with several novelties that might be nice
+to have. Decided to use SQLite as a database as it's a small website that
+doesn't need the complexity of setting up and overhead in running PostgreSQL.
+
+Thursday
+---------
+Group meeting with tutor over zoom. Created the group on github classroom and
+accepted the capstone project. Found out we need to use the repo under
+"unsw-cse-comp3900-9900-22T3" rather than a previously created group repo.
+Found we misunderstood what novelties actually meant, in that it's meant to
+include features other recipe websites don't have. Also found "Dynamic UI" isn't
+an objective, thus we need to revise our objectives and user stories further
+before coming up with acceptance criteria. Also we got approval on installing
+whatever we need on the Lubuntu 20.04 LTS virtual machine, as well as using
+SQLite3 and Flask for the backend. Made a start on writing the system
+architecture part of the proposal.
+
+Friday
+-------
+Met up with Jeffrey on Friday evening where we created the remaining objectives
+and novelties, along with several additional user stories. I created the first
+draft of the system architecture part of the proposal including the diagram in
+draw.io. Also created a project in figma and invited the group, which will serve
+as the means to create the user storyboard.
+
+Sunday
+-------
+Added about a dozen screens in figma which will serve basis for storyboards (and
+mockups).
+
+################################################################################
+
+Week 3
+=======
+Tuesday
+--------
+Group meeting after online lecture. Added a few more screens to figma.
+
+Wednesday
+----------
+Group meeting. Created several more user stories, and decided on
+three novelties being playlists (cook books), chatbox, and shopping cart.
+Decided in which sprints most user stories would go in. Still unsure about how
+if acceptance criteria is to be created as child issues or user story
+descriptions. Also questioning whether to store images in the database or
+filesystem.
+
+Thursday
+---------
+Lab and group meeting. Decided we would use a mix of images stored in the
+database and filesystem, where those stored in the database are for user privacy
+reasons. Confirmed using child issues of stories and desciptions for acceptance
+criteria. Also discussed details regarding objectives and novelties. Decided we
+would use PostgreSQL instead of SQLite3, to ensure good performance from the
+website. Entered more user stories, and acceptance criteria in Jira.
+
+Friday
+-------
+Entered more user stories and acceptance criteria in Jira.
+
+Saturday
+---------
+Group meeting. Confirmed using PostgreSQL and updated the system
+architecture to reflect that descision, then added the updated system
+architecture content to the proposal. Added user stories especially those
+relevant to novelties, and edited existing user stories to ensure they and their
+acceptance criteria make sense. Created more screen and storyboards using figma
+and draw.io. Some additional worked on the proposal.
+
+Sunday
+-------
+Added a several more screens to figma and created and/or helped to create the
+storyboard using screens from figma. Edited a few user stories and acceptance
+criteria in jira. Added some documentation to confluence regarding sprints
+including start and end dates, as well as screenshots of the user stories
+assigned to each sprint.
+
+################################################################################
+
+Week 4
+=======
+
+Monday
+-------
+Realised that screenshots of the sprints/backlog in Jira perhaps don't meet the
+criteria for user stories as readable text. Therefore copied the text of each
+user story as bullet points into confluence. Also realised that confluence
+doesn't have the functionality to write documents predictably as well formatted
+A4 pages thus transferred all the contents into a Google doc to work on the
+proposal collaboratively. From there we continued working on the proposal until
+it was completed. Everyone contributed an equal share of work, and the proposal
+was submitted by Lachlan.
