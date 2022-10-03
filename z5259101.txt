@@ -1,0 +1,16 @@
+Week 1
+- Group formation and project discussion, final decision with meal recommendation system
+- Team formation: Lachlan and George on frontend, Owen, Elijah and Jeffrey on backend
+
+Week 2
+- Creation of user stories
+- Come up with some novelties ideas and discussing their impact on database
+- Realised that a thorough planning is required before starting because novelties have very high chance of changing existing code after completing other functions
+- Decided on the system architecture
+
+Week 3
+- Work on proposal
+- Adjust existing user stories
+- Finalise on 3 novelties: Shopping cart, message system, recipe book
+- Assigning acceptance criteria to members
+- I have done the storyboard for every epics other than recipe book and shopping cart
