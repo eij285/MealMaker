@@ -1,0 +1,57 @@
+Week 1
+
+Group formed in laboratory. Introduced ourselves and our background.
+Everyone else in the group has more experience in web development than me having taken COMP3311 and COMP6080.
+I felt like I was able to get the group motivated and to connect so I nominated myself to be scrum master.
+
+We allocated the following positions:
+- lead front-end developer: George
+- lead back-end developer: Elijah
+- full-stack developer: Owen
+- full-stack developer: Jeff
+
+We met again on the weekend to brainstorm, further discuss roles and objectives.
+Owen and I came up with the idea of recipe books with similar functionality to a Spotify playlist.
+George did a lot of work for the team, he started a brief write up for the proposal background,
+wrote up a guide for installing Lubuntu in Virtual Box, and looked over what packages we think we'd need to install.
+Together we wrote up draft user stories for our basic objectives. We left our novel features incomplete.
+
+
+
+
+Week 2
+
+Online laboratory this week because of public holiday. Meeting over Zoom to clarify questions around proposal.
+Meeting was short and we got feedback on our user stories. Received clarification that we had misunderstood what
+was required for novel features. Also were reminded we needed acceptance criteria and a story board for our proposal.
+
+We met again on the weekend to discuss our progress on the proposal. I presented the idea of the shopping cart and 
+Jeff presented the idea of the chat box. We decided to go ahead with those as our novel features.
+
+I started helping with the story board on Figma which George had started, and provided some feedback but did not make many new scenes due to
+unfamiliarity with the app.
+
+I began further researching existing systems.
+
+
+
+Week 3
+
+Group meeting early in the week to work together and finalise the user stories for our objectives. After looking over the marking criteria
+for later assessments I recommended we try go with PostgreSQL for our database.
+
+Group meeting in laboratory. Presented what we have done to our demonstrator. Received clarification to add acceptance criteria as child issues
+on Jira. Decided that George and Elijah would split the responsibility of writing the acceptance criteria for our standard objectives, and Owen 
+would do the Recipe Book, Jeff would do the Chat Box, and I would do the acceptance criteria for the shopping cart.
+
+Group standup on Saturday morning. Clarified each of our resposibilities for what remained in the proposal. We each presented our user stories and acceptance
+criteria we had develioped and finalised it before moving onto finalising the story board.
+
+We split, with some working on the story board and me writing up the Background and explaination of novel features for the proposal document.
+Together we identified minor amendments to make as we progressed over the weekend.
+
+
+
+Week 4
+
+Submitted the proposal.
