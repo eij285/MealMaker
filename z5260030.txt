@@ -1,0 +1,53 @@
+Week 1
+
+Formed group 'code chefs' and elected to work on project 1. Introduced myself and my experience to others as primarily
+back-end focused but having worked on front-end and databases before. Lachlan and Owen set up most of our online
+communication and we designated responsibilities. I was assigned back-end lead in a team with Owen and Jeffrey, while
+George was assigned the lead of front-end supported by Lachlan.
+
+We organised a stand-up on the weekends, where we worked on user stories. Prior to this, I had added some stories
+focused more on the social media dynamic of our product, and had left comments on the stories of my group members. We
+identified our 6 main product objectives based on the stories we had created and brainstormed some novelties.
+
+Week 2
+
+Unfortunately could not make the online lab due to commitments made on the public holiday, but the feedback was relayed
+to me later that week. Reviewed some of the novelties including ones I had come up with, and in accordance to feedback
+decided to scrap them due to them not being novel enough or too small of a feature. We ended up keeping the recipe books
+idea that Lachlan and Owen had brainstormed last week.
+
+I did some research into SQLite on my own accord due to suggestions from George that it may be more suitable to our
+product, and agreed with him.
+
+Week 3
+
+Held a stand-up the day before our lab and attempted to review our user stories and remove unnecessary ones. We also
+began assigning them to sprints. This however took longer than expected, and I suggested we do the rest during the lab
+the next day. Additionally, we also decided on settling on 2 more novelties: Lachlan's shopping cart system and
+Jeffrey's messaging system.
+
+The next day during the lab we reviewed the rest of the user stories and assigned them to relevant sprints. As we had
+not written user stories for the novelty objectives yet, Lachlan, Owen and Jeffrey took ownership of their ideas (the
+shopping cart system, the recipe books and the messaging system respectively) and came up with some user stories.
+George and I split up the user stories we had written and came up with some acceptance criteria. I specifically worked
+on acceptance criteria for stories under Search, Feed and Reviews. There were a lot of potential assumptions I could
+have made but chose to bring up with the group.
+
+In our final stand-up on Saturday this week, we all reviewed each other's works, though experienced disruptions due to
+inefficient meetings in general. I reviewed and gave comments on everyone's novelty user stories, and reviewed George's
+stories. Afterwards I began to present my acceptance criteria, though due to these disruptions George was the only one
+available to review them and thus I deemed it inefficient to do so when I had listed potential assumptions that should
+be decided on as a group. We ended up designating responsibilities for the proposal instead, which took priority due to
+being due soon.
+
+I gave myself the role of fixing and screenshotting user stories, but felt I had taken too light of a workload. I
+instead changed my responsibilities into clearly defining our product objectives (which had just been summarised as a
+single keyword at the time) in a way that was able to encompass all user stories we had written. I then linked every
+user story to these product objectives to ensure our proposal 'Clearly communicates how all project objectives are
+satisfied by user stories that are defined', as per the criteria.
+
+Finally, writing our acceptance criteria had shown that we could potentially be dealing with big data due to our
+product's presence as a social media platform, and Lachlan raised concerns about the SQLite's potential inefficiency.
+While I noted that it was unlikely that we were expected to envision our product at this large of a scale, I decided to
+back Lachlan's idea of using PostgreSQL for our proposal and suggested we discuss this further with our tutor.
+
