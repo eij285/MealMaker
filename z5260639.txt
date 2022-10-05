@@ -153,3 +153,8 @@ A4 pages thus transferred all the contents into a Google doc to work on the
 proposal collaboratively. From there we continued working on the proposal until
 it was completed. Everyone contributed an equal share of work, and the proposal
 was submitted by Lachlan.
+
+Tuesday
+--------
+Did the initial database design planning in draw.io. The database currently
+has 23 tables, but is perhaps still far from what we ideally want.
