@@ -158,3 +158,21 @@ Tuesday
 --------
 Did the initial database design planning in draw.io. The database currently
 has 23 tables, but is perhaps still far from what we ideally want.
+
+Wednesday
+----------
+Did some research to confirm whether the node and reactjs packages indicated in
+the proposal were really the best packages to install for the frontend. Most
+were the same, but styled-components was swapped for emotion as this does the
+same things for our purposes and seems less problematic as far as compatibility
+goes with material UI v5. A few packages were added to make working with dates
+and other features better.
+
+Thursday
+---------
+Was raining today, so had our had a group meeting and talk with our mentor over
+zoom. Installed the frontend with agreement on the packages with the other team
+members and approval from Lachlan. Discussed with Elijah what the best approach
+would be to setting up the backend directory structure such as to not end up
+with too many python files in a single directory. Created a few page layouts in
+reactjs and started on the authorisation objective related pages.
