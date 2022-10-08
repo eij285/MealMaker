@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { TextField } from '@mui/material';
+import { TextField, InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const TextInputBlock = styled(TextField)`
   display: block;
@@ -37,7 +38,22 @@ export const EmailInput = (props) => {
  * full width password input
  */
 export const PasswordInput = (props) => {
+  const [viewPassword, setViewPassword] = React.useState(false);
   return (
-    <GeneralTextInput {...props} type="password" />
+    <GeneralTextInput {...props}
+      type={viewPassword ? 'text' : 'password'}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={() => setViewPassword(!viewPassword)}
+            >
+              {viewPassword ? <VisibilityOff /> : <Visibility />}
+            </IconButton>
+          </InputAdornment>
+        )
+      }}
+    />
   );
 };
