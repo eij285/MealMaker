@@ -33,6 +33,48 @@ def auth_register(username, email, password):
     cur.execute("INSERT INTO Users VALUES ('JohnDoe', 'sample@gmail.com', 'pw')")
 
     conn.close()
-    return None
+    pass
 
+def auth_login():
+    """Logins a user
+    
+    Logins a user and assigns them a new JWT token for the current session.
+    Checks that the user login information correctly corresponds to a registered
+    user in the database.
+
+    Args:
+        ...
+
+    Returns:
+        ...
+    
+    """
+    pass
+
+def auth_update_pw():
+    """Updates an authenticated user's password
+    
+    ...
+    
+    Args:
+        ...
+        
+    Returns:
+        ...
+    
+    """
+
+def auth_reset_pw():
+    """Resets an authenticated user's password
+    
+    ...
+    
+    Args:
+        ...
+        
+    Returns:
+        ...
+        
+    """
+    pass
     
