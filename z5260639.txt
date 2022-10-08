@@ -176,3 +176,22 @@ members and approval from Lachlan. Discussed with Elijah what the best approach
 would be to setting up the backend directory structure such as to not end up
 with too many python files in a single directory. Created a few page layouts in
 reactjs and started on the authorisation objective related pages.
+
+Friday
+-------
+Worked on some of the frontend of the authorisation pages.
+
+Saturday
+--------
+More work on authorisation pages including validation of emails and passwords.
+Spent a lot of time dealing with reactjs v18 and material ui v5 issues that
+weren't present in another project that used reactjs v17 and material ui v4.
+Specifically the issues relate to the use of React.useState and input onBlur,
+onInput, and onChange not working ideally. In the interest of progression with
+sprint 1 the auth functions work, and these may need to be optimised if there's
+time. Merged everything with main. Another issue is it was found it's not
+practical to assign a single user story to a single team member, given every
+user story has a frontend and backend component and will therefore involved
+multiple team members. Hence the team member assigned to a user story is one of
+the people working on that user story but may be two or three others also
+working on that same user story.
