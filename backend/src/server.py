@@ -1,5 +1,4 @@
 from flask import Flask, request
-from json import dumps
 
 from auth import auth_register
 
@@ -21,7 +20,35 @@ def login():
     password = payload['password']
 
     # return auth_login(login, password)
-    return None
+    pass
+
+@APP.route('/auth/update-password', methods=['PUT'])
+def update_password():
+    pass
+
+@APP.route('/auth/reset-password', methods=[''])
+def reset_password():
+    pass
+
+@APP.route('/user/update', methods=['PUT'])
+def update_user_details():
+    pass
+
+@APP.route('/recipe/create', methods=['POST'])
+def create_recipe():
+    pass
+
+@APP.route('/recipe/publish', methods=['PUT'])
+def publish_recipe():
+    pass
+
+@APP.route('/recipe/unpublish', methods=['PUT'])
+def unpublish_recipe():
+    pass
+
+@APP.route('/reset', methods=['DELETE'])
+def reset():
+    pass
 
 if __name__ == "__main__":
     APP.run()
