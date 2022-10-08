@@ -80,18 +80,31 @@ def auth_update_pw(token, password):
     
     """
 
-def auth_reset_pw(email):
-    """Resets a user's password
+def auth_reset_link(email):
+    """Sends a link to reset user's password
     
-    Allows a user to reset their password if they forgot it. This is done by
-    sending an email containing a secure link which allows them to reset their
-    password. Password must meet the minimum requirements.
+    Allows a user to reset their password if they forgot it. This function sends
+    an email containing a secure link which allows them to reset their password.
+    A reset code is generated which is saved on the database, and a url query
+    string containing the email and reset code (32 bit hashed) is sent.
 
-    url query string containing email and reset code
-    reset code 32 bit hashed
+    https://stackoverflow.com/questions/15799696/how-to-build-urls-in-python
     
     Args:
         email       (String): email that the reset link will be sent to
+        
+    Returns:
+        Status 200
+        Status 400
+        
+    """
+    pass
+
+def auth_reset_pw(password):
+    """Updates password from reset link
+    
+    Args:
+        password    (String):
         
     Returns:
         Status 200

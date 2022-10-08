@@ -26,8 +26,20 @@ def login():
 def update_password():
     pass
 
-@APP.route('/auth/reset-password', methods=[''])
+@APP.route('/auth/reset-link', methods=['PUT'])
+def reset_link():
+    payload = request.get_json()
+    email = payload['email']
+
+    # return auth_reset_link(email)
+    pass
+
+@APP.route('/auth/reset-password', methods=['PUT'])
 def reset_password():
+    payload = request.get_json()
+    password = payload['password']
+
+    # return auth_reset_pw(password)
     pass
 
 @APP.route('/user/update', methods=['PUT'])
