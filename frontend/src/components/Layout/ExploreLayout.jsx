@@ -4,7 +4,7 @@ import Layout from './Layout';
 
 function ExploreLayout ({ children }) {
   return (
-    <Layout>
+    <Layout incSearch={true} incButtons={true}>
       {children}
     </Layout>
   );
