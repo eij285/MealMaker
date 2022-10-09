@@ -10,7 +10,7 @@ APP = Flask(__name__)
 
 @APP.route('/', methods=['GET'])
 def index():
-    conn = psycopg2.connect("dbname=codechefs-db")
+    conn = psycopg2.connect("dbname=meal-maker-db")
     cur = conn.cursor()
     print(conn)
 

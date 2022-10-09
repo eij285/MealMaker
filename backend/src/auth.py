@@ -82,7 +82,7 @@ def auth_register(display_name, email, password):
         }
 
     # Check that the email is not already registered in database
-    cur.execute("SELECT * FROM users WHERE email = %s;", (email))
+    cur.execute("SELECT * FROM users WHERE email = %s;", (email,))
     if cur.fetchall():
         return {
             'status_code': 400,
@@ -110,10 +110,12 @@ def auth_register(display_name, email, password):
     salt = bcrypt.gensalt()
     hashed_pw = bcrypt.hashpw(encoded_pw, salt)
 
+    print(type(hashed_pw))
+
     # Add user to database
     sql_query = "INSERT INTO users (email, display_name, password) VALUES \
                  (%s, %s, %s) RETURNING id;"
-    cur.execute(sql_query, (email, display_name, hashed_pw))
+    cur.execute(sql_query, (email, display_name, hashed_pw.decode('utf-8')))
 
     u_id = cur.fetchone()[0]
 
@@ -126,6 +128,8 @@ def auth_register(display_name, email, password):
         },
         key, algorithm='HS256'
     )
+
+    conn.commit()
 
     cur.close()
     conn.close()
