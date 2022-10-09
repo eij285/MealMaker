@@ -1,8 +1,14 @@
+from datetime import datetime, timezone, timedelta
 import psycopg2
 import json
 import bcrypt
+import jwt
+import re
 
 def check_valid_password(password):
+    """Password validity checker
+    
+    """
     special_chars = "`~!@#$%^&*()-_=+;:'“,<.>/?"
     errors = []
 
@@ -36,9 +42,6 @@ def check_valid_password(password):
     else:
         return False, errors
 
-
-
-# TODO: This is an incomplete solution to registration
 def auth_register(display_name, email, password):
     """Registers a new user
 
@@ -73,22 +76,34 @@ def auth_register(display_name, email, password):
         cur = conn.cursor()
         print(conn)
     except:
-        # TODO: Should return relevant error here
-        return {'errors': ['Unable to connect to database']}, 502
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
 
-    # TODO: Check that the email is not already registered in database
-    cur.execute(f"SELECT * FROM users WHERE email = {email};")
-    if len(cur.fetchall()) > 0:
-        return {'errors': ['Email has already been registered']}, 400
+    # Check that the email is not already registered in database
+    cur.execute("SELECT * FROM users WHERE email = %s;", (email))
+    if cur.fetchall():
+        return {
+            'status_code': 400,
+            'errors': ['Email has already been registered']
+        }
     
     # TODO: Check that email is valid
-    
+    email_regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+    if not re.search(email_regex, email):
+        return {
+            'status_code': 400,
+            'errors': ['Email is in invalid format']
+        }
 
     # TODO: Check that the password is valid
     password_valid, errors = check_valid_password(password)
     if not password_valid:
-        return {'errors': errors}, 400
-
+        return {
+            'status_code': 400,
+            'errors': errors
+        }
 
     # Encrypt password
     encoded_pw = password.encode('utf8')
@@ -96,14 +111,29 @@ def auth_register(display_name, email, password):
     hashed_pw = bcrypt.hashpw(encoded_pw, salt)
 
     # Add user to database
-    db_columns = f"users (email, display_name, password)"
-    db_values = f"(\'{email}\', \'{display_name}\', \'{hashed_pw}\')"
-    cur.execute(f"INSERT INTO {db_columns} VALUES {db_values};")
+    sql_query = "INSERT INTO users (email, display_name, password) VALUES \
+                 (%s, %s, %s) RETURNING id;"
+    cur.execute(sql_query, (email, display_name, hashed_pw))
+
+    u_id = cur.fetchone()[0]
 
     #TODO: Generate JWT token
+    key = "SECRET"
+    encoded_jwt = jwt.encode(
+        {
+            'u_id': u_id,
+            'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+        },
+        key, algorithm='HS256'
+    )
 
+    cur.close()
     conn.close()
-    pass
+    
+    return {
+        'status_code': 200,
+        'body': []
+    }
 
 def auth_login(email, password):
     """Logins a user
