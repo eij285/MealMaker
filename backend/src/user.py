@@ -129,20 +129,13 @@ def user_update_visibility(token, visibility):
     if visibility not in {"private", "public"}:
         raise InputError("Visibility must be one of: ""private"", ""public""")
 
+"""
 def user_update_profile_picture(token):
-    """Changes users profile picture
+    """
+"""Changes users profile picture
 
     Args:
 
     Returns:
 
-    """
-
-def user_update_password(token, password):
-    """Changes users password
-
-    Args:
-
-    Returns:
-
-    """
+"""
