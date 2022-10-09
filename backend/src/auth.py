@@ -82,12 +82,12 @@ def auth_register(display_name, email, password):
         return {'errors': ['Email has already been registered']}, 400
     
     # TODO: Check that email is valid
+    
+
+    # TODO: Check that the password is valid
     password_valid, errors = check_valid_password(password)
     if not password_valid:
         return {'errors': errors}, 400
-
-    # TODO: Check that the password is valid
-    
 
 
     # Encrypt password
