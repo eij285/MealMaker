@@ -1,8 +1,17 @@
+from crypt import methods
 from flask import Flask, request
+import psycopg2
 
 from auth import auth_register
+from helpers import database_reset, files_reset
 
 APP = Flask(__name__)
+
+@APP.route('/', methods=['GET'])
+def index():
+    conn = psycopg2.connect("dbname=codechefs-db")
+    cur = conn.cursor()
+    print(conn)
 
 @APP.route('/auth/register', methods=['POST'])
 def register():
@@ -58,9 +67,12 @@ def publish_recipe():
 def unpublish_recipe():
     pass
 
-@APP.route('/reset', methods=['DELETE'])
+@APP.route('/reset', methods=['DELETE', 'GET'])
 def reset():
-    pass
+    status = database_reset()
+    if status:
+        files_reset()
+    return {}
 
 if __name__ == "__main__":
-    APP.run()
+    APP.run(debug=True)

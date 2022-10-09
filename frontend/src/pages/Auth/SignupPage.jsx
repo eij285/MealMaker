@@ -10,7 +10,7 @@ import { isValidEmail, isValidPassword } from '../../helpers';
 
 function SignupPage () {
   const initialData = {
-    username: {
+    displayName: {
       value: '',
       error: false,
       message: ''
@@ -36,19 +36,19 @@ function SignupPage () {
   
   const signup = (e) => {
     e.preventDefault();
-    const username = e.target.username.value;
+    const displayName = e.target.displayName.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
     const confirm = e.target.confirm.value;
     let dataState = {...formData};
-    dataState.username.value = username;
+    dataState.displayName.value = displayName;
     dataState.email.value = email;
     dataState.password.value = password;
     dataState.confirm.value = confirm;
     let isError = false;
-    if (username === '') {
-      dataState.username.error = true;
-      dataState.username.message = 'A name is required';
+    if (displayName === '') {
+      dataState.displayName.error = true;
+      dataState.displayName.message = 'A name is required';
       isError = true;
     }
     if (email === '') {
@@ -89,12 +89,12 @@ function SignupPage () {
       <CentredPageTitle>Sign up</CentredPageTitle>
       <CentredElementsForm noValidate onSubmit={signup}>
         <TextInput
-          name="username"
-          label="Name"
+          name="displayName"
+          label="Display Name"
           required
-          defaultValue={formData.username.value}
-          error={formData.username.error}
-          helperText={formData.username.error && formData.username.message}
+          defaultValue={formData.displayName.value}
+          error={formData.displayName.error}
+          helperText={formData.displayName.error && formData.displayName.message}
         />
         <EmailInput
           name="email"

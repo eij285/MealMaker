@@ -6,7 +6,7 @@ import { Grid, Card, CardContent } from '@mui/material';
 function AuthLayout ({ children }) {
 
   return (
-    <Layout>
+    <Layout incSearch={false} incButtons={false}>
       <Grid
         container
         justifyContent="center"

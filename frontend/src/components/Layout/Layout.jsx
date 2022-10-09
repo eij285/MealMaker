@@ -5,7 +5,7 @@ import Header from './Header';
 import Footer from './Footer';
 import styled from '@emotion/styled';
 
-function Layout ({ children }) {
+function Layout ({ incSearch, incButtons, children }) {
     
   const boxStyles = {
     minHeight: '100vh',
@@ -23,7 +23,7 @@ function Layout ({ children }) {
 
   return (
     <Box sx={ boxStyles }>
-      <Header />
+      <Header incSearch={incSearch} incButtons={incButtons} />
       <MainWrap>
         {children}
       </MainWrap>
@@ -33,6 +33,8 @@ function Layout ({ children }) {
 }
 
 Layout.propTypes = {
+  incSearch: PropTypes.bool,
+  incButtons: PropTypes.bool,
   children: PropTypes.any,
 };
 
