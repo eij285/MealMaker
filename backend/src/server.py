@@ -1,4 +1,5 @@
 from flask import Flask, request
+from json import dumps
 
 from auth import auth_register
 
@@ -11,7 +12,7 @@ def register():
     email = payload['email']
     password = payload['password']
 
-    return auth_register(display_name, email, password)
+    return dumps(auth_register(display_name, email, password))
 
 @APP.route('/auth/login', methods=['POST'])
 def login():
