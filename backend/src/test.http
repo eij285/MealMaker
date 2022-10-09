@@ -2,11 +2,14 @@ POST http://127.0.0.1:5000/auth/register HTTP/1.1
 content-type: application/json
 
 {
-    "display-name": "eij285",
-    "email": "a@gmail.com",
-    "password": "testT@aas3"
+    "display-name": "esssj285",
+    "email": "b@gmail.com",
+    "password": "3S213213@33a4"
 }
 
 ###
 
 DELETE http://127.0.0.1:5000/reset HTTP/1.1
+
+###
+

@@ -10,37 +10,33 @@ def check_valid_password(password):
     
     """
     special_chars = "`~!@#$%^&*()-_=+;:'“,<.>/?"
-    errors = []
+    errors = ""
 
     # Check that the password is of suitable length
     if len(password) < 8:
-        errors.append("Password is less than 8 characters")
+        return False, "Password is less than 8 characters"
 
     # Check that the password contains a lower-case character
     lower_chars = [x for x in password if x.islower()]
     if not lower_chars:
-        errors.append("Password does not contain a lower-case character")
+        return False, "Password does not contain a lower-case character"
     
     # Check that the passworde contains an upper-case character
     upper_chars = [x for x in password if x.isupper()]
     if not upper_chars:
-        errors.append("Password does not contain an upper-case character")
+       return False, "Password does not contain an upper-case character"
 
     # Check that the password contains a decimal digit
     dec_digits = [x for x in password if x.isdecimal()]   
     if not dec_digits:
-        errors.append("Password does not contain a decimal digit")
+        return False, "Password does not contain a decimal digit"
 
     # Check that the password contains a special character
     special_chars = [x for x in password if x in special_chars]
     if not special_chars:
-        errors.append("Password does not contain a special character")
+        return False, "Password does not contain a special character"
 
-    # If errors are empty (i.e. password is valid)
-    if not errors:
-        return True, errors
-    else:
-        return False, errors
+    return True, ""
 
 def auth_register(display_name, email, password):
     """Registers a new user
@@ -78,7 +74,7 @@ def auth_register(display_name, email, password):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
 
     # Check that the email is not already registered in database
@@ -86,7 +82,7 @@ def auth_register(display_name, email, password):
     if cur.fetchall():
         return {
             'status_code': 400,
-            'errors': ['Email has already been registered']
+            'error': 'Email has already been registered'
         }
     
     # TODO: Check that email is valid
@@ -94,7 +90,7 @@ def auth_register(display_name, email, password):
     if not re.search(email_regex, email):
         return {
             'status_code': 400,
-            'errors': ['Email is in invalid format']
+            'error': 'Email is in invalid format'
         }
 
     # TODO: Check that the password is valid
@@ -102,7 +98,7 @@ def auth_register(display_name, email, password):
     if not password_valid:
         return {
             'status_code': 400,
-            'errors': errors
+            'error': errors
         }
 
     # Encrypt password
@@ -130,13 +126,14 @@ def auth_register(display_name, email, password):
     )
 
     conn.commit()
-
     cur.close()
     conn.close()
     
     return {
         'status_code': 200,
-        'body': []
+        'body': {
+            'token': encoded_jwt
+        }
     }
 
 def auth_login(email, password):
