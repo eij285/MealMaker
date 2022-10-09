@@ -7,19 +7,19 @@ APP = Flask(__name__)
 @APP.route('/auth/register', methods=['POST'])
 def register():
     payload = request.get_json()
-    username = payload['username']
+    display_name = payload['display-name']
     email = payload['email']
     password = payload['password']
 
-    return auth_register(username, email, password)
+    return auth_register(display_name, email, password)
 
 @APP.route('/auth/login', methods=['POST'])
 def login():
     payload = request.get_json()
-    login = payload['login']
+    login = payload['email']
     password = payload['password']
 
-    # return auth_login(login, password)
+    # return auth_login(email, password)
     pass
 
 @APP.route('/auth/update-password', methods=['PUT'])
