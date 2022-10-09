@@ -6,28 +6,26 @@ import { PasswordInput } from '../../components/InputFields';
 import { CentredPageTitle, CustomLink } from '../../components/TextNodes';
 import { LargeSubmitButton } from '../../components/Buttons';
 import { CentredElementsForm } from '../../components/Forms';
-import { isValidEmail, isValidPassword } from '../../helpers';
+import { isValidEmail, validatePassword, validatePasswordMatch, backendRequest } from '../../helpers';
+import { ErrorAlert, SuccessAlert } from '../../components/StyledNodes';
 
 function PasswordResetPage () {
   const query = new URLSearchParams(window.location.search);
   
-  const [email, setEmail] = React.useState(query.get("email"));
-  const [code, setCode] = React.useState(query.get("code"));
+  // from url query
+  const [email] = React.useState(query.get("email"));
+  const [code] = React.useState(query.get("code"));
 
-  const initialData = {
-    password: {
-      value: '',
-      error: false,
-      message: ''
-    },
-    confirm: {
-      value: '',
-      error: false,
-      message: ''
-    }
-  };
+  // password fields
+  const [password, setPassword] = React.useState('');
+  const [confirm, setConfirm] = React.useState('');
 
-  const [formData, setFormData] = React.useState(initialData);
+  // error messages
+  const [passwordMessage, setPasswordMessage] = React.useState('');
+  const [confirmMessage, setConfirmMessage] = React.useState('');
+
+  const [responseError, setResponseError] = React.useState('');
+  const [responseSuccess, setResponseSuccess] = React.useState('');
   
   let valid = true;
 
@@ -37,71 +35,58 @@ function PasswordResetPage () {
   
   const resetPassword = (e) => {
     e.preventDefault();
-    const password = e.target.password.value;
-    const confirm = e.target.confirm.value;
-    let dataState = {...formData};
-    dataState.password.value = password;
-    dataState.confirm.value = confirm;
-    let isError = false;
-    if (password === '') {
-      dataState.password.error = true;
-      dataState.password.message = 'A password is required';
-      isError = true;
-    } else if (isValidPassword(password) === false) {
-      dataState.password.error = true;
-      dataState.password.message = 'A complex password is required';
-      isError = true;
-    }
-    if (confirm === '') {
-      dataState.confirm.error = true;
-      dataState.confirm.message = 'A password confirmation is required';
-      isError = true;
-    } else if (password !== confirm) {
-      dataState.confirm.error = true;
-      dataState.confirm.message = 'Passwords do not match';
-      isError = true;
-    }
-    console.log(password, confirm);
-    if (isError === false) {
+    
+    if (password !== '' && passwordMessage === '' &&
+        confirm != '' && confirmMessage === '') {
       // send to backend (email, code, password)
-      console.log('valid password');
-      dataState.password.error = false;
-      dataState.confirm.error = false;
+      const body = { password: password };
+      backendRequest('/auth/reset-password', body, 'PUT', null, (data) => {
+        setResponseSuccess('Password Reset Successfully');
+      }, (error) => {
+        setResponseError(error);
+      });
+    } else {
+      validatePassword(password, setPasswordMessage);
+      validatePasswordMatch(password, confirm, setConfirmMessage);
     }
-    setFormData({...dataState});
   };
-  
   
   return (
     <>
-      {!valid && <Navigate to="/403-forbidden" />}
+      {!valid && <Navigate to="/forbidden-403" />}
       <AuthLayout>
         <CentredPageTitle>Password Reset</CentredPageTitle>
+        {responseSuccess === '' &&
         <CentredElementsForm noValidate onSubmit={resetPassword}>
           <PasswordInput
-            name="password"
             label="New Password"
             required
-            defaultValue={formData.password.value}
-            error={formData.password.error}
-            helperText={formData.password.error && formData.password.message}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={() => validatePassword(password, setPasswordMessage)}
+            error={passwordMessage !== ''}
+            helperText={passwordMessage}
           />
           <PasswordInput
             name="confirm"
             label="Confirm Password"
             required
-            defaultValue={formData.confirm.value}
-            error={formData.confirm.error}
-            helperText={formData.confirm.error && formData.confirm.message}
+            onChange={(e) => setConfirm(e.target.value)}
+            onBlur={() => validatePasswordMatch(password, confirm, setConfirmMessage)}
+            error={passwordMessage !== ''}
+            helperText={passwordMessage}
           />
           <LargeSubmitButton>Reset Password</LargeSubmitButton>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography component="span">Return to </Typography>
-            <CustomLink to="/login">
-              Log in
-            </CustomLink>
-          </Box>
-        </CentredElementsForm>
+        </CentredElementsForm>}
+        {responseSuccess !== '' &&
+        <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
+        {responseSuccess === '' && responseError !== '' &&
+        <ErrorAlert message={responseError} setMessage={setResponseError} />}
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography component="span">Return to </Typography>
+          <CustomLink to="/login">
+            Log in
+          </CustomLink>
+        </Box>
       </AuthLayout>
     </>
   );
