@@ -59,6 +59,7 @@ def auth_login(login, password):
             errors: [String]
     
     """
+    
     pass
 
 def auth_update_pw(token, password):
