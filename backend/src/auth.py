@@ -36,8 +36,8 @@ def auth_register(username, email, password):
 
     # Adds user to database
     # TODO: Does not check for valid information
-    cur.execute("INSERT INTO Users VALUES ('JohnDoe', 'sample@gmail.com', 'pw')")
-
+    cur.execute("INSERT INTO Users VALUES (" & username & "," & email & "," & password & ")")
+    
     conn.close()
     pass
 
@@ -57,9 +57,13 @@ def auth_login(login, password):
             token:  String
         Status 400
             errors: [String]
-    
+
     """
     
+    return {
+        'status': 200,
+        'token': "string_token",
+    }
     pass
 
 def auth_update_pw(token, password):
