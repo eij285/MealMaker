@@ -20,7 +20,6 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
     headers: {
       'Content-Type': 'application/json',
     },
-    mode: 'no-cors',
   };
   if ((method === 'POST' || method === 'PUT') && body !== null) {
     requestObject.body = JSON.stringify(body);
