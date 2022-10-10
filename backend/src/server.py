@@ -2,6 +2,7 @@ from flask import Flask, request
 from json import dumps
 from auth import auth_register
 from recipe import create_recipe, edit_recipe, publish_recipe
+from backend_helper import *
 
 APP = Flask(__name__)
 ###
@@ -52,16 +53,27 @@ def update_user_details():
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
     data = request.get_json()
+    # Verify token
+    token = data['token']
+    if not verify_token(token):
+        return dumps({'status_code': 401, 'error': None})
+    
     name = data['name']
     description = data['description']
     method = data['method']
     portion_size = data['portion_size']
     token = data['token']
     return dumps(create_recipe(name, description, method, portion_size, token))
+        
 
 @APP.route('/recipe/edit', methods=['PUT'])
 def publish_recipe():
     data = request.get_json()
+    # Verify token
+    token = data['token']
+    if not verify_token(token):
+        return dumps({'status_code': 401, 'error': None})
+    
     name = data['name']
     description = data['description']
     methods = data['method']
@@ -72,6 +84,11 @@ def publish_recipe():
 @APP.route('/recipe/publish', methods=['PUT'])
 def publish_recipe():
     data = request.get_json()
+    # Verify token
+    token = data['token']
+    if not verify_token(token):
+        return dumps({'status_code': 401, 'error': None})
+    
     recipe_id = data['recipe_id']
     publish = data['publish']
     return dumps(publish_recipe(recipe_id, publish))
@@ -79,6 +96,11 @@ def publish_recipe():
 @APP.route('/recipe/unpublish', methods=['PUT'])
 def unpublish_recipe():
     data = request.get_json()
+    # Verify token
+    token = data['token']
+    if not verify_token(token):
+        return dumps({'status_code': 401, 'error': None})
+    
     recipe_id = data['recipe_id']
     publish = data['publish']
     return dumps(publish_recipe(recipe_id, publish))
