@@ -15,3 +15,7 @@ def connect():
     except(Exception, psycopg2.DatabaseError) as error:
         print(error)
         return None
+
+
+def verify_token(token):
+    return
