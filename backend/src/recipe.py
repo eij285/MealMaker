@@ -38,7 +38,7 @@ def create_recipe(name, description, method, portion_size, token):
     if token == None:
         return {
             'status_code': 401,
-            'recipe_id': "Unauthorised Access"
+            'error': None
         }
     
     try:
@@ -53,7 +53,7 @@ def create_recipe(name, description, method, portion_size, token):
     except:
         return {
             'status_code': 400,
-            'recipe_id': "id not found"
+            'error': None
         }
         
     # Add new recipe to system
@@ -73,15 +73,16 @@ def create_recipe(name, description, method, portion_size, token):
         connection.close()
         return {
             'status_code': 201,
-            'recipe_id': recipe_id
+            'body': {
+                'recipe_id': recipe_id
+            }
         }
     except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
         # Close connection
         connection.close()
         return {
             'status_code': 400,
-            'recipe_id': "dberror"
+            'error': None
         }
 
 
@@ -110,7 +111,8 @@ def publish_recipe(recipe_id, publish):
         # Close connection
         connection.close()
         return {
-            'status_code': 400
+            'status_code': 400,
+            'error': None
         }
         
     
@@ -140,7 +142,8 @@ def edit_recipe(name, description, methods, portion_size, recipe_id):
         # Close connection
         connection.close()
         return {
-            'status_code': 400
+            'status_code': 400,
+            'error': None
         }
     
 
@@ -165,7 +168,7 @@ def fetch_all_recipe():
         connection.close()
         return {
             'status_code':400,
-            'body': None
+            'error': None
         }
 
 
