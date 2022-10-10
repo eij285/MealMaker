@@ -116,7 +116,6 @@ def unpublish_recipe():
         return dumps({'status_code': 401, 'error': None})
     
     recipe_id = data['recipe_id']
-    publish = data['publish']
     return dumps(publish_recipe(recipe_id, "f"))
 
 @APP.route('/reset', methods=['DELETE', 'GET'])
