@@ -51,3 +51,16 @@ product's presence as a social media platform, and Lachlan raised concerns about
 While I noted that it was unlikely that we were expected to envision our product at this large of a scale, I decided to
 back Lachlan's idea of using PostgreSQL for our proposal and suggested we discuss this further with our tutor.
 
+Week 4
+
+Started the week by setting up PostgreSQL on my personal device and re-familiarising myself with the tool. Discussed
+with George on how to set up the database, and he came up with a .sql file with a schema file that is run by our 'reset'
+function.
+
+Implemented a skeleton file for the back-end for server.py by defining routes based on front-end assumptions and
+online discussion with George. Afterwards wrote a function for auth_register as a model for other backend team members
+to follow in case they needed it. Then started working on auth_register.
+
+In order to complete my work, I looked into bcrypt, JWT tokens, and query strings in urls to satisfy demands given
+by George online. By the end of Week 4 I had mostly finished auth_register with some brief adjustments needed by early
+next week.
