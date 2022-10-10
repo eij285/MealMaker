@@ -139,6 +139,10 @@ def auth_register(display_name, email, password):
         key, algorithm='HS256'
     )
 
+    # Add user's token to database
+    sql_query = "UPDATE users SET token = %s WHERE id = %s;"
+    cur.execute(sql_query, (encoded_jwt, str(u_id)))
+
     conn.commit()
     cur.close()
     conn.close()
@@ -168,16 +172,121 @@ def auth_login(email, password):
             errors: [String]
     
     """
+    
     # Connect to database
-    # try:
-    #     conn = psycopg2.connect("dbname=meal-maker-db")
-    #     cur = conn.cursor()
-    # except:
-    #     return {
-    #         'status_code': 500,
-    #         'error': 'Unable to connect to database'
-    #     }
-    pass
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    
+    # Check that email has been registered in database and if so obtain password
+    cur.execute("SELECT password FROM users WHERE email = %s;", (email,))
+
+    sql_result = cur.fetchall()
+    if not sql_result:
+        return {
+            'status_code': 400,
+            'error': 'Email has not been registered'
+        }
+    
+    # Check that the password matches
+    stored_pw, = sql_result[0]
+
+    if not bcrypt.checkpw(password.encode('utf-8'), stored_pw.encode('utf-8')):
+        return {
+            'status_code': 400,
+            'error': 'Incorrect password'
+        }
+
+    # TODO: Check that the user is not already logged in
+    cur.execute("SELECT id, token FROM users WHERE email = %s;", (email,))
+    u_id, token = cur.fetchone()
+    if token:
+        return {
+            'status_code': 400,
+            'error': 'User already logged in'
+        }
+
+    # TODO: Generate JWT token
+    key = "SECRET"
+    encoded_jwt = jwt.encode(
+        {
+            'u_id': u_id,
+            'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+        },
+        key, algorithm='HS256'
+    )
+
+    # Add new token to database
+    sql_query = "UPDATE users SET token = %s WHERE id = %s;"
+    cur.execute(sql_query, (encoded_jwt, str(u_id)))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+            'token': encoded_jwt
+        }
+    }
+    
+def auth_logout(token):
+    """Logs out a user
+    
+    Log out a user and remove their JWT token for the current session.
+
+    Args:
+        token       (String): token of user logging out
+
+    Returns:
+        Status 200
+            token:  String
+        Status 400
+            errors: [String]
+    
+    """
+    
+    # Connect to database
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    
+    # Check that the token corresponds to an active user
+    print(type(token))
+    cur.execute("SELECT token FROM users WHERE token = %s;", (token,))
+
+    sql_result = cur.fetchall()
+    if not sql_result:
+        return {
+            'status_code': 401,
+            'error': 'Token does not correspond to any active user'
+        }
+
+    # Remove token from database
+    cur.execute("UPDATE users SET token = NULL WHERE token = %s;", (token))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+            'token': token
+        }
+    }
+
 
 def auth_update_pw(token, password):
     """Updates an authenticated user's password
@@ -197,6 +306,7 @@ def auth_update_pw(token, password):
         Status 401
     
     """
+    pass
 
 def auth_reset_link(email):
     """Sends a link to reset user's password

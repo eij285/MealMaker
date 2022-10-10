@@ -3,7 +3,7 @@ from flask import Flask, request
 from json import dumps
 import psycopg2
 
-from auth import auth_register
+from auth import auth_register, auth_login, auth_logout
 from helpers import database_reset, files_reset
 
 APP = Flask(__name__)
@@ -26,11 +26,17 @@ def register():
 @APP.route('/auth/login', methods=['POST'])
 def login():
     payload = request.get_json()
-    login = payload['email']
+    email = payload['email']
     password = payload['password']
 
-    # return auth_login(email, password)
-    pass
+    return dumps(auth_login(email, password))
+
+@APP.route('/auth/logout', methods=['POST'])
+def logout():
+    payload = request.get_json()
+    token = payload['token']
+
+    return dumps(auth_logout(token))
 
 @APP.route('/auth/update-password', methods=['PUT'])
 def update_password():
