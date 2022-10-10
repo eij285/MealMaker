@@ -1,30 +1,45 @@
+from crypt import methods
 from flask import Flask, request
 from json import dumps
-from auth import auth_register
+from auth import auth_register, auth_login, auth_logout
+from helpers import database_reset, files_reset
 from recipe import create_recipe, edit_recipe, publish_recipe
 from backend_helper import *
+
 
 APP = Flask(__name__)
 ###
 
+@APP.route('/', methods=['GET'])
+def index():
+    conn = psycopg2.connect("dbname=meal-maker-db")
+    cur = conn.cursor()
+    print(conn)
+
 @APP.route('/auth/register', methods=['POST'])
 def register():
     payload = request.get_json()
-    username = payload['username']
+    display_name = payload['display-name']
     email = payload['email']
     password = payload['password']
 
-    return auth_register(username, email, password)
+    return dumps(auth_register(display_name, email, password))
 
 ###
 @APP.route('/auth/login', methods=['POST'])
 def login():
     payload = request.get_json()
-    login = payload['login']
+    email = payload['email']
     password = payload['password']
 
-    # return auth_login(login, password)
-    pass
+    return dumps(auth_login(email, password))
+
+@APP.route('/auth/logout', methods=['POST'])
+def logout():
+    payload = request.get_json()
+    token = payload['token']
+
+    return dumps(auth_logout(token))
 
 @APP.route('/auth/update-password', methods=['PUT'])
 def update_password():
@@ -104,9 +119,12 @@ def unpublish_recipe():
     publish = data['publish']
     return dumps(publish_recipe(recipe_id, "f"))
 
-@APP.route('/reset', methods=['DELETE'])
+@APP.route('/reset', methods=['DELETE', 'GET'])
 def reset():
-    pass
+    status = database_reset()
+    if status:
+        files_reset()
+    return {}
 
 if __name__ == "__main__":
-    APP.run()
+    APP.run(debug=True)

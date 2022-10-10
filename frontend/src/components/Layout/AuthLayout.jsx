@@ -2,21 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Layout from './Layout';
 import { Grid, Card, CardContent } from '@mui/material';
+import { CentredElementsColumn } from '../../components/StyledNodes';
 
 function AuthLayout ({ children }) {
 
   return (
-    <Layout>
+    <Layout incSearch={false} incButtons={false}>
       <Grid
         container
         justifyContent="center"
         alignContent="center"
-        sx={{minHeight: '100%' }}
       >
         <Grid item xl={3} lg={4} md={6} sm={8} xs={12}>
           <Card>
             <CardContent>
-              {children}
+              <CentredElementsColumn>
+                {children}
+              </CentredElementsColumn>
             </CardContent>
           </Card>
         </Grid>
