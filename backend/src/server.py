@@ -90,8 +90,7 @@ def publish_recipe():
         return dumps({'status_code': 401, 'error': None})
     
     recipe_id = data['recipe_id']
-    publish = data['publish']
-    return dumps(publish_recipe(recipe_id, publish))
+    return dumps(publish_recipe(recipe_id, "t"))
 
 @APP.route('/recipe/unpublish', methods=['PUT'])
 def unpublish_recipe():
@@ -103,7 +102,7 @@ def unpublish_recipe():
     
     recipe_id = data['recipe_id']
     publish = data['publish']
-    return dumps(publish_recipe(recipe_id, publish))
+    return dumps(publish_recipe(recipe_id, "f"))
 
 @APP.route('/reset', methods=['DELETE'])
 def reset():
