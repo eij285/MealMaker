@@ -1,5 +1,5 @@
 import psycopg2
-from error import InputError
+# from error import InputError
 import re
 
 def user_units(token, unit):
@@ -316,7 +316,11 @@ def user_update_visibility(token, visibility):
 
     """
     if visibility not in {"private", "public"}:
-        raise InputError("Visibility must be one of: ""private"", ""public""")
+        return {
+            'status_code': 400,
+            'error': 'Visibility must be one of: ""private"", ""public""'
+        }
+        # raise InputError("Visibility must be one of: ""private"", ""public""")
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
