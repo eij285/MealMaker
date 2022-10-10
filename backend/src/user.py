@@ -75,7 +75,7 @@ def user_efficiency(token, efficiency):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET users.efficiency = %s, WHERE users.token = %s;"""
+    sql_update_query = """UPDATE users SET efficiency = %s WHERE token = %s;"""
     input_data = (efficiency, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -111,7 +111,7 @@ def user_update_name(token, name):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET users.name = %s, WHERE users.token = %s;"""
+    sql_update_query = """UPDATE users SET name = %s WHERE token = %s;"""
     input_data = (name, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -146,7 +146,7 @@ def user_update_surname(token, surname):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET users.surname = %s, WHERE users.token = %s;"""
+    sql_update_query = """UPDATE users SET surname = %s WHERE token = %s;"""
     input_data = (surname, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -181,7 +181,7 @@ def user_update_display_name(token, display_name):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET users.display_name = %s, WHERE users.token = %s;"""
+    sql_update_query = """UPDATE users SET display_name = %s WHERE token = %s;"""
     input_data = (display_name, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -227,7 +227,7 @@ def user_update_email(token, email):
             'status_code': 400,
             'errors': ['Email is in invalid format']
         }
-    sql_update_query = """UPDATE users SET users.email = %s, WHERE users.token = %s;"""
+    sql_update_query = """UPDATE users SET email = %s, WHERE token = %s;"""
     input_data = (email, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -259,7 +259,7 @@ def user_update_about_me(token, about_me):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET users.about_me = %s, WHERE users.token = %s;"""
+    sql_update_query = """UPDATE users SET about_me = %s WHERE token = %s;"""
     input_data = (about_me, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -294,7 +294,7 @@ def user_update_country(token, country):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET users.country = %s, WHERE users.token = %s;"""
+    sql_update_query = """UPDATE users SET country = %s WHERE token = %s;"""
     input_data = (country, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -330,7 +330,7 @@ def user_update_visibility(token, visibility):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET users.visibility = %s, WHERE users.token = %s;"""
+    sql_update_query = """UPDATE users SET visibility = %s WHERE token = %s;"""
     input_data = (visibility, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -365,7 +365,7 @@ def user_update_pronoun(token, pronoun):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET users.pronoun = %s, WHERE users.token = %s;"""
+    sql_update_query = """UPDATE users SET pronoun = %s WHERE token = %s;"""
     input_data = (pronoun, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
