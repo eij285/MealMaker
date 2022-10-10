@@ -2,7 +2,19 @@ import psycopg2
 # from error import InputError
 import re
 
-def user_units(token, unit):
+def user_update(token, units, efficiency, given_names, surname, display_name, email, about_me, country, visibility, pronoun):
+    user_update_units(token, units)
+    user_update_efficiency(token, efficiency)
+    user_update_name(token, given_names)
+    user_update_surname(token, surname)
+    user_update_display_name(token, display_name)
+    user_update_email(token, email)
+    user_update_about_me(token, about_me)
+    user_update_country(token, country)
+    user_update_visibility(token, visibility)
+    user_update_pronoun(token, pronoun)
+
+def user_update_units(token, unit):
     """Changes users prefered form of measurement
 
     Checks a registered users prefered form of measurement (metric or imperial). User can then
@@ -42,7 +54,7 @@ def user_units(token, unit):
     cur.close()
     conn.close()
 
-def user_efficiency(token, efficiency):
+def user_update_efficiency(token, efficiency):
     """Changes users cooking speed
 
     Checks a registered users cooking speed. User can then
@@ -82,7 +94,7 @@ def user_efficiency(token, efficiency):
     cur.close()
     conn.close()
 
-def user_update_name(token, name):
+def user_update_name(token, given_names):
     """Changes users name
 
     Args:
@@ -96,10 +108,10 @@ def user_update_name(token, name):
         Status 401
 
     """
-    if len(name) < 1 or len(name) > 20:
+    if len(given_names) < 1 or len(given_names) > 20:
         return {
             'status_code': 400,
-            'error': 'Name must be between 1 and 20 characters inclusive'
+            'error': 'given_names must be between 1 and 20 characters inclusive'
         }
         # raise InputError("Name must be between 1 and 20 characters inclusive")
     try:
@@ -111,14 +123,14 @@ def user_update_name(token, name):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET name = %s WHERE token = %s;"""
-    input_data = (name, token)
+    sql_update_query = """UPDATE users SET given_names = %s WHERE token = %s;"""
+    input_data = (given_names, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
     cur.close()
     conn.close()
 
-def user_update_surname(token, surname):
+def user_update_surname(token, last_name):
     """Changes users surname
 
     Args:
@@ -132,10 +144,10 @@ def user_update_surname(token, surname):
         Status 401
 
     """
-    if len(surname) < 1 or len(surname) > 20:
+    if len(last_name) < 1 or len(last_name) > 20:
         return {
             'status_code': 400,
-            'error': 'Surname must be between 1 and 20 characters inclusive'
+            'error': 'last_name must be between 1 and 20 characters inclusive'
         }
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
@@ -146,8 +158,8 @@ def user_update_surname(token, surname):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET surname = %s WHERE token = %s;"""
-    input_data = (surname, token)
+    sql_update_query = """UPDATE users SET last_name = %s WHERE token = %s;"""
+    input_data = (last_name, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
     cur.close()
@@ -234,14 +246,12 @@ def user_update_email(token, email):
     cur.close()
     conn.close()
 
-
-
 def user_update_about_me(token, about_me):
     """Changes users about me
 
     Args:
         token       (String): token of authenticated user
-        about_me    (String): new ebout me to replace old
+        about_me    (String): new about to replace old
 
         
     Returns:
@@ -259,7 +269,7 @@ def user_update_about_me(token, about_me):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET about_me = %s WHERE token = %s;"""
+    sql_update_query = """UPDATE users SET about = %s WHERE token = %s;"""
     input_data = (about_me, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -280,7 +290,7 @@ def user_update_country(token, country):
         Status 401
 
     """
-    if len(country) < 1 or len(country) > 20:
+    if len(country) < 0 or len(country) > 20:
         return {
             'status_code': 400,
             'error': 'Country must be between 1 and 20 characters inclusive'
@@ -351,7 +361,7 @@ def user_update_pronoun(token, pronoun):
         Status 401
 
     """
-    if len(pronoun) < 1 or len(pronoun) > 20:
+    if len(pronoun) < 0 or len(pronoun) > 20:
         return {
             'status_code': 400,
             'error': 'Pronoun must be between 1 and 20 characters inclusive'

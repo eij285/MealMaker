@@ -5,6 +5,7 @@ import psycopg2
 
 from auth import auth_register, auth_login, auth_logout
 from helpers import database_reset, files_reset
+from user import user_update
 
 APP = Flask(__name__)
 
@@ -60,7 +61,19 @@ def reset_password():
 
 @APP.route('/user/update', methods=['PUT'])
 def update_user_details():
-    pass
+    payload = request.get_json()
+    token = payload['token']
+    units = payload['units']
+    efficiency = payload['efficiency']
+    display_name = payload['display-name']
+    name = payload['given-names']
+    surname = payload['last-name']
+    email = payload['email']
+    about_me = payload['about']
+    country = payload['country']
+    visibility = payload['visibility']
+    pronoun = payload['pronoun']
+    return dumps(user_update(token, units, efficiency, name, surname, display_name, email, about_me, country, visibility, pronoun))
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
