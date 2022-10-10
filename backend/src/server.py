@@ -40,6 +40,8 @@ def logout():
 
 @APP.route('/auth/update-password', methods=['PUT'])
 def update_password():
+    payload = request.get_json()
+    token = payload['token']
     pass
 
 @APP.route('/auth/reset-link', methods=['PUT'])

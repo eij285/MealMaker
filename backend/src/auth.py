@@ -27,7 +27,6 @@ def check_valid_password(password):
     
     """
     special_chars = "`~!@#$%^&*()-_=+;:'“,<.>/?"
-    errors = ""
 
     # Check that the password is of suitable length
     if len(password) < 8:
@@ -79,7 +78,7 @@ def auth_register(display_name, email, password):
                 password: Byte String
             }
         Status 400
-            errors: [String]
+            error: String
 
     """
     
@@ -263,7 +262,6 @@ def auth_logout(token):
         }
     
     # Check that the token corresponds to an active user
-    print(type(token))
     cur.execute("SELECT token FROM users WHERE token = %s;", (token,))
 
     sql_result = cur.fetchall()
