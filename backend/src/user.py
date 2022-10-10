@@ -21,7 +21,11 @@ def user_units(token, unit):
 
     """
     if unit not in {"Imperial", "Metric"}:
-        raise InputError("Measurement must be one of: ""Imperial"", ""Metric""")
+        return {
+            'status_code': 400,
+            'error': 'Measurement must be one of: ""Imperial"", ""Metric""'
+        }
+        #raise InputError("Measurement must be one of: ""Imperial"", ""Metric""")
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
@@ -57,7 +61,11 @@ def user_efficiency(token, efficiency):
 
     """
     if efficiency not in {"beginner", "intermediate", "expert"}:
-        raise InputError("Efficiency must be one of: ""beginner"", ""intermediate"", ""expert""")
+        return {
+            'status_code': 400,
+            'error': 'Efficiency must be one of: ""beginner"", ""intermediate"", ""expert""'
+        }
+        #raise InputError("Efficiency must be one of: ""beginner"", ""intermediate"", ""expert""")
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
@@ -89,7 +97,11 @@ def user_update_name(token, name):
 
     """
     if len(name) < 1 or len(name) > 20:
-        raise InputError("Name must be between 1 and 20 characters inclusive")
+        return {
+            'status_code': 400,
+            'error': 'Name must be between 1 and 20 characters inclusive'
+        }
+        # raise InputError("Name must be between 1 and 20 characters inclusive")
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
@@ -121,7 +133,10 @@ def user_update_surname(token, surname):
 
     """
     if len(surname) < 1 or len(surname) > 20:
-        raise InputError("Surname must be between 1 and 20 characters inclusive")
+        return {
+            'status_code': 400,
+            'error': 'Surname must be between 1 and 20 characters inclusive'
+        }
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
@@ -153,7 +168,10 @@ def user_update_display_name(token, display_name):
 
     """
     if len(display_name) < 1 or len(display_name) > 30:
-        raise InputError("Dsplay name must be between 1 and 20 characters inclusive")
+        return {
+            'status_code': 400,
+            'error': 'Display name must be between 1 and 30 characters inclusive'
+        }
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
@@ -262,6 +280,11 @@ def user_update_country(token, country):
         Status 401
 
     """
+    if len(country) < 1 or len(country) > 20:
+        return {
+            'status_code': 400,
+            'error': 'Country must be between 1 and 20 characters inclusive'
+        }
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
@@ -325,7 +348,10 @@ def user_update_pronoun(token, pronoun):
 
     """
     if len(pronoun) < 1 or len(pronoun) > 20:
-        raise InputError("Pronoun must be between 1 and 20 characters inclusive")
+        return {
+            'status_code': 400,
+            'error': 'Pronoun must be between 1 and 20 characters inclusive'
+        }
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
