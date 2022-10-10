@@ -1,16 +1,16 @@
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import GlobalContext from './GlobalContext';
 
 /**
- * Route accessible by authenticated users only
+ * Ensures only an authenticated user can access route(s)
  */
-function AuthorisedRoute (props) {
+function AuthorisedRoute () {
   const token = React.useContext(GlobalContext).token;
   return (
     <>
-      {!token && <Redirect to="/login" />}
-      {token && <Route {...props} />}
+      {!token && <Navigate replace to="/login" />}
+      {token && <Outlet />}
     </>
   );
 }

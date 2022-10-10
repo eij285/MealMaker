@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
 import Header from './Header';
 import Footer from './Footer';
-import styled from '@emotion/styled';
 
 function Layout ({ incSearch, incButtons, children }) {
     
@@ -16,17 +15,12 @@ function Layout ({ incSearch, incButtons, children }) {
     boxSizing: 'border-box'
   };
 
-  const MainWrap = styled.main`
-    display: flex;
-    flex: 1;
-  `;
-
   return (
     <Box sx={ boxStyles }>
       <Header incSearch={incSearch} incButtons={incButtons} />
-      <MainWrap>
+      <Box sx={{ display: 'flex', flex: 1 }}>
         {children}
-      </MainWrap>
+      </Box>
       <Footer />
     </Box>
   );
