@@ -38,7 +38,21 @@ def user_units(token, unit):
     """
     if unit not in {"Imperial", "Metric"}:
         raise InputError("Measurement must be one of: ""Imperial"", ""Metric""")
-
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET users.unit = %s, WHERE users.token = %s;"""
+    input_data = (unit, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def user_efficiency(token, efficiency):
     """Changes users cooking speed
@@ -54,6 +68,21 @@ def user_efficiency(token, efficiency):
     """
     if efficiency not in {"beginner", "intermediate", "expert"}:
         raise InputError("Efficiency must be one of: ""beginner"", ""intermediate"", ""expert""")
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET users.efficiency = %s, WHERE users.token = %s;"""
+    input_data = (efficiency, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def user_update_name(token, name):
     """Changes users name
@@ -65,6 +94,21 @@ def user_update_name(token, name):
     """
     if len(name) < 1 or len(name) > 20:
         raise InputError("Name must be between 1 and 20 characters inclusive")
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET users.name = %s, WHERE users.token = %s;"""
+    input_data = (name, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def user_update_surname(token, surname):
     """Changes users surname
@@ -76,6 +120,21 @@ def user_update_surname(token, surname):
     """
     if len(surname) < 1 or len(surname) > 20:
         raise InputError("Surname must be between 1 and 20 characters inclusive")
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET users.surname = %s, WHERE users.token = %s;"""
+    input_data = (surname, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def user_update_display_name(token, display_name):
     """Changes users display name
@@ -87,6 +146,21 @@ def user_update_display_name(token, display_name):
     """
     if len(display_name) < 1 or len(display_name) > 30:
         raise InputError("Dsplay name must be between 1 and 20 characters inclusive")
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET users.display_name = %s, WHERE users.token = %s;"""
+    input_data = (display_name, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def user_update_email(token, email):
     """Changes users email
@@ -96,8 +170,38 @@ def user_update_email(token, email):
     Returns:
 
     """
-    if not check_valid_email(email):
-        raise InputError("Invalid email")
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+
+    # Check that the email is not already registered in database
+    cur.execute("SELECT * FROM users WHERE email = %s;", (email,))
+    if cur.fetchall():
+        return {
+            'status_code': 400,
+            'errors': ['Email has already been registered']
+        }
+    
+    # TODO: Check that email is valid
+    email_regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+    if not re.search(email_regex, email):
+        return {
+            'status_code': 400,
+            'errors': ['Email is in invalid format']
+        }
+    sql_update_query = """UPDATE users SET users.email = %s, WHERE users.token = %s;"""
+    input_data = (email, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
+
 
 
 def user_update_about_me(token, about_me):
@@ -108,6 +212,21 @@ def user_update_about_me(token, about_me):
     Returns:
 
     """
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET users.about_me = %s, WHERE users.token = %s;"""
+    input_data = (about_me, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def user_update_country(token, country):
     """Changes users country
@@ -117,6 +236,21 @@ def user_update_country(token, country):
     Returns:
 
     """
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET users.country = %s, WHERE users.token = %s;"""
+    input_data = (country, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def user_update_visibility(token, visibility):
     """Changes users visibilty
@@ -128,7 +262,48 @@ def user_update_visibility(token, visibility):
     """
     if visibility not in {"private", "public"}:
         raise InputError("Visibility must be one of: ""private"", ""public""")
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET users.visibility = %s, WHERE users.token = %s;"""
+    input_data = (visibility, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
 
+def user_update_pronoun(token, pronoun):
+    """Changes users visibilty
+
+    Args:
+
+    Returns:
+
+    """
+    if len(pronoun) < 1 or len(pronoun) > 20:
+        raise InputError("Pronoun must be between 1 and 20 characters inclusive")
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET users.pronoun = %s, WHERE users.token = %s;"""
+    input_data = (pronoun, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
+    
 """
 def user_update_profile_picture(token):
     """
