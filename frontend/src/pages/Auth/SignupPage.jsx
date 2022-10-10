@@ -44,12 +44,12 @@ function SignupPage () {
         confirm != '' && confirmMessage === '') {
       // send to backend
       const body = {
-        username: displayName,
+        'display-name': displayName,
         email: email,
         password: password,
       };
       backendRequest('/auth/register', body, 'POST', null, (data) => {
-        login(data.token);
+        login(data.body.token);
         navigate('/');
       }, (error) => {
         setResponseError(error);

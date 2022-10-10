@@ -29,8 +29,14 @@ export const SuccessAlert = ({props, message, setMessage}) => {
   );
 };
 
-export const CentredElementsColumn = styled.div`
+export const FlexColumn = styled.div`
   display: flex;
   flex-direction: column;
   row-gap: 20px;
+`;
+
+export const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  column-gap: 20px;
 `;

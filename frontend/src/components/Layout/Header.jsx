@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { AppBar, Box, InputAdornment, Link, TextField, Toolbar, Typography } from '@mui/material';
 import { HeaderButton } from '../../components/Buttons';
 import LoginIcon from '@mui/icons-material/Login';
@@ -8,6 +8,31 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SearchIcon from '@mui/icons-material/Search';
 import GlobalContext from '../../utils/GlobalContext';
+import { backendRequest } from '../../helpers';
+
+const LogoutButton = () => {
+  const globals = React.useContext(GlobalContext);
+  const token = globals.token;
+  const logout = globals.logout;
+  const navigate = useNavigate();
+
+  const userLogout = (e) => {
+    e.preventDefault();
+    if (token) {
+      // send to backend
+      const body = { token: token };
+      backendRequest('/auth/logout', body, 'POST', null, (data) => {});
+      logout();
+    }
+    navigate('/');
+  };
+
+  return (
+    <HeaderButton onClick={userLogout}>
+      <LogoutIcon />&nbsp;Log out
+    </HeaderButton>
+  );
+};
 
 const SearchInput = () => {
   const styles = {
@@ -44,7 +69,6 @@ const SearchInput = () => {
 function Header ({ incSearch, incButtons }) {
   const globals = React.useContext(GlobalContext);
   const token = globals.token;
-  const logout = globals.logout;
 
   const brandStyles = {
     fontWeight: '600',
@@ -100,9 +124,7 @@ function Header ({ incSearch, incButtons }) {
           <HeaderButton component={RouterLink} to="/user-profile">
             <AccountCircleIcon />&nbsp;My Profile
           </HeaderButton>
-          <HeaderButton onClick={logout}>
-            <LogoutIcon />&nbsp;Log out
-          </HeaderButton>
+          <LogoutButton />
           </>}
         </Box>
       </Toolbar>
