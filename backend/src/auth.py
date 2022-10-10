@@ -170,9 +170,9 @@ def auth_login(email, password):
             token:  String
         Status 400
             errors: [String]
-    
+
     """
-    
+   
     # Connect to database
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
@@ -286,7 +286,6 @@ def auth_logout(token):
             'token': token
         }
     }
-
 
 def auth_update_pw(token, password):
     """Updates an authenticated user's password
