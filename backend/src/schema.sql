@@ -9,7 +9,7 @@ CREATE TABLE users (
     last_name       VARCHAR(20),
     display_name    VARCHAR(30) NOT NULL,
     email           VARCHAR(60) NOT NULL UNIQUE,
-    password        CHAR(64) NOT NULL,
+    password        CHAR(60) NOT NULL,
     password_reset  CHAR(32),
     base64_image    TEXT,
     country         VARCHAR(20),
@@ -30,6 +30,7 @@ CREATE TABLE users (
     shellfish_free  BOOLEAN NOT NULL DEFAULT FALSE,
     soy_free        BOOLEAN NOT NULL DEFAULT FALSE,
     last_request    TIMESTAMP,
+    token           TEXT,
     CONSTRAINT valid_visibility CHECK (visibility in ('private', 'public')),
     PRIMARY KEY (id)
 );
