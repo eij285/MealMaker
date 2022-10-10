@@ -7,6 +7,23 @@ import re
 
 def check_valid_password(password):
     """Password validity checker
+
+    Checks the validity of a password based on the following given criteria.
+    Password must:
+        - be at least 8 characters
+        - contain a lower-case character
+        - contain an upper-case character
+        - contain a decimal digit
+        - contain a special character
+    Function currently returns just the first one of these conditions that have
+    not been satisifed if the password is invalid.
+
+    Args:
+        password    (String): password requiring validity check
+
+    Returns:
+        Validity    (Boolean): password is valid or not
+        Error Msg   (String): reason for password being invalid
     
     """
     special_chars = "`~!@#$%^&*()-_=+;:'“,<.>/?"
@@ -70,7 +87,6 @@ def auth_register(display_name, email, password):
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
-        print(conn)
     except:
         return {
             'status_code': 500,
@@ -105,8 +121,6 @@ def auth_register(display_name, email, password):
     encoded_pw = password.encode('utf8')
     salt = bcrypt.gensalt()
     hashed_pw = bcrypt.hashpw(encoded_pw, salt)
-
-    print(type(hashed_pw))
 
     # Add user to database
     sql_query = "INSERT INTO users (email, display_name, password) VALUES \
@@ -154,6 +168,15 @@ def auth_login(email, password):
             errors: [String]
     
     """
+    # Connect to database
+    # try:
+    #     conn = psycopg2.connect("dbname=meal-maker-db")
+    #     cur = conn.cursor()
+    # except:
+    #     return {
+    #         'status_code': 500,
+    #         'error': 'Unable to connect to database'
+    #     }
     pass
 
 def auth_update_pw(token, password):
