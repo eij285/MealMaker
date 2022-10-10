@@ -43,8 +43,7 @@ const SearchInput = () => {
 
 function Header ({ incSearch, incButtons }) {
   const globals = React.useContext(GlobalContext);
-  //const token = globals.token;
-  const token = true;
+  const token = globals.token;
   const logout = globals.logout;
 
   const brandStyles = {
@@ -98,7 +97,7 @@ function Header ({ incSearch, incButtons }) {
           </HeaderButton>
           </>}
           {incButtons && token && <>
-          <HeaderButton component={RouterLink} to="/profile">
+          <HeaderButton component={RouterLink} to="/user-profile">
             <AccountCircleIcon />&nbsp;My Profile
           </HeaderButton>
           <HeaderButton onClick={logout}>
