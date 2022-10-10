@@ -5,7 +5,8 @@ import { EmailInput } from '../../components/InputFields';
 import { CentredPageTitle, CustomLink } from '../../components/TextNodes';
 import { LargeSubmitButton } from '../../components/Buttons';
 import { CentredElementsForm } from '../../components/Forms';
-import { isValidEmail } from '../../helpers';
+import { validateEmail, backendRequest } from '../../helpers';
+import { ErrorAlert, SuccessAlert } from '../../components/StyledNodes';
 
 function ForgotPasswordPage () {
   const resetText = {
@@ -14,17 +15,22 @@ function ForgotPasswordPage () {
   };
 
   const [email, setEmail] = React.useState('');
-  const [error, setError] = React.useState(false);
+  const [emailMessage, setEmailMessage] = React.useState('');
+  const [responseError, setResponseError] = React.useState('');
+  const [responseSuccess, setResponseSuccess] = React.useState('');
   
   const sendEmail = (e) => {
     e.preventDefault();
-    const currEmail = e.target.email.value;
-    setEmail(currEmail);
-    if (isValidEmail(currEmail)) {
-      setError(false);
+    if (email !== '' && emailMessage === '') {
       //send to backend
+      const body = { email: email };
+      backendRequest('/auth/reset-link', body, 'PUT', null, (data) => {
+        setResponseSuccess('Check email for password reset instructions');
+      }, (error) => {
+        setResponseError(error);
+      });
     } else {
-      setError(true);
+      validateEmail(email, setEmailMessage);
     }
   };
 
@@ -36,21 +42,25 @@ function ForgotPasswordPage () {
       </Typography>
       <CentredElementsForm noValidate onSubmit={sendEmail}>
         <EmailInput
-          name="email"
           label="Email"
           required
-          defaultValue={email}
-          error={error}
-          helperText={error && email === '' ? 'Email not supplied' : 'Invalid email'}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => validateEmail(email, setEmailMessage)}
+          error={emailMessage !== ''}
+          helperText={emailMessage}
         />
         <LargeSubmitButton>Send Email</LargeSubmitButton>
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography component="span">Return to </Typography>
-          <CustomLink to="/login">
-            Log in
-          </CustomLink>
-        </Box>
       </CentredElementsForm>
+      {responseError !== '' &&
+      <ErrorAlert message={responseError} setMessage={setResponseError} />}
+      {responseSuccess !== '' &&
+      <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
+      <Box sx={{ textAlign: 'center' }}>
+        <Typography component="span">Return to </Typography>
+        <CustomLink to="/login">
+          Log in
+        </CustomLink>
+      </Box>
     </AuthLayout>
   );
 }

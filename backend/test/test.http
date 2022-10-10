@@ -1,0 +1,34 @@
+POST http://127.0.0.1:5000/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "display-name": "elijah",
+    "email": "e@gmail.com",
+    "password": "Aa@45678"
+}
+
+###
+
+POST http://127.0.0.1:5000/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "e@gmail.com",
+    "password": "Aa@45678"
+}
+
+###
+
+POST http://127.0.0.1:5000/auth/logout HTTP/1.1
+content-type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjU5OTM5Mjh9.OBFtfqjvbFNBadYj1EcyQB5woCOdhMt9pisl7GXtN0I"
+}
+
+###
+
+DELETE http://127.0.0.1:5000/reset HTTP/1.1
+
+###
+

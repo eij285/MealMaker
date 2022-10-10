@@ -15,7 +15,7 @@ def database_reset():
     cur = None
     success = False
     try:
-        conn = psycopg2.connect()
+        conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
         cur.execute(open("schema.sql", "r").read())
         conn.commit()

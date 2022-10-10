@@ -4,10 +4,9 @@ import { AppBar, Toolbar, Typography } from '@mui/material';
 function Footer () {
   return (
     <AppBar
-      color="transparent"
       component="footer"
       position="relative"
-      sx={{ alignSelf: 'flex-end' }}
+      sx={{ alignSelf: 'flex-end', backgroundColor: 'white' }}
     >
       <Toolbar variant="dense">
         <Typography
