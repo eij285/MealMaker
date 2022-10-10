@@ -1,8 +1,10 @@
 from flask import Flask, request
-
+from json import dumps
 from auth import auth_register
+from recipe import create_recipe, edit_recipe, publish_recipe
 
 APP = Flask(__name__)
+###
 
 @APP.route('/auth/register', methods=['POST'])
 def register():
@@ -13,6 +15,7 @@ def register():
 
     return auth_register(username, email, password)
 
+###
 @APP.route('/auth/login', methods=['POST'])
 def login():
     payload = request.get_json()
@@ -48,15 +51,37 @@ def update_user_details():
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
-    pass
+    data = request.get_json()
+    name = data['name']
+    description = data['description']
+    method = data['method']
+    portion_size = data['portion_size']
+    token = data['token']
+    return dumps(create_recipe(name, description, method, portion_size, token))
+
+@APP.route('/recipe/edit', methods=['PUT'])
+def publish_recipe():
+    data = request.get_json()
+    name = data['name']
+    description = data['description']
+    methods = data['method']
+    portion_size = data['portion_size']
+    recipe_id = data['recipe_id']
+    return dumps(edit_recipe(name, description, methods, portion_size, recipe_id))
 
 @APP.route('/recipe/publish', methods=['PUT'])
 def publish_recipe():
-    pass
+    data = request.get_json()
+    recipe_id = data['recipe_id']
+    publish = data['publish']
+    return dumps(publish_recipe(recipe_id, publish))
 
 @APP.route('/recipe/unpublish', methods=['PUT'])
 def unpublish_recipe():
-    pass
+    data = request.get_json()
+    recipe_id = data['recipe_id']
+    publish = data['publish']
+    return dumps(publish_recipe(recipe_id, publish))
 
 @APP.route('/reset', methods=['DELETE'])
 def reset():

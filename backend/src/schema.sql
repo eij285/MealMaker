@@ -28,6 +28,25 @@ CREATE TABLE users (
     shellfish_free  BOOLEAN NOT NULL DEFAULT FALSE,
     soy_free        BOOLEAN NOT NULL DEFAULT FALSE,
     last_request    TIMESTAMP,
+    token           VARCHAR(20),
     CONSTRAINT valid_visibility CHECK (visibility in ('private', 'public')),
     PRIMARY KEY (id)
 );
+
+CREATE TABLE recipe(
+    recipe_id SERIAL PRIMARY KEY,
+    owner_id SERIAL,
+    CONSTRAINT owner_id FOREIGN KEY (owner_id) REFERENCES users(id),
+    recipe_name VARCHAR(255) NOT NULL,
+    recipe_description VARCHAR(255) NOT NULL,
+    methods VARCHAR(255) NOT NULL,
+    is_public BOOLEAN NOT NULL DEFAULT FALSE,
+    total_star INTEGER,
+    review_count INTEGER,
+    portion_size INTEGER
+);
+
+INSERT INTO
+    users(id, display_name, email, password)
+VALUES
+    (123, 'PersonA', 'persona@gmail.com', 12345);
