@@ -29,7 +29,7 @@ from backend_helper import connect
 #         }
     
 
-def create_recipe(name, description, method, portion_size, token):
+def create_recipe(name, description, method, portion_size, is_public, token):
     # Start connection to database
     connection = connect()
     cur = connection.cursor()
@@ -60,13 +60,13 @@ def create_recipe(name, description, method, portion_size, token):
     try:
         command = ("""
             INSERT INTO
-                recipe(owner_id, recipe_name, recipe_description, methods, portion_size)
+                recipe(owner_id, recipe_name, recipe_description, methods, portion_size, is_public)
             VALUES
-                (%s, %s, %s, %s, %s)
+                (%s, %s, %s, %s, %s, %s)
             RETURNING
                 recipe_id
             """)
-        cur.execute(command, (owner_id, name, description, method, portion_size,))
+        cur.execute(command, (owner_id, name, description, method, portion_size, is_public,))
         connection.commit()
         recipe_id = cur.fetchone()[0]
         # Close connection
@@ -117,7 +117,7 @@ def publish_recipe(recipe_id, publish):
         
     
 
-def edit_recipe(name, description, methods, portion_size, recipe_id):
+def edit_recipe(name, description, methods, portion_size, recipe_id, publish):
     
     # Start connection to database
     connection = connect()
@@ -127,10 +127,10 @@ def edit_recipe(name, description, methods, portion_size, recipe_id):
     try:
         command = ("""
             UPDATE recipe
-            SET recipe_name = %s, recipe_description = %s, methods = %s, portion_size = %s
+            SET recipe_name = %s, recipe_description = %s, methods = %s, portion_size = %s, is_public = %s
             WHERE recipe_id = %s
             """)
-        cur.execute(command, (name, description, methods, portion_size, recipe_id,))
+        cur.execute(command, (name, description, methods, portion_size, publish, recipe_id,))
         connection.commit()
         # Close connection
         connection.close()
