@@ -66,8 +66,8 @@ def update_user_details():
     payload = request.get_json()
     # Verify token
     token = payload['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
+    #if not verify_token(token):
+    #    return dumps({'status_code': 401, 'error': None})
     display_name = payload['display-name']
     name = payload['given-names']
     surname = payload['last-name']
@@ -83,9 +83,9 @@ def update_user_preferences():
     payload = request.get_json()
     # Verify token
     token = payload['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
-    units = payload[units]
+    #if not verify_token(token):
+    #    return dumps({'status_code': 401, 'error': None})
+    units = payload['units']
     efficiency = payload['efficiency']
     breakfast = payload['breakfast']
     lunch = payload['lunch']
@@ -108,8 +108,8 @@ def get_user_details():
     payload = request.get_json()
     # Verify token
     token = payload['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
+    #if not verify_token(token):
+    #    return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_info(token))
 
@@ -118,8 +118,8 @@ def get_user_preferences():
     payload = request.get_json()
     # Verify token
     token = payload['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
+    #if not verify_token(token):
+    #   return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_preferences(token))
 
@@ -128,8 +128,8 @@ def create_recipe():
     data = request.get_json()
     # Verify token
     token = data['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
+    #if not verify_token(token):
+    #    return dumps({'status_code': 401, 'error': None})
     
     name = data['name']
     description = data['description']

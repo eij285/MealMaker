@@ -162,7 +162,7 @@ def user_update_units(token, unit):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    sql_update_query = """UPDATE users SET unit = %s WHERE token = %s;"""
+    sql_update_query = """UPDATE users SET units = %s WHERE token = %s;"""
     input_data = (unit, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
@@ -370,7 +370,7 @@ def user_update_email(token, email):
             'status_code': 400,
             'errors': ['Email is in invalid format']
         }
-    sql_update_query = """UPDATE users SET email = %s, WHERE token = %s;"""
+    sql_update_query = """UPDATE users SET email = %s WHERE token = %s;"""
     input_data = (email, token)
     cur.execute(sql_update_query, input_data)
     conn.commit()
