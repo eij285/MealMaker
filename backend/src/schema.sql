@@ -35,7 +35,7 @@ CREATE TABLE users (
     token           TEXT,
     CONSTRAINT valid_visibility CHECK (visibility in ('private', 'public')),
     CONSTRAINT valid_units CHECK (units in ('Metric', 'Imperial')),
-    CONSTRAINT valid_efficiency CHECK (measurements in ('Beginner', 'Intermediate', 'Expert')),
+    CONSTRAINT valid_efficiency CHECK (efficiency in ('Beginner', 'Intermediate', 'Expert')),
     PRIMARY KEY (id)
 );
 
