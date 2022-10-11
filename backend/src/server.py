@@ -114,7 +114,7 @@ def get_user_details():
     return dumps(user_info(token))
 
 @APP.route('/user/preferences', methods=['GET'])
-def get_user_details():
+def get_user_preferences():
     payload = request.get_json()
     # Verify token
     token = payload['token']
