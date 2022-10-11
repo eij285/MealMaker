@@ -67,3 +67,31 @@ export const LargeSubmitButton = (props) => {
     <LargeDefaultButton {...props} type="submit" />
   );
 };
+
+/**
+ * left aligned button
+ */
+export const LeftAlignedButton = styled(LargeButton)`
+  align-self: flex-start;
+`;
+
+/**
+* right aligned button
+*/
+export const RightAlignedButton = styled(LargeButton)`
+  align-self: flex-end;
+`;
+
+/**
+ * left aligned submit button
+ */
+export const LeftAlignedSubmitButton = styled(LargeSubmitButton)`
+  align-self: flex-start;
+`;
+
+/**
+ * right aligned submit button
+ */
+export const RightAlignedSubmitButton = styled(LargeSubmitButton)`
+  align-self: flex-end;
+`;
