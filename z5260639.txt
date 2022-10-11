@@ -195,3 +195,24 @@ user story has a frontend and backend component and will therefore involved
 multiple team members. Hence the team member assigned to a user story is one of
 the people working on that user story but may be two or three others also
 working on that same user story.
+
+Sunday
+-------
+Spent all day working on frontend code including layout and authorisation
+functions. Fixed the bug regarding reactjs not accepting user input in form
+inputs, unfortunately this resulted in having to rewrite much code. Also
+updated the database schema.
+
+################################################################################
+
+Week 5
+=======
+
+Monday
+-------
+Spent all day working on the frontend again, writing the user functionality.
+There were many different assumptions between group members on what the frontend
+should send the backend and what the backend should send the frontend, as well
+as what routes would be needed. Seems like we will need to rewrite some code,
+after we agree on these issues along with having a consistent backend
+configuration such as database name.
