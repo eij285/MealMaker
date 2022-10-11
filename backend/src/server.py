@@ -1,5 +1,6 @@
 from crypt import methods
 from flask import Flask, request
+from flask_cors import CORS
 from json import dumps
 from auth import auth_register, auth_login, auth_logout
 from helpers import database_reset, files_reset
@@ -8,6 +9,7 @@ from recipe import create_recipe, edit_recipe, publish_recipe
 from backend_helper import *
 
 APP = Flask(__name__)
+CORS(APP)
 ###
 
 @APP.route('/', methods=['GET'])

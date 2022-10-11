@@ -52,11 +52,12 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
       const innerStatus = data.status_code;
       if (innerStatus === 200 || innerStatus === 201) {
         onSuccess(data);
-      } else if (innerStatus === 400 || innerStatus === 401 || innerStatus === 403) {
-        throw new Error(data.error);
+      } else if (innerStatus >= 400 && innerStatus <= 500) {
+        throw new Error(`data.error (status: ${innerStatus})`);
       } else {
         throw new Error('Something went wrong');
       }
+      console.log(data);
       return data;
     } else if (status >= 400 && status < 500) {
       const data = await request.json();
