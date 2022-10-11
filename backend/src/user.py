@@ -105,20 +105,20 @@ def user_update_preferences_booleans(token, breakfast, lunch, dinner, snack, veg
             'errors': ['Unable to connect to database']
         }
     sql_update_query = """UPDATE users SET 
-                          breakfast = %d,
-                          lunch = %d,
-                          dinner = %d,
-                          snack = %d,
-                          vegetarian = %d,
-                          vegan = %d,
-                          kosher = %d,
-                          halal = %d,
-                          dairy_free = %d,
-                          gluten_free = %d,
-                          nut_free = %d,
+                          breakfast = %s,
+                          lunch = %s,
+                          dinner = %s,
+                          snack = %s,
+                          vegetarian = %s,
+                          vegan = %s,
+                          kosher = %s,
+                          halal = %s,
+                          dairy_free = %s,
+                          gluten_free = %s,
+                          nut_free = %s,
                           egg_free = %d,
-                          shellfish_free = %d,
-                          soy_free = %d
+                          shellfish_free = %s,
+                          soy_free = %s
                           WHERE token = %s;"""
     input_data = (breakfast, lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free, soy_free, token)
     cur.execute(sql_update_query, input_data)
