@@ -29,11 +29,13 @@ CREATE TABLE users (
     egg_free        BOOLEAN NOT NULL DEFAULT FALSE,
     shellfish_free  BOOLEAN NOT NULL DEFAULT FALSE,
     soy_free        BOOLEAN NOT NULL DEFAULT FALSE,
-    measurements    VARCHAR(8) NOT NULL DEFAULT ('Metric'),
+    units           VARCHAR(8) NOT NULL DEFAULT ('Metric'),
+    efficiency      VARCHAR(12) NOT NULL DEFAULT ('Intermediate'),
     last_request    TIMESTAMP,
     token           TEXT,
     CONSTRAINT valid_visibility CHECK (visibility in ('private', 'public')),
-    CONSTRAINT valid_meaurements CHECK (measurements in ('Metric', 'Imperial')),
+    CONSTRAINT valid_units CHECK (units in ('Metric', 'Imperial')),
+    CONSTRAINT valid_efficiency CHECK (measurements in ('Beginner', 'Intermediate', 'Expert')),
     PRIMARY KEY (id)
 );
 
