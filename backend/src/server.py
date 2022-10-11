@@ -140,7 +140,7 @@ def create_recipe():
         
 
 @APP.route('/recipe/edit', methods=['PUT'])
-def publish_recipe():
+def edit_recipe():
     data = request.get_json()
     # Verify token
     token = data['token']
