@@ -1,9 +1,11 @@
 from datetime import datetime, timezone, timedelta
+from email.mime import base
 import psycopg2
-import json
 import bcrypt
 import jwt
 import re
+import urllib
+import hashlib
 
 def check_valid_password(password):
     """Password validity checker
@@ -304,9 +306,48 @@ def auth_update_pw(token, password):
         Status 401
     
     """
-    pass
+    
+    # Connect to database
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    
+    # TODO: Verify token
 
-def auth_reset_link(email):
+    # Check that the password is valid
+    password_valid, errors = check_valid_password(password)
+    if not password_valid:
+        return {
+            'status_code': 400,
+            'error': errors
+        }
+
+    # Encrypt password
+    encoded_pw = password.encode('utf8')
+    salt = bcrypt.gensalt()
+    hashed_pw = bcrypt.hashpw(encoded_pw, salt)
+
+    # Update user's password in database
+    sql_query = "UPDATE users SET password = %s WHERE token = %s;"
+    cur.execute(sql_query, (hashed_pw.decode('utf-8'), token))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+            'token': token
+        }
+    }
+
+def auth_reset_link(email, base_url):
     """Sends a link to reset user's password
     
     Allows a user to reset their password if they forgot it. This function sends
@@ -315,18 +356,58 @@ def auth_reset_link(email):
     string containing the email and reset code (32 bit hashed) is sent.
 
     https://stackoverflow.com/questions/15799696/how-to-build-urls-in-python
+    http://localhost:3000/password-reset?email=someone@gmail.com&code=F05313695A0E6987111344F3D15F01E4
     
     Args:
         email       (String): email that the reset link will be sent to
+        base_url    (String): the base url without query string appended
         
     Returns:
         Status 200
         Status 400
         
     """
-    pass
 
-def auth_reset_pw(password):
+    # Connect to database
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    
+    # Check that email corresponds to a user in the database
+    sql_query = "SELECT id, display_name FROM users WHERE email = %s;"
+    cur.execute(sql_query, (email,))
+
+    sql_result = cur.fetchall()
+    if not sql_result:
+        return {
+            'status_code': 400,
+            'error': 'Email has not been registered'
+        }
+    
+    # Generate url for password reset
+    code = hashlib.md5(str(sql_result[0]).encode('utf-8')).hexdigest()
+    params = {'email': email, 'code': code}
+    url = base_url + urllib.parse.urlencode(params)
+
+    # TODO: Send email
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+            'url': url
+        }
+    }
+
+def auth_reset_pw(email, password):
     """Updates password from reset link
     
     Args:
@@ -337,5 +418,42 @@ def auth_reset_pw(password):
         Status 400
         
     """
-    pass
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    # Check that the password is valid
+    password_valid, errors = check_valid_password(password)
+    if not password_valid:
+        return {
+            'status_code': 400,
+            'error': errors
+        }
+
+    # Encrypt password
+    encoded_pw = password.encode('utf8')
+    salt = bcrypt.gensalt()
+    hashed_pw = bcrypt.hashpw(encoded_pw, salt)
+
+    # Update user's password in database
+    sql_query = "UPDATE users SET password = %s WHERE email = %s;"
+    cur.execute(sql_query, (hashed_pw.decode('utf-8'), email))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+            'password': hashed_pw.decode('utf-8')
+        }
+    }
     

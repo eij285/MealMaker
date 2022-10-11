@@ -3,7 +3,8 @@ from flask import Flask, request
 from json import dumps
 import psycopg2
 
-from auth import auth_register, auth_login, auth_logout
+from auth import auth_register, auth_login, auth_logout, auth_update_pw, \
+                 auth_reset_link, auth_reset_pw
 from helpers import database_reset, files_reset
 
 APP = Flask(__name__)
@@ -42,23 +43,25 @@ def logout():
 def update_password():
     payload = request.get_json()
     token = payload['token']
-    pass
+    password = payload['password']
+    
+    return dumps(auth_update_pw(token, password))
 
 @APP.route('/auth/reset-link', methods=['PUT'])
 def reset_link():
     payload = request.get_json()
     email = payload['email']
+    base_url = "http://localhost:3000/password-reset?"
 
-    # return auth_reset_link(email)
-    pass
+    return dumps(auth_reset_link(email, base_url))
 
 @APP.route('/auth/reset-password', methods=['PUT'])
 def reset_password():
     payload = request.get_json()
+    email = payload['email']
     password = payload['password']
 
-    # return auth_reset_pw(password)
-    pass
+    return dumps(auth_reset_pw(email, password))
 
 @APP.route('/user/update', methods=['PUT'])
 def update_user_details():
