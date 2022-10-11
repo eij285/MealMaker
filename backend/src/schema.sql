@@ -1,5 +1,6 @@
 -- Meal Maker database schema
 
+DROP TABLE IF EXISTS recipe;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
