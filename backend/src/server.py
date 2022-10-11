@@ -138,7 +138,7 @@ def create_recipe():
     token = data['token']
     return dumps(create_recipe(name, description, method, portion_size, token))
         
-
+'''
 @APP.route('/recipe/edit', methods=['PUT'])
 def publish_recipe():
     data = request.get_json()
@@ -153,6 +153,7 @@ def publish_recipe():
     portion_size = data['portion_size']
     recipe_id = data['recipe_id']
     return dumps(edit_recipe(name, description, methods, portion_size, recipe_id))
+'''
 
 @APP.route('/recipe/publish', methods=['PUT'])
 def publish_recipe():
