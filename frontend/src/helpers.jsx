@@ -21,6 +21,9 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
       'Content-Type': 'application/json',
     },
   };
+  if (body !== null && token !== null && token !== '') {
+    body.token = token;
+  }
   if ((method === 'POST' || method === 'PUT') && body !== null) {
     requestObject.body = JSON.stringify(body);
   }
@@ -50,10 +53,10 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
     if (status === 200) {
       const data = await request.json();
       const innerStatus = data.status_code;
-      if (innerStatus === 200 || innerStatus === 201) {
+      if (innerStatus >= 200 && innerStatus < 300) {
         onSuccess(data);
       } else if (innerStatus >= 400 && innerStatus <= 500) {
-        throw new Error(`data.error (status: ${innerStatus})`);
+        throw new Error(`${data.error}`);
       } else {
         throw new Error('Something went wrong');
       }

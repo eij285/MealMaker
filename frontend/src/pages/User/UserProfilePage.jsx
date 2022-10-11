@@ -8,9 +8,28 @@ import { CentredElementsForm } from '../../components/Forms';
 import { PageTitle } from '../../components/TextNodes';
 import { FlexColumn, FlexRow } from '../../components/StyledNodes';
 import { LeftAlignedButton, LeftAlignedSubmitButton } from '../../components/Buttons';
+import { backendRequest } from '../../helpers';
+const config = require('../../config.json');
 
 function UserProfilePage () {
   const token = React.useContext(GlobalContext).token;
+
+  const [pronoun, setPronoun] = React.useState('Mr');
+  const [givenNames, setGivenNames] = React.useState('');
+  const [lastName, setLastName] = React.useState('');
+  const [displayName, setDisplayName] = React.useState('noone');
+  const [email, setEmail] = React.useState('someone@nowhere.com');
+  const [country, setCountry] = React.useState('Australia');
+  const [about, setAbout] = React.useState('');
+  const [visibility, setVisibility] = React.useState('private');
+
+  React.useEffect(() => {
+    backendRequest('/user/info', {}, 'GET', token, (data) => {
+      console.log(data);
+    }, (error) => {
+    });
+  }, []);
+
   return (
     <ManageLayout>
       <Grid item xl={6} lg={8} md={10} sm={12} xs={12}>
@@ -25,32 +44,35 @@ function UserProfilePage () {
           <CentredElementsForm noValidate>
             <FlexRow>
               <FormControl sx={{ minWidth: '80px' }}>
-                <Select value="Mr">
-                  <MenuItem selected value="Mr">Mr</MenuItem>
-                  <MenuItem value="Ms">Ms</MenuItem>
-                  <MenuItem value="Mrs">Mrs</MenuItem>
-                  <MenuItem value="Miss">Miss</MenuItem>
-                  <MenuItem value="Dr">Dr</MenuItem>
+                <Select value={pronoun} onChange={(e) => setPronoun(e.target.value)}>
+                {config.PRONOUNS.map((value, index) => (
+                  <MenuItem key={index} value={value}>{value}</MenuItem>
+                ))}
                 </Select>
               </FormControl>
-              <TextInput label="Given Name(s)" />
-              <TextInput label="Surname" />
+              <TextInput label="Given Name(s)" onChange={(e) => setGivenNames(e.target.value)} />
+              <TextInput label="Last Name" onChange={(e) => setLastName(e.target.value)} />
             </FlexRow>
-            <TextInput label="Display Name" required />
-            <EmailInput label="Email" required />
+            <TextInput label="Display Name" required onChange={(e) => setDisplayName(e.target.value)} />
+            <EmailInput label="Email" required onChange={(e) => setEmail(e.target.value)} />
             <FormControl fullWidth>
               <InputLabel id="user-country-select">Country</InputLabel>
-              <Select labelId="user-country-select" label="Country">
-                <MenuItem selected value="Australia">Australia</MenuItem>
-                <MenuItem value="USA">USA</MenuItem>
+              <Select labelId="user-country-select" label="Country"
+                value={country} onChange={(e) => setCountry(e.target.value)}>
+              {config.COUNTRIES.map((dataItem, index) => (
+                <MenuItem key={index} value={dataItem}>
+                  {dataItem}
+                </MenuItem>
+              ))}
               </Select>
             </FormControl>
-            <TextInput label="About Me" multiline minRows={5} />
+            <TextInput label="About Me" multiline minRows={5} onChange={(e) => setAbout(e.target.value)} />
             <FlexRow>
               <FormControl>
                 <InputLabel id="user-visibility">Visibility</InputLabel>
-                <Select value="private" label="Visibility">
-                  <MenuItem selected value="private">private</MenuItem>
+                <Select labelId="user-visibility" label="Visibility"
+                  value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+                  <MenuItem value="private">private</MenuItem>
                   <MenuItem value="public">public</MenuItem>
                 </Select>
               </FormControl>
