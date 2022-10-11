@@ -3,7 +3,7 @@ from flask import Flask, request
 from json import dumps
 from auth import auth_register, auth_login, auth_logout
 from helpers import database_reset, files_reset
-from user import user_update
+from user import user_preferences, user_update, user_info, user_update_preferences
 from recipe import create_recipe, edit_recipe, publish_recipe
 from backend_helper import *
 
@@ -64,9 +64,10 @@ def reset_password():
 @APP.route('/user/update', methods=['PUT'])
 def update_user_details():
     payload = request.get_json()
+    # Verify token
     token = payload['token']
-    units = payload['units']
-    efficiency = payload['efficiency']
+    if not verify_token(token):
+        return dumps({'status_code': 401, 'error': None})
     display_name = payload['display-name']
     name = payload['given-names']
     surname = payload['last-name']
@@ -75,7 +76,52 @@ def update_user_details():
     country = payload['country']
     visibility = payload['visibility']
     pronoun = payload['pronoun']
-    return dumps(user_update(token, units, efficiency, name, surname, display_name, email, about_me, country, visibility, pronoun))
+    return dumps(user_update(token, name, surname, display_name, email, about_me, country, visibility, pronoun))
+
+@APP.route('/user/preferences/update', methods=['PUT'])
+def update_user_preferences():
+    payload = request.get_json()
+    # Verify token
+    token = payload['token']
+    if not verify_token(token):
+        return dumps({'status_code': 401, 'error': None})
+    units = payload[units]
+    efficiency = payload['efficiency']
+    breakfast = payload['breakfast']
+    lunch = payload['lunch']
+    dinner = payload['dinner']
+    snack = payload['snack']
+    vegetarian = payload['vegetarian']
+    vegan = payload['vegan']
+    kosher = payload['kosher']
+    halal = payload['halal']
+    dairy_free = payload['dairy_free']
+    gluten_free = payload['gluten_free']
+    nut_free = payload['nut_free']
+    egg_free = payload['egg_free']
+    shellfish_free = payload['shellfish_free']
+    soy_free = payload['soy_free']
+    return dumps(user_update_preferences(token, units, efficiency, breakfast, lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free, soy_free))
+
+@APP.route('/user/info', methods=['GET'])
+def get_user_details():
+    payload = request.get_json()
+    # Verify token
+    token = payload['token']
+    if not verify_token(token):
+        return dumps({'status_code': 401, 'error': None})
+    
+    return dumps(user_info(token))
+
+@APP.route('/user/preferences', methods=['GET'])
+def get_user_details():
+    payload = request.get_json()
+    # Verify token
+    token = payload['token']
+    if not verify_token(token):
+        return dumps({'status_code': 401, 'error': None})
+    
+    return dumps(user_preferences(token))
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
