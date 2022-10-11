@@ -216,3 +216,14 @@ should send the backend and what the backend should send the frontend, as well
 as what routes would be needed. Seems like we will need to rewrite some code,
 after we agree on these issues along with having a consistent backend
 configuration such as database name.
+
+Tuesday
+--------
+Most of the frontend functionality for sprint 1 has now been built. Signup and
+login now work correctly from both a frontend and backend perspective. Had a
+group meeting to discuss where everyone is with regards to the sprint 1 demo.
+Some group members still had a few different ideas what data should be exchanged
+between the backend and frontend, how the database should be structured, and
+which http methods should be used to send data. Still have several more screens
+to connect to the backend and have some backend functionality that needs to be
+fixed. 
