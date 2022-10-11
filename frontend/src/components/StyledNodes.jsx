@@ -40,3 +40,7 @@ export const FlexRow = styled.div`
   flex-direction: row;
   column-gap: 20px;
 `;
+
+export const FlexRowWrap = styled(FlexRow)`
+  flex-wrap: wrap;
+`;

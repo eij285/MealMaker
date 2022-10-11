@@ -3,15 +3,16 @@ import { Link, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import styled from '@emotion/styled';
 
+
+const PageTitleBase = styled(Typography)`
+  font-weight: 600;
+  margin: 20px 0;
+`;
+
 /**
  * page title text block
  */
-
 export const PageTitle = (props) => {
-  const PageTitleBase = styled(Typography)`
-    font-weight: 600;
-    margin: 20px 0;
-  `;
   return (
     <PageTitleBase {...props} component="h2" variant="h4" />
   );
@@ -20,6 +21,15 @@ export const PageTitle = (props) => {
 export const CentredPageTitle = (props) => {
   return (
     <PageTitle {...props} align="center" />
+  );
+};
+
+/**
+ * sub page title h3 element
+ */
+ export const SubPageTitle = (props) => {
+  return (
+    <PageTitleBase {...props} component="h3" variant="h5" />
   );
 };
 
