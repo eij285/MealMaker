@@ -3,7 +3,7 @@ content-type: application/json
 
 {
     "display-name": "elijah",
-    "email": "e@gmail.com",
+    "email": "eij285@gmail.com",
     "password": "Aa@45678"
 }
 
@@ -42,7 +42,7 @@ PUT http://127.0.0.1:5000/auth/reset-link HTTP/1.1
 content-type: application/json
 
 {
-    "email": "e@gmail.com"
+    "email": "eij285@gmail.com"
 }
 
 ###

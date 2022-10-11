@@ -6,6 +6,7 @@ import jwt
 import re
 import urllib
 import hashlib
+import smtplib
 
 def check_valid_password(password):
     """Password validity checker
@@ -55,6 +56,20 @@ def check_valid_password(password):
         return False, "Password does not contain a special character"
 
     return True, ""
+
+def send_email_reset_link(email_to, link):
+    email_from = "z5260030@student.unsw.edu.au"
+    msg_headers = f"From: {email_from}\r\nTo: {email_to}\r\n\r\n"
+    msg_body = f"You've requested a password reset. If this was not you, " + \
+               f"please ignore this email.\r\n\r\n" + \
+               f"To reset your password, use link {link}."
+
+    msg = msg_headers + msg_body
+
+    smtp_server = smtplib.SMTP('localhost')
+    smtp_server.set_debuglevel(1)
+    smtp_server.sendmail(email_from, email_to, msg)
+    smtp_server.quit()
 
 def auth_register(display_name, email, password):
     """Registers a new user
@@ -395,6 +410,7 @@ def auth_reset_link(email, base_url):
     url = base_url + urllib.parse.urlencode(params)
 
     # TODO: Send email
+    # send_email_reset_link(email, url)
 
     conn.commit()
     cur.close()
