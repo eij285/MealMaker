@@ -14,7 +14,7 @@ CREATE TABLE users (
     base64_image    TEXT,
     country         VARCHAR(20),
     about           TEXT,
-    visibility      CHAR(7) NOT NULL DEFAULT ('private'),
+    visibility      VARCHAR(7) NOT NULL DEFAULT ('private'),
     breakfast       BOOLEAN NOT NULL DEFAULT TRUE,
     lunch           BOOLEAN NOT NULL DEFAULT TRUE,
     dinner          BOOLEAN NOT NULL DEFAULT TRUE,
@@ -29,9 +29,11 @@ CREATE TABLE users (
     egg_free        BOOLEAN NOT NULL DEFAULT FALSE,
     shellfish_free  BOOLEAN NOT NULL DEFAULT FALSE,
     soy_free        BOOLEAN NOT NULL DEFAULT FALSE,
+    measurements    VARCHAR(8) NOT NULL DEFAULT ('Metric'),
     last_request    TIMESTAMP,
     token           TEXT,
     CONSTRAINT valid_visibility CHECK (visibility in ('private', 'public')),
+    CONSTRAINT valid_meaurements CHECK (measurements in ('Metric', 'Imperial')),
     PRIMARY KEY (id)
 );
 
