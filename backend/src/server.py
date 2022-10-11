@@ -64,7 +64,10 @@ def reset_password():
 @APP.route('/user/update', methods=['PUT'])
 def update_user_details():
     payload = request.get_json()
+    # Verify token
     token = payload['token']
+    if not verify_token(token):
+        return dumps({'status_code': 401, 'error': None})
     units = payload['units']
     efficiency = payload['efficiency']
     display_name = payload['display-name']
