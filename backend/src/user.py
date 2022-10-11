@@ -3,16 +3,23 @@ import psycopg2
 import re
 
 def user_update(token, units, efficiency, given_names, surname, display_name, email, about_me, country, visibility, pronoun):
-    user_update_units(token, units)
-    user_update_efficiency(token, efficiency)
-    user_update_name(token, given_names)
-    user_update_surname(token, surname)
-    user_update_display_name(token, display_name)
-    user_update_email(token, email)
-    user_update_about_me(token, about_me)
-    user_update_country(token, country)
-    user_update_visibility(token, visibility)
-    user_update_pronoun(token, pronoun)
+    if email is None or display_name is None:
+        return {
+            'status_code': 400,
+            'error': 'Display name or email fields cannot be empty'
+        }
+    output = {}
+    output["units"] = user_update_units(token, units)
+    output["efficiency"] = user_update_efficiency(token, efficiency)
+    output["given_names"] = user_update_name(token, given_names)
+    output["last_name"] = user_update_surname(token, surname)
+    output["display_name"] = user_update_display_name(token, display_name)
+    output["email"] = user_update_email(token, email)
+    output["about"] = user_update_about_me(token, about_me)
+    output["country"] = user_update_country(token, country)
+    output["visibility"] = user_update_visibility(token, visibility)
+    output["pronoun"] = user_update_pronoun(token, pronoun)
+    return output
 
 def user_update_units(token, unit):
     """Changes users prefered form of measurement
@@ -93,7 +100,9 @@ def user_update_efficiency(token, efficiency):
     conn.commit()
     cur.close()
     conn.close()
-
+    return {
+        'status_code': 200,
+    }
 def user_update_name(token, given_names):
     """Changes users name
 
@@ -108,11 +117,12 @@ def user_update_name(token, given_names):
         Status 401
 
     """
-    if len(given_names) < 1 or len(given_names) > 20:
-        return {
-            'status_code': 400,
-            'error': 'given_names must be between 1 and 20 characters inclusive'
-        }
+    if given_names is not None:
+        if len(given_names) < 1 or len(given_names) > 20:
+            return {
+                'status_code': 400,
+                'error': 'given_names must be between 1 and 20 characters inclusive'
+            }
         # raise InputError("Name must be between 1 and 20 characters inclusive")
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
@@ -129,6 +139,9 @@ def user_update_name(token, given_names):
     conn.commit()
     cur.close()
     conn.close()
+    return {
+        'status_code': 200,
+    }
 
 def user_update_surname(token, last_name):
     """Changes users surname
@@ -144,11 +157,12 @@ def user_update_surname(token, last_name):
         Status 401
 
     """
-    if len(last_name) < 1 or len(last_name) > 20:
-        return {
-            'status_code': 400,
-            'error': 'last_name must be between 1 and 20 characters inclusive'
-        }
+    if last_name is not None:
+        if len(last_name) < 1 or len(last_name) > 20:
+            return {
+                'status_code': 400,
+                'error': 'last_name must be between 1 and 20 characters inclusive'
+            }
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
@@ -164,7 +178,9 @@ def user_update_surname(token, last_name):
     conn.commit()
     cur.close()
     conn.close()
-
+    return {
+        'status_code': 200,
+    }
 def user_update_display_name(token, display_name):
     """Changes users display name
 
@@ -199,6 +215,9 @@ def user_update_display_name(token, display_name):
     conn.commit()
     cur.close()
     conn.close()
+    return {
+        'status_code': 200,
+    }
 
 def user_update_email(token, email):
     """Changes users email
@@ -245,7 +264,9 @@ def user_update_email(token, email):
     conn.commit()
     cur.close()
     conn.close()
-
+    return {
+        'status_code': 200,
+    }
 def user_update_about_me(token, about_me):
     """Changes users about me
 
@@ -275,7 +296,9 @@ def user_update_about_me(token, about_me):
     conn.commit()
     cur.close()
     conn.close()
-
+    return {
+        'status_code': 200,
+    }
 def user_update_country(token, country):
     """Changes users country
 
@@ -290,11 +313,12 @@ def user_update_country(token, country):
         Status 401
 
     """
-    if len(country) < 0 or len(country) > 20:
-        return {
-            'status_code': 400,
-            'error': 'Country must be between 1 and 20 characters inclusive'
-        }
+    if country is not None:
+        if len(country) < 0 or len(country) > 20:
+            return {
+                'status_code': 400,
+                'error': 'Country must be between 1 and 20 characters inclusive'
+            }
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
@@ -310,7 +334,9 @@ def user_update_country(token, country):
     conn.commit()
     cur.close()
     conn.close()
-
+    return {
+        'status_code': 200,
+    }
 def user_update_visibility(token, visibility):
     """Changes users visibilty
 
@@ -346,6 +372,9 @@ def user_update_visibility(token, visibility):
     conn.commit()
     cur.close()
     conn.close()
+    return {
+        'status_code': 200,
+    }
 
 def user_update_pronoun(token, pronoun):
     """Changes users pronoun
@@ -361,11 +390,12 @@ def user_update_pronoun(token, pronoun):
         Status 401
 
     """
-    if len(pronoun) < 0 or len(pronoun) > 20:
-        return {
-            'status_code': 400,
-            'error': 'Pronoun must be between 1 and 20 characters inclusive'
-        }
+    if pronoun is not None:
+        if len(pronoun) < 0 or len(pronoun) > 20:
+            return {
+                'status_code': 400,
+                'error': 'Pronoun must be between 1 and 20 characters inclusive'
+            }
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
         cur = conn.cursor()
@@ -381,7 +411,9 @@ def user_update_pronoun(token, pronoun):
     conn.commit()
     cur.close()
     conn.close()
-
+    return {
+        'status_code': 200,
+    }
 """
 def user_update_profile_picture(token):
     """
