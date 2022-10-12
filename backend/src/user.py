@@ -362,10 +362,13 @@ def user_update_email(token, email):
     # Check that the email is not already registered in database
     cur.execute("SELECT * FROM users WHERE email = %s;", (email,))
     if cur.fetchall():
-        return {
-            'status_code': 400,
-            'errors': ['Email has already been registered']
-        }
+        cur.execute("SELECT email FROM users WHERE token = %s;", (token,))
+        current_email = cur.fetchall()
+        if email is not current_email[0][0]:
+            return {
+                'status_code': 400,
+                'errors': ['Email has already been registered']
+            }
     
     # TODO: Check that email is valid
     email_regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
