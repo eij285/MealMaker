@@ -234,10 +234,10 @@ def user_update_name(token, given_names):
 
     """
     if given_names is not None:
-        if len(given_names) < 1 or len(given_names) > 20:
+        if len(given_names) > 20:
             return {
                 'status_code': 400,
-                'error': 'given_names must be between 1 and 20 characters inclusive'
+                'error': 'given_names must be shorter than 20 characters inclusive'
             }
         # raise InputError("Name must be between 1 and 20 characters inclusive")
     try:
@@ -274,10 +274,10 @@ def user_update_surname(token, last_name):
 
     """
     if last_name is not None:
-        if len(last_name) < 1 or len(last_name) > 20:
+        if len(last_name) > 20:
             return {
                 'status_code': 400,
-                'error': 'last_name must be between 1 and 20 characters inclusive'
+                'error': 'last_name must be shorter than 20 characters inclusive'
             }
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
@@ -433,7 +433,7 @@ def user_update_country(token, country):
         if len(country) < 0 or len(country) > 20:
             return {
                 'status_code': 400,
-                'error': 'Country must be between 1 and 20 characters inclusive'
+                'error': 'Country must be shorter than 20 characters inclusive'
             }
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
