@@ -1,7 +1,15 @@
 import jwt
 import psycopg2
+from datetime import datetime, timezone, timedelta
+from config import DB_CONN_STRING
 
 def connect():
+    """Connect to database
+
+    Returns:
+        psycopg2.connect: connection
+        None if error
+    """
     connection = None
     try:
         print('Conencting to the database...')
@@ -103,25 +111,147 @@ def remove_recipe_database():
     connection.close()
 
 def verify_token(token):
+
+    # Connect to database
     try:
-        return jwt.decode(token, key="SECRET", alogirhtm="HS256") 
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
     except:
-        return None
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
 
-def fetch_user_id_from_token(token):
-    connection = connect()
-    command = ("SELECT id FROM users WHERE token = %s")
-    cur = connection.cursor()
-    cur.execute(command, (token,))
-    out = cur.fetchall()
-    connection.close()
-    return out
+    cur.execute("SELECT id FROM users WHERE token = %s;", (token,))
+    
+    sql_result = cur.fetchall()
+    if not sql_result:
+        return {
+            'status_code': 400,
+            'error': 'Token does not match any active tokens on server'
+        }
 
-def fetch_recipe_database():
+    id_db, = sql_result[0]
+
+    try:
+        decoded_jwt = jwt.decode(token, "SECRET", algorithms='HS256')
+    except:
+        return {
+            'status_code': 400,
+            'error': 'Token cannot be decoded'
+        }
+    
+    id_decoded = decoded_jwt['u_id']
+
+    print(type(id_db))
+    print(type(id_decoded))
+
+    if id_db == id_decoded:
+        sql_query = "UPDATE users SET last_request = %s WHERE id = %s;"
+        cur.execute(sql_query, (datetime.now(tz=timezone.utc), str(id_db)))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return True
+    else:
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return False
+
+
+def fetch_database(database):
+    """
+    Fetch all info in a database
+    
+    Input:
+        database: name of database as a string
+        
+    Return:
+        list of dictionary, with head as column name
+        e.g.
+        [
+            {
+                'id': 123,
+                'name': ABC
+            },
+            {
+                'id': 234,
+                'name': BCD
+            }
+        
+        ]"""
     connection = connect()
-    command = ("SELECT * FROM recipe")
+    command = ("SELECT * FROM " + database)
     cur = connection.cursor()
     cur.execute(command)
-    out = cur.fetchall()
+    out_data = cur.fetchall()
+    command = ("""
+            SELECT COLUMN_NAME
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = %s
+            ORDER BY ORDINAL_POSITION"""
+            )
+    cur.execute(command, (database,))
+    out_header = cur.fetchall()
+    out_dict = {}
+    out_list = []
+    len_data = len(out_data)
+    len_header = len(out_header)
+    for i in range(len_data):
+        for j in range(len(out_data[i])):
+            k = j if j < len_header else j % len_header
+            out_dict[out_header[k][0]] = out_data[i][j]
+        out_list.append(out_dict)
+        out_dict = {}
     connection.close()
-    return out
+    cur.close()
+    return out_list
+
+
+def database_reset():
+    """Resets the database
+    
+    Drops all tables, stored procedures, triggers, etc and recreates entire
+    schema from an sql file
+
+    Returns:
+        True if database reset succeeded
+        False if database reset failed (requires manual intervention)
+    """
+    conn = None
+    cur = None
+    success = False
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        cur.execute(open("schema.sql", "r").read())
+        conn.commit()
+        success = True
+    except psycopg2.Error as err:
+        print(f"DB error: {err}")
+    except OSError as err:
+        print(f"OS error: {err}")
+    except:
+        print("Unspecified error")
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+    return success
+
+def files_reset():
+    """Files reset
+    
+    Deletes any files created by the application to reset file content
+    back to initial state
+
+    Returns:
+        True if file deleted successfully
+        False if file deletion failed (requires manual intervention)
+    """
+    pass
