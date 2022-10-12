@@ -1,5 +1,5 @@
 import psycopg2
-from backend_helper import connect
+from backend_helper import connect, verify_token
    
 # def create_recipe_table(connection):
 #     cur = connection.cursor()
@@ -30,6 +30,13 @@ from backend_helper import connect
     
 
 def create_recipe(name, description, method, portion_size, recipe_status, token):
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
     # Start connection to database
     connection = connect()
     cur = connection.cursor()
@@ -38,7 +45,7 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
     if token == None:
         return {
             'status_code': 401,
-            'error': None
+            'error': "No token"
         }
     
     try:
@@ -53,9 +60,8 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
     except:
         return {
             'status_code': 400,
-            'error': None
+            'error': "cannot find user id"
         }
-        
     # Add new recipe to system
     try:
         command = ("""
@@ -82,7 +88,7 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
         connection.close()
         return {
             'status_code': 400,
-            'error': None
+            'error': "fail to insert recipe into db"
         }
 
 
@@ -117,7 +123,13 @@ def publish_recipe(recipe_id, publish):
         
     
 
-def edit_recipe(name, description, methods, portion_size, recipe_id, publish):
+def edit_recipe(name, description, methods, portion_size, recipe_id, publish, token):
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
     
     # Start connection to database
     connection = connect()
@@ -170,8 +182,3 @@ def fetch_all_recipe():
             'status_code':400,
             'error': None
         }
-
-
-if __name__ == "__main__":
-    all_recipe = fetch_all_recipe()
-    print(all_recipe['body'])
