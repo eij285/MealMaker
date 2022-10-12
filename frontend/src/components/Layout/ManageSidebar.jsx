@@ -128,7 +128,7 @@ export default function ManageSidebar() {
       <Divider />
       <List sx={{ paddingTop: 0 }}>
         <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />
-        <SidebarItem to="#" text="My Recipes" open={open} icon={<FoodBankIcon />} />
+        <SidebarItem to="/my-recipes" text="My Recipes" open={open} icon={<FoodBankIcon />} />
         <SidebarItem to="#" text="Cook Books" open={open} icon={<MenuBookIcon />} />
         <SidebarItem to="#" text="Subscriptions" open={open} icon={<SubscriptionsIcon />} />
         <SidebarItem to="#" text="Subscribers" open={open} icon={<LoyaltyIcon />} />

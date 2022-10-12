@@ -57,3 +57,13 @@ export const PasswordInput = (props) => {
     />
   );
 };
+
+
+/**
+ * full width numeric input
+ */
+ export const NumericInput = (props) => {
+  return (
+    <GeneralTextInput {...props} type="number" />
+  );
+};
