@@ -347,7 +347,7 @@ def auth_logout(token):
     return {
         'status_code': 200,
         'body': {
-            'token': token
+
         }
     }
 
@@ -406,7 +406,7 @@ def auth_update_pw(token, password):
     return {
         'status_code': 200,
         'body': {
-            'token': token
+            'success': True
         }
     }
 
@@ -448,8 +448,10 @@ def auth_reset_link(email, base_url):
     sql_result = cur.fetchall()
     if not sql_result:
         return {
-            'status_code': 400,
-            'error': 'Email has not been registered'
+            'status_code': 200,
+            'body': {
+                'message': '(shh, this failed) Link sent to email provided'
+            }
         }
     
     # Generate url for password reset
@@ -457,8 +459,12 @@ def auth_reset_link(email, base_url):
     params = {'email': email, 'code': code}
     url = base_url + urllib.parse.urlencode(params)
 
-    # TODO: Send email
+    # Send email
     send_email_reset_link(email, url)
+
+    # TODO: Update password_reset with code
+    sql_query = "UPDATE users SET password_reset = %s WHERE email = %s;"
+    cur.execute(sql_query, (code, email))
 
     conn.commit()
     cur.close()
@@ -467,14 +473,16 @@ def auth_reset_link(email, base_url):
     return {
         'status_code': 200,
         'body': {
-            'url': url
+            'message': 'Link sent to email provided'
         }
     }
 
-def auth_reset_pw(email, password):
+def auth_reset_pw(email, code, password):
     """Updates password from reset link
     
     Args:
+        email       (String):
+        code        (String):
         password    (String):
         
     Returns:
@@ -491,6 +499,24 @@ def auth_reset_pw(email, password):
         return {
             'status_code': 500,
             'error': 'Unable to connect to database'
+        }
+    
+    # TODO: Check the reset-code of user matches
+    cur.execute("SELECT password_reset FROM users WHERE email = %s;", (email,))
+
+    sql_result = cur.fetchall()
+    if not sql_result:
+        return {
+            'status_code': 400,
+            'error': 'Email does not match any user on server'
+        }
+
+    code_db, = sql_result[0]
+
+    if code_db != code:
+        return {
+            'status_code': 400,
+            'error': 'Code does not match code stored on server'
         }
 
     # Check that the password is valid
@@ -517,6 +543,6 @@ def auth_reset_pw(email, password):
     return {
         'status_code': 200,
         'body': {
-            'password': hashed_pw.decode('utf-8')
+            'success': True
         }
     }

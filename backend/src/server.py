@@ -13,7 +13,6 @@ from backend_helper import *
 
 APP = Flask(__name__)
 CORS(APP)
-###
 
 @APP.route('/', methods=['GET'])
 def index():
@@ -30,7 +29,6 @@ def register():
 
     return dumps(auth_register(display_name, email, password))
 
-###
 @APP.route('/auth/login', methods=['POST'])
 def login():
     payload = request.get_json()
@@ -66,9 +64,10 @@ def reset_link():
 def reset_password():
     payload = request.get_json()
     email = payload['email']
+    code = payload['code']
     password = payload['password']
 
-    return dumps(auth_reset_pw(email, password))
+    return dumps(auth_reset_pw(email, code, password))
 
 @APP.route('/user/update', methods=['PUT'])
 def update_user_details():
