@@ -2,6 +2,8 @@ import psycopg2
 # from error import InputError
 import re
 
+from config import DB_CONN_STRING
+
 def user_update(token, given_names, surname, display_name, email, about_me, country, visibility, pronoun):
     """updates user details"""
     if email is None or display_name is None:
@@ -34,7 +36,7 @@ def user_info(token):
     """retrieves users information for his update page
     """
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -62,7 +64,7 @@ def user_preferences(token):
     """retrieves users preferences for his update page
     """
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -98,7 +100,7 @@ def user_update_preferences_booleans(token, breakfast, lunch, dinner, snack, veg
     """Updates all the booleans of the user preferences page
     """
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -156,7 +158,7 @@ def user_update_units(token, unit):
         }
         #raise InputError("Measurement must be one of: ""Imperial"", ""Metric""")
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -199,7 +201,7 @@ def user_update_efficiency(token, efficiency):
         }
         #raise InputError("Efficiency must be one of: ""beginner"", ""intermediate"", ""expert""")
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -239,7 +241,7 @@ def user_update_name(token, given_names):
             }
         # raise InputError("Name must be between 1 and 20 characters inclusive")
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -278,7 +280,7 @@ def user_update_surname(token, last_name):
                 'error': 'last_name must be between 1 and 20 characters inclusive'
             }
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -315,7 +317,7 @@ def user_update_display_name(token, display_name):
             'error': 'Display name must be between 1 and 30 characters inclusive'
         }
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -348,7 +350,7 @@ def user_update_email(token, email):
 
     """
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -396,7 +398,7 @@ def user_update_about_me(token, about_me):
 
     """
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -434,7 +436,7 @@ def user_update_country(token, country):
                 'error': 'Country must be between 1 and 20 characters inclusive'
             }
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -472,7 +474,7 @@ def user_update_visibility(token, visibility):
         }
         # raise InputError("Visibility must be one of: ""private"", ""public""")
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
@@ -511,7 +513,7 @@ def user_update_pronoun(token, pronoun):
                 'error': 'Pronoun must be between 1 and 20 characters inclusive'
             }
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         print(conn)
     except:
