@@ -111,7 +111,7 @@ def update_user_preferences():
     soy_free = payload['soy_free']
     return dumps(user_update_preferences(token, units, efficiency, breakfast, lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free, soy_free))
 
-@APP.route('/user/info', methods=['GET'])
+@APP.route('/user/info', methods=['POST'])
 def get_user_details():
     payload = request.get_json()
     # Verify token
@@ -121,7 +121,7 @@ def get_user_details():
     
     return dumps(user_info(token))
 
-@APP.route('/user/preferences', methods=['GET'])
+@APP.route('/user/preferences', methods=['POST'])
 def get_user_preferences():
     payload = request.get_json()
     # Verify token
