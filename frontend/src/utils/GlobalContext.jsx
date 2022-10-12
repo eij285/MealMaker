@@ -8,14 +8,12 @@ const GlobalContext = React.createContext(null);
  */
 export const GlobalProvider = ({ children }) => {
   // variable availble globally
-  /*const getToken = () => {
+  const getToken = () => {
     const value = window.localStorage.getItem('token');
     return value === null || value === '' ? '' : value;
   };
 
-  const [token, setToken] = React.useState(getToken('token'));*/
-
-  const [token, setToken] = React.useState('testing');
+  const [token, setToken] = React.useState(getToken('token'));
 
   const login = (userToken) => {
     window.localStorage.setItem('token', userToken);
