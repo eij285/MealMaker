@@ -6,7 +6,7 @@ import ManageLayout from '../../components/Layout/ManageLayout';
 import { EmailInput, TextInput } from '../../components/InputFields';
 import { CentredElementsForm } from '../../components/Forms';
 import { PageTitle } from '../../components/TextNodes';
-import { FlexColumn, FlexRow } from '../../components/StyledNodes';
+import { FlexColumn, FlexRow, ErrorAlert, SuccessAlert } from '../../components/StyledNodes';
 import { LeftAlignedButton, LeftAlignedSubmitButton } from '../../components/Buttons';
 import { validateDisplayName, validateEmail, backendRequest } from '../../helpers';
 const config = require('../../config.json');
@@ -47,6 +47,7 @@ function UserProfilePage () {
     backendRequest('/user/info', {}, 'POST', token, (data) => {
       loadUserData(data);
     }, (error) => {
+      setResponseError(error);
     });
   }, []);
 
@@ -67,9 +68,9 @@ function UserProfilePage () {
         'visibility': visibility
       };
       backendRequest('/user/update', body, 'PUT', token, (data) => {
-        console.log('update', data);
+        setResponseSuccess('Details Updated Successfully');
       }, (error) => {
-        console.log('error', error);
+        setResponseError(error);
       });
     } else {
       validateDisplayName(displayName, setDisplayNameMessage);
@@ -88,6 +89,10 @@ function UserProfilePage () {
             </LeftAlignedButton>
           </FlexRow>
           <Divider />
+          {responseSuccess !== '' &&
+          <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
+          {responseSuccess === '' && responseError !== '' &&
+          <ErrorAlert message={responseError} setMessage={setResponseError} />}
           <CentredElementsForm noValidate onSubmit={updateProfile}>
             <FlexRow>
               <FormControl sx={{ minWidth: '80px' }}>

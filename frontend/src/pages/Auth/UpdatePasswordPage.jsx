@@ -6,7 +6,7 @@ import { PasswordInput } from '../../components/InputFields';
 import { PageTitle } from '../../components/TextNodes';
 import { LeftAlignedSubmitButton } from '../../components/Buttons';
 import { CentredElementsForm } from '../../components/Forms';
-import { ErrorAlert, SuccessAlert } from '../../components/StyledNodes';
+import { ErrorAlert, SuccessAlert, FlexColumn } from '../../components/StyledNodes';
 import { backendRequest, validatePassword, validatePasswordMatch } from '../../helpers';
 
 function UpdatePasswordPage () {
@@ -34,7 +34,7 @@ function UpdatePasswordPage () {
         password: password
       };
       backendRequest('/auth/update-password', body, 'PUT', null, (data) => {
-        setResponseSuccess('Password Reset Successfully');
+        setResponseSuccess('Password Updated Successfully');
       }, (error) => {
         setResponseError(error);
       });
@@ -48,30 +48,31 @@ function UpdatePasswordPage () {
     <ManageLayout>
       <Grid item xl={3} lg={5} md={7} sm={10} xs={12}>
         <PageTitle>Update Password</PageTitle>
-        {responseSuccess === '' &&
-        <CentredElementsForm noValidate onSubmit={updatePassword}>
-          <PasswordInput
-            label="New Password"
-            required
-            onChange={(e) => setPassword(e.target.value)}
-            onBlur={() => validatePassword(password, setPasswordMessage)}
-            error={passwordMessage !== ''}
-            helperText={passwordMessage}
-          />
-          <PasswordInput
-            label="Confirm Password"
-            required
-            onChange={(e) => setConfirm(e.target.value)}
-            onBlur={() => validatePasswordMatch(password, confirm, setConfirmMessage)}
-            error={passwordMessage !== ''}
-            helperText={passwordMessage}
-          />
-          <LeftAlignedSubmitButton>Update Password</LeftAlignedSubmitButton>
-        </CentredElementsForm>}
-        {responseSuccess !== '' &&
-        <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
-        {responseSuccess === '' && responseError !== '' &&
-        <ErrorAlert message={responseError} setMessage={setResponseError} />}
+        <FlexColumn>
+          {responseSuccess !== '' &&
+          <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
+          {responseSuccess === '' && responseError !== '' &&
+          <ErrorAlert message={responseError} setMessage={setResponseError} />}
+          <CentredElementsForm noValidate onSubmit={updatePassword}>
+            <PasswordInput
+              label="New Password"
+              required
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => validatePassword(password, setPasswordMessage)}
+              error={passwordMessage !== ''}
+              helperText={passwordMessage}
+            />
+            <PasswordInput
+              label="Confirm Password"
+              required
+              onChange={(e) => setConfirm(e.target.value)}
+              onBlur={() => validatePasswordMatch(password, confirm, setConfirmMessage)}
+              error={passwordMessage !== ''}
+              helperText={passwordMessage}
+            />
+            <LeftAlignedSubmitButton>Update Password</LeftAlignedSubmitButton>
+          </CentredElementsForm>
+        </FlexColumn>
       </Grid>
     </ManageLayout>
   );
