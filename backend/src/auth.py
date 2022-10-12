@@ -30,6 +30,7 @@ def check_valid_password(password):
         Error Msg   (String): reason for password being invalid
     
     """
+
     special_chars = "`~!@#$%^&*()-_=+;:'“,<.>/?"
 
     # Check that the password is of suitable length
@@ -59,6 +60,20 @@ def check_valid_password(password):
     return True, ""
 
 def send_email_reset_link(email_to, link):
+    """Email sender
+    
+    Sends email from code.chefs.authenticator@gmail.com containing password
+    reset information and reset link. 
+    
+    Args:
+        email_to    (String): email address of the recipient
+        link        (String): link to add to email body
+    
+    Returns:
+        Nothing
+    
+    """
+
     email_from = "code.chefs.authenticator@gmail.com"
 
     # TODO: Move this password
