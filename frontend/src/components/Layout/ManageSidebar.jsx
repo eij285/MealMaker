@@ -1,20 +1,26 @@
 import * as React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { styled } from '@mui/material/styles';
+import {
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText
+} from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import { styled } from '@mui/material/styles';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import FoodBankIcon from '@mui/icons-material/FoodBank';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
+import LoyaltyIcon from '@mui/icons-material/Loyalty';
+import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
+import MessageIcon from '@mui/icons-material/Message';
+import StoreIcon from '@mui/icons-material/Store';
 
 const drawerWidth = 240;
 
@@ -110,7 +116,7 @@ const SidebarItem = ({to, text, open, icon}) => {
 };
 
 export default function ManageSidebar() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(window.innerWidth > 600);
 
   return (
     <Sidebar variant="permanent" open={open}>
@@ -121,14 +127,14 @@ export default function ManageSidebar() {
       </SidebarToggle>
       <Divider />
       <List sx={{ paddingTop: 0 }}>
-        <SidebarItem to="/user-profile" text="Update Profile" open={open} icon={<InboxIcon />} />
-        <SidebarItem to="#" text="My Recipes" open={open} icon={<InboxIcon />} />
-        <SidebarItem to="#" text="Cook Books" open={open} icon={<InboxIcon />} />
-        <SidebarItem to="#" text="Subscriptions" open={open} icon={<InboxIcon />} />
-        <SidebarItem to="#" text="Subscribers" open={open} icon={<InboxIcon />} />
-        <SidebarItem to="#" text="Preferences" open={open} icon={<InboxIcon />} />
-        <SidebarItem to="#" text="Messages" open={open} icon={<InboxIcon />} />
-        <SidebarItem to="#" text="Shopping" open={open} icon={<InboxIcon />} />
+        <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />
+        <SidebarItem to="#" text="My Recipes" open={open} icon={<FoodBankIcon />} />
+        <SidebarItem to="#" text="Cook Books" open={open} icon={<MenuBookIcon />} />
+        <SidebarItem to="#" text="Subscriptions" open={open} icon={<SubscriptionsIcon />} />
+        <SidebarItem to="#" text="Subscribers" open={open} icon={<LoyaltyIcon />} />
+        <SidebarItem to="/user-preferences" text="Preferences" open={open} icon={<SettingsApplicationsIcon />} />
+        <SidebarItem to="#" text="Messages" open={open} icon={<MessageIcon />} />
+        <SidebarItem to="#" text="Shopping" open={open} icon={<StoreIcon />} />
       </List>
     </Sidebar>
   );

@@ -12,6 +12,8 @@ import SignupPage from './pages/Auth/SignupPage';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
 import PasswordResetPage from './pages/Auth/PasswordResetPage';
 import UserProfilePage from './pages/User/UserProfilePage';
+import UpdatePasswordPage from './pages/Auth/UpdatePasswordPage';
+import UserPreferencesPage from './pages/User/UserPreferencesPage';
 import Forbidden403Page from './pages/Error/Forbidden403Page';
 import NotFound404Page from './pages/Error/NotFound404Page';
 import './App.css';
@@ -28,6 +30,8 @@ function App() {
           <Route exact path="/password-reset" element={<PasswordResetPage />} />
           <Route element={<AuthorisedRoute />}>
             <Route exact path="/user-profile" element={<UserProfilePage />} />
+            <Route exact path="/update-password" element={<UpdatePasswordPage />} />
+            <Route exact path="/user-preferences" element={<UserPreferencesPage />} />
           </Route>
           <Route exact path="/forbidden-403" element={<Forbidden403Page />} />
           <Route path="*" element={<NotFound404Page />} />

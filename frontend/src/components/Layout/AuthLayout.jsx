@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Layout from './Layout';
 import { Grid, Card, CardContent } from '@mui/material';
-import { CentredElementsColumn } from '../../components/StyledNodes';
+import { FlexColumn } from '../../components/StyledNodes';
 
 function AuthLayout ({ children }) {
 
@@ -16,9 +16,9 @@ function AuthLayout ({ children }) {
         <Grid item xl={3} lg={4} md={6} sm={8} xs={12}>
           <Card>
             <CardContent>
-              <CentredElementsColumn>
+              <FlexColumn>
                 {children}
-              </CentredElementsColumn>
+              </FlexColumn>
             </CardContent>
           </Card>
         </Grid>

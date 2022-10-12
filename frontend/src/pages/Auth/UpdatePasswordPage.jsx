@@ -1,20 +1,16 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
-import AuthLayout from '../../components/Layout/AuthLayout';
+import { Grid } from '@mui/material';
+import GlobalContext from '../../utils/GlobalContext';
+import ManageLayout from '../../components/Layout/ManageLayout';
 import { PasswordInput } from '../../components/InputFields';
-import { CentredPageTitle, CustomLink } from '../../components/TextNodes';
-import { LargeSubmitButton } from '../../components/Buttons';
+import { PageTitle } from '../../components/TextNodes';
+import { LeftAlignedSubmitButton } from '../../components/Buttons';
 import { CentredElementsForm } from '../../components/Forms';
-import { isValidEmail, validatePassword, validatePasswordMatch, backendRequest } from '../../helpers';
 import { ErrorAlert, SuccessAlert } from '../../components/StyledNodes';
+import { backendRequest, validatePassword, validatePasswordMatch } from '../../helpers';
 
-function PasswordResetPage () {
-  const query = new URLSearchParams(window.location.search);
-  
-  // from url query
-  const [email] = React.useState(query.get("email"));
-  const [code] = React.useState(query.get("code"));
+function UpdatePasswordPage () {
+  const token = React.useContext(GlobalContext).token;
 
   // password fields
   const [password, setPassword] = React.useState('');
@@ -27,24 +23,17 @@ function PasswordResetPage () {
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
   
-  let valid = true;
-
-  if (!email || !code || isValidEmail(email) === false || code.length < 2) {
-    valid = false;
-  }
-  
-  const resetPassword = (e) => {
+  const updatePassword = (e) => {
     e.preventDefault();
     
     if (password !== '' && passwordMessage === '' &&
         confirm != '' && confirmMessage === '') {
-      // send to backend (email, code, password)
+      // send to backend
       const body = {
-        email: email,
-        code: code,
+        token: token,
         password: password
       };
-      backendRequest('/auth/reset-password', body, 'PUT', null, (data) => {
+      backendRequest('/auth/update-password', body, 'PUT', null, (data) => {
         setResponseSuccess('Password Reset Successfully');
       }, (error) => {
         setResponseError(error);
@@ -54,14 +43,13 @@ function PasswordResetPage () {
       validatePasswordMatch(password, confirm, setConfirmMessage);
     }
   };
-  
+
   return (
-    <>
-      {!valid && <Navigate to="/forbidden-403" />}
-      <AuthLayout>
-        <CentredPageTitle>Password Reset</CentredPageTitle>
+    <ManageLayout>
+      <Grid item xl={3} lg={5} md={7} sm={10} xs={12}>
+        <PageTitle>Update Password</PageTitle>
         {responseSuccess === '' &&
-        <CentredElementsForm noValidate onSubmit={resetPassword}>
+        <CentredElementsForm noValidate onSubmit={updatePassword}>
           <PasswordInput
             label="New Password"
             required
@@ -78,21 +66,15 @@ function PasswordResetPage () {
             error={passwordMessage !== ''}
             helperText={passwordMessage}
           />
-          <LargeSubmitButton>Reset Password</LargeSubmitButton>
+          <LeftAlignedSubmitButton>Update Password</LeftAlignedSubmitButton>
         </CentredElementsForm>}
         {responseSuccess !== '' &&
         <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
         {responseSuccess === '' && responseError !== '' &&
         <ErrorAlert message={responseError} setMessage={setResponseError} />}
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography component="span">Return to </Typography>
-          <CustomLink to="/login">
-            Log in
-          </CustomLink>
-        </Box>
-      </AuthLayout>
-    </>
+      </Grid>
+    </ManageLayout>
   );
 }
 
-export default PasswordResetPage;
+export default UpdatePasswordPage;

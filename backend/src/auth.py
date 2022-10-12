@@ -176,7 +176,7 @@ def auth_register(display_name, email, password):
             'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
         },
         key, algorithm='HS256'
-    )
+    ).decode('utf-8')
 
     # Add user's token to database
     sql_query = "UPDATE users SET token = %s WHERE id = %s;"
@@ -209,9 +209,9 @@ def auth_login(email, password):
             token:  String
         Status 400
             errors: [String]
-    
+
     """
-    
+   
     # Connect to database
     try:
         conn = psycopg2.connect("dbname=meal-maker-db")
@@ -258,7 +258,7 @@ def auth_login(email, password):
             'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
         },
         key, algorithm='HS256'
-    )
+    ).decode('utf-8')
 
     # Add new token to database
     sql_query = "UPDATE users SET token = %s WHERE id = %s;"
@@ -324,7 +324,6 @@ def auth_logout(token):
             'token': token
         }
     }
-
 
 def auth_update_pw(token, password):
     """Updates an authenticated user's password
