@@ -10,6 +10,7 @@ def user_update(token, given_names, surname, display_name, email, about_me, coun
             'error': 'Display name or email fields cannot be empty'
         }
     output = {}
+    output["status_code"] = 200
     output["given_names"] = user_update_name(token, given_names)
     output["last_name"] = user_update_surname(token, surname)
     output["display_name"] = user_update_display_name(token, display_name)
@@ -23,6 +24,7 @@ def user_update(token, given_names, surname, display_name, email, about_me, coun
 def user_update_preferences(token, units, efficiency, breakfast, lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free, soy_free):
     """updates user preferences"""
     output = {}
+    output["status_code"] = 200
     output["units"] = user_update_units(token, units)
     output["efficiency"] = user_update_efficiency(token, efficiency)
     output["preferences"] = user_update_preferences_booleans(token, breakfast, lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free, soy_free)
