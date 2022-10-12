@@ -1,3 +1,5 @@
+from datetime import datetime, timezone, timedelta
+
 import psycopg2
 import jwt
 
@@ -38,7 +40,17 @@ def verify_token(token):
     print(type(id_decoded))
 
     if id_db == id_decoded:
-        #TODO: Update last_request in database
+        sql_query = "UPDATE users SET last_request = %s WHERE id = %s"
+        cur.execute(sql_query, (datetime.now(tz=timezone.utc), str(id_db)))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
         return True
     else:
+        conn.commit()
+        cur.close()
+        conn.close()
+
         return False
