@@ -1,9 +1,13 @@
 from datetime import datetime, timezone, timedelta
+from email.message import EmailMessage
 import psycopg2
-import json
 import bcrypt
 import jwt
 import re
+import urllib
+import hashlib
+import smtplib
+import ssl
 
 def check_valid_password(password):
     """Password validity checker
@@ -26,8 +30,8 @@ def check_valid_password(password):
         Error Msg   (String): reason for password being invalid
     
     """
+
     special_chars = "`~!@#$%^&*()-_=+;:'“,<.>/?"
-    errors = ""
 
     # Check that the password is of suitable length
     if len(password) < 8:
@@ -55,6 +59,41 @@ def check_valid_password(password):
 
     return True, ""
 
+def send_email_reset_link(email_to, link):
+    """Email sender
+    
+    Sends email from code.chefs.authenticator@gmail.com containing password
+    reset information and reset link. 
+    
+    Args:
+        email_to    (String): email address of the recipient
+        link        (String): link to add to email body
+    
+    Returns:
+        Nothing
+    
+    """
+
+    email_from = "code.chefs.authenticator@gmail.com"
+
+    # TODO: Move this password
+    email_from_pw = "verpqyhctvdnwinx"
+
+    msg_body = f"You've requested a password reset. If this was not you, " + \
+               f"please ignore this email.\r\n\r\n" + \
+               f"To reset your password, use link {link}."
+
+    em = EmailMessage()
+    em['From'] = email_from
+    em['To'] = email_to
+    em['Subject'] = "Password reset for Meal Maker"
+    em.set_content(msg_body)
+
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(email_from, email_from_pw)
+        smtp.sendmail(email_from, email_to, em.as_string())
+
 def auth_register(display_name, email, password):
     """Registers a new user
 
@@ -79,7 +118,7 @@ def auth_register(display_name, email, password):
                 password: Byte String
             }
         Status 400
-            errors: [String]
+            error: String
 
     """
     
@@ -131,13 +170,26 @@ def auth_register(display_name, email, password):
 
     #TODO: Generate JWT token
     key = "SECRET"
-    encoded_jwt = jwt.encode(
-        {
-            'u_id': u_id,
-            'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
-        },
-        key, algorithm='HS256'
-    ).decode('utf-8')
+
+    # Create JWT token for old pyjwt ver 1.7
+    try:
+        encoded_jwt = jwt.encode(
+            {
+                'u_id': u_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+            },
+            key, algorithm='HS256'
+        ).decode('utf-8')
+    
+    # Create JWT token for new pyjwt ver 2.5
+    except AttributeError:
+        encoded_jwt = jwt.encode(
+            {
+                'u_id': u_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+            },
+            key, algorithm='HS256'
+        )
 
     # Add user's token to database
     sql_query = "UPDATE users SET token = %s WHERE id = %s;"
@@ -213,13 +265,26 @@ def auth_login(email, password):
 
     # TODO: Generate JWT token
     key = "SECRET"
-    encoded_jwt = jwt.encode(
-        {
-            'u_id': u_id,
-            'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
-        },
-        key, algorithm='HS256'
-    ).decode('utf-8')
+
+    # Create JWT token for old pyjwt ver 1.7
+    try:
+        encoded_jwt = jwt.encode(
+            {
+                'u_id': u_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+            },
+            key, algorithm='HS256'
+        ).decode('utf-8')
+    
+    # Create JWT token for new pyjwt ver 2.5
+    except AttributeError:
+        encoded_jwt = jwt.encode(
+            {
+                'u_id': u_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+            },
+            key, algorithm='HS256'
+        )
 
     # Add new token to database
     sql_query = "UPDATE users SET token = %s WHERE id = %s;"
@@ -263,7 +328,6 @@ def auth_logout(token):
         }
     
     # Check that the token corresponds to an active user
-    print(type(token))
     cur.execute("SELECT token FROM users WHERE token = %s;", (token,))
 
     sql_result = cur.fetchall()
@@ -274,7 +338,7 @@ def auth_logout(token):
         }
 
     # Remove token from database
-    cur.execute("UPDATE users SET token = NULL WHERE token = %s;", (token))
+    cur.execute("UPDATE users SET token = NULL WHERE token = %s;", (token,))
 
     conn.commit()
     cur.close()
@@ -283,7 +347,7 @@ def auth_logout(token):
     return {
         'status_code': 200,
         'body': {
-            'token': token
+
         }
     }
 
@@ -305,9 +369,48 @@ def auth_update_pw(token, password):
         Status 401
     
     """
-    pass
+    
+    # Connect to database
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    
+    # TODO: Verify token
 
-def auth_reset_link(email):
+    # Check that the password is valid
+    password_valid, errors = check_valid_password(password)
+    if not password_valid:
+        return {
+            'status_code': 400,
+            'error': errors
+        }
+
+    # Encrypt password
+    encoded_pw = password.encode('utf8')
+    salt = bcrypt.gensalt()
+    hashed_pw = bcrypt.hashpw(encoded_pw, salt)
+
+    # Update user's password in database
+    sql_query = "UPDATE users SET password = %s WHERE token = %s;"
+    cur.execute(sql_query, (hashed_pw.decode('utf-8'), token))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+            'success': True
+        }
+    }
+
+def auth_reset_link(email, base_url):
     """Sends a link to reset user's password
     
     Allows a user to reset their password if they forgot it. This function sends
@@ -316,21 +419,70 @@ def auth_reset_link(email):
     string containing the email and reset code (32 bit hashed) is sent.
 
     https://stackoverflow.com/questions/15799696/how-to-build-urls-in-python
+    http://localhost:3000/password-reset?email=someone@gmail.com&code=F05313695A0E6987111344F3D15F01E4
     
     Args:
         email       (String): email that the reset link will be sent to
+        base_url    (String): the base url without query string appended
         
     Returns:
         Status 200
         Status 400
         
     """
-    pass
 
-def auth_reset_pw(password):
+    # Connect to database
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    
+    # Check that email corresponds to a user in the database
+    sql_query = "SELECT id, display_name FROM users WHERE email = %s;"
+    cur.execute(sql_query, (email,))
+
+    sql_result = cur.fetchall()
+    if not sql_result:
+        return {
+            'status_code': 200,
+            'body': {
+                'message': '(shh, this failed) Link sent to email provided'
+            }
+        }
+    
+    # Generate url for password reset
+    code = hashlib.md5(str(sql_result[0]).encode('utf-8')).hexdigest()
+    params = {'email': email, 'code': code}
+    url = base_url + urllib.parse.urlencode(params)
+
+    # Send email
+    send_email_reset_link(email, url)
+
+    # TODO: Update password_reset with code
+    sql_query = "UPDATE users SET password_reset = %s WHERE email = %s;"
+    cur.execute(sql_query, (code, email))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+            'message': 'Link sent to email provided'
+        }
+    }
+
+def auth_reset_pw(email, code, password):
     """Updates password from reset link
     
     Args:
+        email       (String):
+        code        (String):
         password    (String):
         
     Returns:
@@ -338,5 +490,59 @@ def auth_reset_pw(password):
         Status 400
         
     """
-    pass
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect("dbname=meal-maker-db")
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
     
+    # TODO: Check the reset-code of user matches
+    cur.execute("SELECT password_reset FROM users WHERE email = %s;", (email,))
+
+    sql_result = cur.fetchall()
+    if not sql_result:
+        return {
+            'status_code': 400,
+            'error': 'Email does not match any user on server'
+        }
+
+    code_db, = sql_result[0]
+
+    if code_db != code:
+        return {
+            'status_code': 400,
+            'error': 'Code does not match code stored on server'
+        }
+
+    # Check that the password is valid
+    password_valid, errors = check_valid_password(password)
+    if not password_valid:
+        return {
+            'status_code': 400,
+            'error': errors
+        }
+
+    # Encrypt password
+    encoded_pw = password.encode('utf8')
+    salt = bcrypt.gensalt()
+    hashed_pw = bcrypt.hashpw(encoded_pw, salt)
+
+    # Update user's password in database
+    sql_query = "UPDATE users SET password = %s WHERE email = %s;"
+    cur.execute(sql_query, (hashed_pw.decode('utf-8'), email))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+            'success': True
+        }
+    }

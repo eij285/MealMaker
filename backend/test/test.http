@@ -3,7 +3,7 @@ content-type: application/json
 
 {
     "display-name": "elijah",
-    "email": "e@gmail.com",
+    "email": "eij285@gmail.com",
     "password": "Aa@45678"
 }
 
@@ -23,7 +23,36 @@ POST http://127.0.0.1:5000/auth/logout HTTP/1.1
 content-type: application/json
 
 {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjU5OTM5Mjh9.OBFtfqjvbFNBadYj1EcyQB5woCOdhMt9pisl7GXtN0I"
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjYwNzE3ODF9.gTytsfAavHsgMT5gnllp2ewUB1DrErAgRzQObzj1qKQ"
+}
+
+###
+
+PUT http://127.0.0.1:5000/auth/update-password HTTP/1.1
+content-type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjYwNzE3ODF9.gTytsfAavHsgMT5gnllp2ewUB1DrErAgRzQObzj1qKQ",
+    "password": "Cc@45678"
+}
+
+###
+
+PUT http://127.0.0.1:5000/auth/reset-link HTTP/1.1
+content-type: application/json
+
+{
+    "email": "eij285@gmail.com"
+}
+
+###
+
+PUT http://127.0.0.1:5000/auth/reset-password HTTP/1.1
+content-type: application/json
+
+{
+    "email": "e@gmail.com",
+    "password": "Bb@45678"
 }
 
 ###

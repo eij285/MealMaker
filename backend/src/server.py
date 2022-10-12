@@ -2,7 +2,10 @@ from crypt import methods
 from flask import Flask, request
 from flask_cors import CORS
 from json import dumps
-from auth import auth_register, auth_login, auth_logout
+import psycopg2
+
+from auth import auth_register, auth_login, auth_logout, auth_update_pw, \
+                 auth_reset_link, auth_reset_pw
 from helpers import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences
 from recipe import create_recipe, edit_recipe, publish_recipe
@@ -10,7 +13,6 @@ from backend_helper import *
 
 APP = Flask(__name__)
 CORS(APP)
-###
 
 @APP.route('/', methods=['GET'])
 def index():
@@ -27,7 +29,6 @@ def register():
 
     return dumps(auth_register(display_name, email, password))
 
-###
 @APP.route('/auth/login', methods=['POST'])
 def login():
     payload = request.get_json()
@@ -45,23 +46,28 @@ def logout():
 
 @APP.route('/auth/update-password', methods=['PUT'])
 def update_password():
-    pass
+    payload = request.get_json()
+    token = payload['token']
+    password = payload['password']
+    
+    return dumps(auth_update_pw(token, password))
 
 @APP.route('/auth/reset-link', methods=['PUT'])
 def reset_link():
     payload = request.get_json()
     email = payload['email']
+    base_url = "http://localhost:3000/password-reset?"
 
-    # return auth_reset_link(email)
-    pass
+    return dumps(auth_reset_link(email, base_url))
 
 @APP.route('/auth/reset-password', methods=['PUT'])
 def reset_password():
     payload = request.get_json()
+    email = payload['email']
+    code = payload['code']
     password = payload['password']
 
-    # return auth_reset_pw(password)
-    pass
+    return dumps(auth_reset_pw(email, code, password))
 
 @APP.route('/user/update', methods=['PUT'])
 def update_user_details():
