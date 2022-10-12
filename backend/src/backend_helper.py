@@ -103,10 +103,15 @@ def remove_recipe_database():
     connection.close()
 
 def verify_token(token):
-    try:
-        return jwt.decode(token, key="SECRET", alogirhtm="HS256") 
-    except:
-        return None
+    connection = connect()
+    cur = connection.cursor()
+    command = ("SELECT token FROM users")
+    cur.execute(command)
+    out = cur.fetchall()
+    connection.close()
+    cur.close()
+    all_token = out[0]
+    return token in all_token
 
 def fetch_user_id_from_token(token):
     connection = connect()
@@ -117,11 +122,30 @@ def fetch_user_id_from_token(token):
     connection.close()
     return out
 
-def fetch_recipe_database():
+def fetch_database(database):
     connection = connect()
-    command = ("SELECT * FROM recipe")
+    command = ("SELECT * FROM " + database)
     cur = connection.cursor()
     cur.execute(command)
-    out = cur.fetchall()
+    out_data = cur.fetchall()
+    command = ("""
+            SELECT COLUMN_NAME
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = %s
+            ORDER BY ORDINAL_POSITION"""
+            )
+    cur.execute(command, (database,))
+    out_header = cur.fetchall()
+    out_dict = {}
+    out_list = []
+    len_data = len(out_data)
+    len_header = len(out_header)
+    for i in range(len_data):
+        for j in range(len(out_data[i])):
+            k = j if j < len_header else j % len_header
+            out_dict[out_header[k][0]] = out_data[0][j]
+        out_list.append(out_dict)
+        out_dict = {}
     connection.close()
-    return out
+    cur.close()
+    return out_list
