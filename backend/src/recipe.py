@@ -29,7 +29,7 @@ from backend_helper import connect
 #         }
     
 
-def create_recipe(name, description, method, portion_size, is_public, token):
+def create_recipe(name, description, method, portion_size, recipe_status, token):
     # Start connection to database
     connection = connect()
     cur = connection.cursor()
@@ -60,13 +60,13 @@ def create_recipe(name, description, method, portion_size, is_public, token):
     try:
         command = ("""
             INSERT INTO
-                recipe(owner_id, recipe_name, recipe_description, methods, portion_size, is_public)
+                recipe(owner_id, recipe_name, recipe_description, methods, portion_size, recipe_status)
             VALUES
                 (%s, %s, %s, %s, %s, %s)
             RETURNING
                 recipe_id
             """)
-        cur.execute(command, (owner_id, name, description, method, portion_size, is_public,))
+        cur.execute(command, (owner_id, name, description, method, portion_size, recipe_status,))
         connection.commit()
         recipe_id = cur.fetchone()[0]
         # Close connection
@@ -96,7 +96,7 @@ def publish_recipe(recipe_id, publish):
     try:
         command = ("""
             UPDATE recipe
-            SET is_public = %s
+            SET recipe_status = %s
             WHERE recipe_id = %s
             """)
         cur.execute(command, (publish, recipe_id,))
@@ -127,7 +127,7 @@ def edit_recipe(name, description, methods, portion_size, recipe_id, publish):
     try:
         command = ("""
             UPDATE recipe
-            SET recipe_name = %s, recipe_description = %s, methods = %s, portion_size = %s, is_public = %s
+            SET recipe_name = %s, recipe_description = %s, methods = %s, portion_size = %s, recipe_status = %s
             WHERE recipe_id = %s
             """)
         cur.execute(command, (name, description, methods, portion_size, publish, recipe_id,))
