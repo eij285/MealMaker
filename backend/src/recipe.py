@@ -43,6 +43,9 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
 
     # Retrieve user id based on token
     if token == None:
+        # Close connection
+        connection.close()
+        cur.close()
         return {
             'status_code': 401,
             'error': "No token"
@@ -58,6 +61,9 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
         cur.execute(command, (str(token),))
         owner_id = cur.fetchall()[0][0]
     except:
+        # Close connection
+        connection.close()
+        cur.close()
         return {
             'status_code': 400,
             'error': "cannot find user id"
@@ -74,9 +80,10 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
             """)
         cur.execute(command, (owner_id, name, description, method, portion_size, recipe_status,))
         connection.commit()
-        recipe_id = cur.fetchone()[0]
+        recipe_id = cur.fetchall()[0]
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 201,
             'body': {
@@ -86,6 +93,7 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 400,
             'error': "fail to insert recipe into db"
@@ -110,12 +118,14 @@ def publish_recipe(recipe_id, publish):
         
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 200
         }
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 400,
             'error': None
@@ -146,6 +156,7 @@ def edit_recipe(name, description, methods, portion_size, recipe_id, publish, to
         connection.commit()
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 200
         }
@@ -153,6 +164,7 @@ def edit_recipe(name, description, methods, portion_size, recipe_id, publish, to
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 400,
             'error': None
@@ -170,6 +182,7 @@ def fetch_all_recipe():
         output = cur.fetchall()
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code':200,
             'body': output
@@ -178,6 +191,7 @@ def fetch_all_recipe():
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code':400,
             'error': None

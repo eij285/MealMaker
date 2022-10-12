@@ -143,7 +143,7 @@ def fetch_database(database):
     for i in range(len_data):
         for j in range(len(out_data[i])):
             k = j if j < len_header else j % len_header
-            out_dict[out_header[k][0]] = out_data[0][j]
+            out_dict[out_header[k][0]] = out_data[i][j]
         out_list.append(out_dict)
         out_dict = {}
     connection.close()
