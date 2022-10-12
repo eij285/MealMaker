@@ -9,7 +9,7 @@ from auth import auth_register, auth_login, auth_logout, auth_update_pw, \
 from helpers import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences
 from recipe import create_recipe, edit_recipe, publish_recipe
-from backend_helper import *
+from backend_helper import database_reset
 
 APP = Flask(__name__)
 CORS(APP)
