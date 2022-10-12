@@ -154,30 +154,32 @@ def edit_recipe():
     methods = data['method']
     portion_size = data['portion_size']
     recipe_id = data['recipe_id']
+
     return dumps(edit_recipe(name, description, methods, portion_size, recipe_id))
 '''
 
-@APP.route('/recipe/publish', methods=['PUT'])
-def publish_recipe():
-    data = request.get_json()
-    # Verify token
-    token = data['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
-    
-    recipe_id = data['recipe_id']
-    return dumps(publish_recipe(recipe_id, "t"))
+# @APP.route('/recipe/publish', methods=['PUT'])
+# def publish_recipe():
+#     data = request.get_json()
+#     # Verify token
+#     token = data['token']
+#     if not verify_token(token):
+#         return dumps({'status_code': 401, 'error': None})
 
-@APP.route('/recipe/unpublish', methods=['PUT'])
-def unpublish_recipe():
-    data = request.get_json()
-    # Verify token
-    token = data['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
     
-    recipe_id = data['recipe_id']
-    return dumps(publish_recipe(recipe_id, "f"))
+#     recipe_id = data['recipe_id']
+#     return dumps(publish_recipe(recipe_id, "t"))
+
+# @APP.route('/recipe/unpublish', methods=['PUT'])
+# def unpublish_recipe():
+#     data = request.get_json()
+#     # Verify token
+#     token = data['token']
+#     if not verify_token(token):
+#         return dumps({'status_code': 401, 'error': None})
+    
+#     recipe_id = data['recipe_id']
+#     return dumps(publish_recipe(recipe_id, "f"))
 
 @APP.route('/reset', methods=['DELETE', 'GET'])
 def reset():

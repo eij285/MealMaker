@@ -47,9 +47,7 @@ CREATE TABLE recipe (
     recipe_name VARCHAR(255) NOT NULL,
     recipe_description VARCHAR(255) NOT NULL,
     methods VARCHAR(255) NOT NULL,
-    is_public BOOLEAN NOT NULL DEFAULT FALSE,
-    total_star INTEGER,
-    review_count INTEGER,
+    recipe_status TEXT,
     portion_size INTEGER
 );
 
