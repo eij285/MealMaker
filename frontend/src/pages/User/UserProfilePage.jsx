@@ -30,6 +30,7 @@ function UserProfilePage () {
 
   // response messages
   const [responseError, setResponseError] = React.useState('');
+  const [responseSuccess, setResponseSuccess] = React.useState('');
 
   const loadUserData = (data) => {
     setPronoun(data.pronoun ? data.pronoun : config.PRONOUNS[0]);
