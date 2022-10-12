@@ -1,5 +1,5 @@
 import psycopg2
-from backend_helper import connect
+from backend_helper import connect, verify_token
    
 # def create_recipe_table(connection):
 #     cur = connection.cursor()
@@ -30,15 +30,25 @@ from backend_helper import connect
     
 
 def create_recipe(name, description, method, portion_size, recipe_status, token):
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
     # Start connection to database
     connection = connect()
     cur = connection.cursor()
 
     # Retrieve user id based on token
     if token == None:
+        # Close connection
+        connection.close()
+        cur.close()
         return {
             'status_code': 401,
-            'error': None
+            'error': "No token"
         }
     
     try:
@@ -51,11 +61,13 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
         cur.execute(command, (str(token),))
         owner_id = cur.fetchall()[0][0]
     except:
+        # Close connection
+        connection.close()
+        cur.close()
         return {
             'status_code': 400,
-            'error': None
+            'error': "cannot find user id"
         }
-        
     # Add new recipe to system
     try:
         command = ("""
@@ -68,9 +80,10 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
             """)
         cur.execute(command, (owner_id, name, description, method, portion_size, recipe_status,))
         connection.commit()
-        recipe_id = cur.fetchone()[0]
+        recipe_id = cur.fetchall()[0]
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 201,
             'body': {
@@ -80,9 +93,10 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 400,
-            'error': None
+            'error': "fail to insert recipe into db"
         }
 
 
@@ -104,12 +118,14 @@ def publish_recipe(recipe_id, publish):
         
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 200
         }
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 400,
             'error': None
@@ -117,7 +133,13 @@ def publish_recipe(recipe_id, publish):
         
     
 
-def edit_recipe(name, description, methods, portion_size, recipe_id, publish):
+def edit_recipe(name, description, methods, portion_size, recipe_id, publish, token):
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
     
     # Start connection to database
     connection = connect()
@@ -134,6 +156,7 @@ def edit_recipe(name, description, methods, portion_size, recipe_id, publish):
         connection.commit()
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 200
         }
@@ -141,6 +164,7 @@ def edit_recipe(name, description, methods, portion_size, recipe_id, publish):
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code': 400,
             'error': None
@@ -158,6 +182,7 @@ def fetch_all_recipe():
         output = cur.fetchall()
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code':200,
             'body': output
@@ -166,12 +191,8 @@ def fetch_all_recipe():
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         connection.close()
+        cur.close()
         return {
             'status_code':400,
             'error': None
         }
-
-
-if __name__ == "__main__":
-    all_recipe = fetch_all_recipe()
-    print(all_recipe['body'])
