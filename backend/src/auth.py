@@ -495,4 +495,3 @@ def auth_reset_pw(email, password):
             'password': hashed_pw.decode('utf-8')
         }
     }
-    
