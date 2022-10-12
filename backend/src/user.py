@@ -116,7 +116,7 @@ def user_update_preferences_booleans(token, breakfast, lunch, dinner, snack, veg
                           dairy_free = %s,
                           gluten_free = %s,
                           nut_free = %s,
-                          egg_free = %d,
+                          egg_free = %s,
                           shellfish_free = %s,
                           soy_free = %s
                           WHERE token = %s;"""
