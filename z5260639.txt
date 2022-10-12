@@ -227,3 +227,14 @@ between the backend and frontend, how the database should be structured, and
 which http methods should be used to send data. Still have several more screens
 to connect to the backend and have some backend functionality that needs to be
 fixed. 
+
+Wednesday
+----------
+I completed the frontend for the authentication and user objectives after much
+work and fixing issues with backend and database. Discovered compatability
+with different versions of the pyjwt python module installed on linux/wsl and
+macos work, thus what works properly in one environment may not in another. Also
+did a part of the frontend recipe screens. The recipe screens are more
+complicated than the authentication and user screens. Therefore as a group we
+will need to be very explicit over how they're intended to work, and how the
+database relation data is to be structured.
