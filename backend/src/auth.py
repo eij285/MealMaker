@@ -170,13 +170,26 @@ def auth_register(display_name, email, password):
 
     #TODO: Generate JWT token
     key = "SECRET"
-    encoded_jwt = jwt.encode(
-        {
-            'u_id': u_id,
-            'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
-        },
-        key, algorithm='HS256'
-    ).decode('utf-8')
+
+    # Create JWT token for old pyjwt ver 1.7
+    try:
+        encoded_jwt = jwt.encode(
+            {
+                'u_id': u_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+            },
+            key, algorithm='HS256'
+        ).decode('utf-8')
+    
+    # Create JWT token for new pyjwt ver 2.5
+    except AttributeError:
+        encoded_jwt = jwt.encode(
+            {
+                'u_id': u_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+            },
+            key, algorithm='HS256'
+        )
 
     # Add user's token to database
     sql_query = "UPDATE users SET token = %s WHERE id = %s;"
@@ -252,13 +265,26 @@ def auth_login(email, password):
 
     # TODO: Generate JWT token
     key = "SECRET"
-    encoded_jwt = jwt.encode(
-        {
-            'u_id': u_id,
-            'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
-        },
-        key, algorithm='HS256'
-    ).decode('utf-8')
+
+    # Create JWT token for old pyjwt ver 1.7
+    try:
+        encoded_jwt = jwt.encode(
+            {
+                'u_id': u_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+            },
+            key, algorithm='HS256'
+        ).decode('utf-8')
+    
+    # Create JWT token for new pyjwt ver 2.5
+    except AttributeError:
+        encoded_jwt = jwt.encode(
+            {
+                'u_id': u_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
+            },
+            key, algorithm='HS256'
+        )
 
     # Add new token to database
     sql_query = "UPDATE users SET token = %s WHERE id = %s;"
@@ -312,7 +338,7 @@ def auth_logout(token):
         }
 
     # Remove token from database
-    cur.execute("UPDATE users SET token = NULL WHERE token = %s;", (token))
+    cur.execute("UPDATE users SET token = NULL WHERE token = %s;", (token,))
 
     conn.commit()
     cur.close()

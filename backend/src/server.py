@@ -2,14 +2,10 @@ from crypt import methods
 from flask import Flask, request
 from flask_cors import CORS
 from json import dumps
-<<<<<<< HEAD
 import psycopg2
 
 from auth import auth_register, auth_login, auth_logout, auth_update_pw, \
                  auth_reset_link, auth_reset_pw
-=======
-from auth import auth_register, auth_login, auth_logout
->>>>>>> main
 from helpers import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences
 from recipe import create_recipe, edit_recipe, publish_recipe
