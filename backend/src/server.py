@@ -1,5 +1,6 @@
 from crypt import methods
 from flask import Flask, request
+from flask_cors import CORS
 from json import dumps
 from auth import auth_register, auth_login, auth_logout
 from helpers import database_reset, files_reset
@@ -8,6 +9,7 @@ from recipe import create_recipe, edit_recipe, publish_recipe
 from backend_helper import *
 
 APP = Flask(__name__)
+CORS(APP)
 ###
 
 @APP.route('/', methods=['GET'])
@@ -66,8 +68,8 @@ def update_user_details():
     payload = request.get_json()
     # Verify token
     token = payload['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
+    #if not verify_token(token):
+    #    return dumps({'status_code': 401, 'error': None})
     display_name = payload['display-name']
     name = payload['given-names']
     surname = payload['last-name']
@@ -83,9 +85,9 @@ def update_user_preferences():
     payload = request.get_json()
     # Verify token
     token = payload['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
-    units = payload[units]
+    #if not verify_token(token):
+    #    return dumps({'status_code': 401, 'error': None})
+    units = payload['units']
     efficiency = payload['efficiency']
     breakfast = payload['breakfast']
     lunch = payload['lunch']
@@ -108,8 +110,8 @@ def get_user_details():
     payload = request.get_json()
     # Verify token
     token = payload['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
+    #if not verify_token(token):
+    #    return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_info(token))
 
@@ -118,8 +120,8 @@ def get_user_preferences():
     payload = request.get_json()
     # Verify token
     token = payload['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
+    #if not verify_token(token):
+    #   return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_preferences(token))
 
@@ -128,8 +130,8 @@ def create_recipe():
     data = request.get_json()
     # Verify token
     token = data['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
+    #if not verify_token(token):
+    #    return dumps({'status_code': 401, 'error': None})
     
     name = data['name']
     description = data['description']
@@ -138,7 +140,7 @@ def create_recipe():
     token = data['token']
     return dumps(create_recipe(name, description, method, portion_size, token))
         
-
+'''
 @APP.route('/recipe/edit', methods=['PUT'])
 def edit_recipe():
     data = request.get_json()
@@ -152,8 +154,9 @@ def edit_recipe():
     methods = data['method']
     portion_size = data['portion_size']
     recipe_id = data['recipe_id']
-    publish = data['publish']
-    return dumps(edit_recipe(name, description, methods, portion_size, recipe_id, publish))
+
+    return dumps(edit_recipe(name, description, methods, portion_size, recipe_id))
+'''
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
@@ -162,6 +165,7 @@ def edit_recipe():
 #     token = data['token']
 #     if not verify_token(token):
 #         return dumps({'status_code': 401, 'error': None})
+
     
 #     recipe_id = data['recipe_id']
 #     return dumps(publish_recipe(recipe_id, "t"))

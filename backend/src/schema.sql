@@ -1,5 +1,6 @@
 -- Meal Maker database schema
 
+DROP TABLE IF EXISTS recipe;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -39,7 +40,7 @@ CREATE TABLE users (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE recipe(
+CREATE TABLE recipe (
     recipe_id SERIAL PRIMARY KEY,
     owner_id SERIAL,
     CONSTRAINT owner_id FOREIGN KEY (owner_id) REFERENCES users(id),
