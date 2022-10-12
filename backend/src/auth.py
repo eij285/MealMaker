@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from email.message import EmailMessage
+from config import DB_CONN_STRING, SECRET_KEY, EMAIL_AUTH_ADDR, EMAIL_AUTH_PW
 import psycopg2
 import bcrypt
 import jwt
@@ -74,10 +75,10 @@ def send_email_reset_link(email_to, link):
     
     """
 
-    email_from = "code.chefs.authenticator@gmail.com"
+    email_from = EMAIL_AUTH_ADDR
 
     # TODO: Move this password
-    email_from_pw = "verpqyhctvdnwinx"
+    email_from_pw = EMAIL_AUTH_PW
 
     msg_body = f"You've requested a password reset. If this was not you, " + \
                f"please ignore this email.\r\n\r\n" + \
@@ -124,7 +125,7 @@ def auth_register(display_name, email, password):
     
     # Connect to database
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
     except:
         return {
@@ -168,9 +169,6 @@ def auth_register(display_name, email, password):
 
     u_id = cur.fetchone()[0]
 
-    #TODO: Generate JWT token
-    key = "SECRET"
-
     # Create JWT token for old pyjwt ver 1.7
     try:
         encoded_jwt = jwt.encode(
@@ -178,7 +176,7 @@ def auth_register(display_name, email, password):
                 'u_id': u_id,
                 'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
             },
-            key, algorithm='HS256'
+            SECRET_KEY, algorithm='HS256'
         ).decode('utf-8')
     
     # Create JWT token for new pyjwt ver 2.5
@@ -188,7 +186,7 @@ def auth_register(display_name, email, password):
                 'u_id': u_id,
                 'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
             },
-            key, algorithm='HS256'
+            SECRET_KEY, algorithm='HS256'
         )
 
     # Add user's token to database
@@ -227,7 +225,7 @@ def auth_login(email, password):
    
     # Connect to database
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
     except:
         return {
@@ -263,9 +261,6 @@ def auth_login(email, password):
             'error': 'User already logged in'
         }
 
-    # TODO: Generate JWT token
-    key = "SECRET"
-
     # Create JWT token for old pyjwt ver 1.7
     try:
         encoded_jwt = jwt.encode(
@@ -273,7 +268,7 @@ def auth_login(email, password):
                 'u_id': u_id,
                 'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
             },
-            key, algorithm='HS256'
+            SECRET_KEY, algorithm='HS256'
         ).decode('utf-8')
     
     # Create JWT token for new pyjwt ver 2.5
@@ -283,7 +278,7 @@ def auth_login(email, password):
                 'u_id': u_id,
                 'exp': datetime.now(tz=timezone.utc) + timedelta(days=7)
             },
-            key, algorithm='HS256'
+            SECRET_KEY, algorithm='HS256'
         )
 
     # Add new token to database
@@ -319,7 +314,7 @@ def auth_logout(token):
     
     # Connect to database
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
     except:
         return {
@@ -372,7 +367,7 @@ def auth_update_pw(token, password):
     
     # Connect to database
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
     except:
         return {
@@ -433,7 +428,7 @@ def auth_reset_link(email, base_url):
 
     # Connect to database
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
     except:
         return {
@@ -493,7 +488,7 @@ def auth_reset_pw(email, code, password):
 
     # Connect to database
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
     except:
         return {
