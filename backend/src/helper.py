@@ -25,7 +25,7 @@ def verify_token(token):
     id_db, = sql_result[0]
 
     try:
-        decoded_jwt = jwt.decode(token)
+        decoded_jwt = jwt.decode(token, "SECRET", algorithms='HS256')
     except:
         return {
             'status_code': 400,
@@ -34,6 +34,11 @@ def verify_token(token):
     
     id_decoded = decoded_jwt['u_id']
 
-    print(id_db)
-    print(id_decoded)
-    pass
+    print(type(id_db))
+    print(type(id_decoded))
+
+    if id_db == id_decoded:
+        #TODO: Update last_request in database
+        return True
+    else:
+        return False
