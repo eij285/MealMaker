@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ckeditor/ckeditor5-react": "^5.0.2",
     "@date-io/moment": "^2.16.0",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
@@ -15,6 +16,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
     "@testing-library/user-event": "^13.2.1",
+    "ckeditor5-build-classic-base64-upload": "^27.0.2",
     "convert": "^4.6.3",
     "cypress-file-upload": "^5.0.8",
     "moment": "^2.29.4",
