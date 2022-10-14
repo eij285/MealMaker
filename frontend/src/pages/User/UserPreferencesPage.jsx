@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
-import { TextInput } from '../../components/InputFields';
 import { CentredElementsForm } from '../../components/Forms';
 import { PageTitle, SubPageTitle } from '../../components/TextNodes';
 import {
@@ -74,7 +73,7 @@ function UserPreferencesPage () {
     }, (error) => {
       setResponseError(error);
     });
-  }, []);
+  }, [token]);
 
   const updatePreferences = (e) => {
     e.preventDefault();

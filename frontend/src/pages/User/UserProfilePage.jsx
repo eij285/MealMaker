@@ -1,6 +1,16 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Divider, Grid, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import {
+  Box,
+  Divider,
+  Grid,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@mui/material';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from 'ckeditor5-build-classic-base64-upload';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
 import { EmailInput, TextInput } from '../../components/InputFields';
@@ -49,7 +59,7 @@ function UserProfilePage () {
     }, (error) => {
       setResponseError(error);
     });
-  }, []);
+  }, [token]);
 
   const updateProfile = (e) => {
     e.preventDefault();
@@ -144,13 +154,26 @@ function UserProfilePage () {
               ))}
               </Select>
             </FormControl>
-            <TextInput
-              label="About Me"
-              multiline
-              minRows={5}
-              value={about}
-              onChange={(e) => setAbout(e.target.value)}
-            />
+            <Box>
+              <InputLabel>About</InputLabel>
+              <CKEditor
+                id="user-about"
+                editor={ ClassicEditor }
+                data={ about }
+                onReady={ editor => {
+                  editor.editing.view.change((writer) => {
+                    writer.setStyle(
+                        "min-height",
+                        "200px",
+                        editor.editing.view.document.getRoot()
+                    );
+                  })
+                } }
+                onChange={ ( _, editor ) => {
+                  setAbout(editor.getData())
+                } }
+              />
+            </Box>
             <FlexRow>
               <FormControl>
                 <InputLabel id="user-visibility">Visibility</InputLabel>
