@@ -346,6 +346,64 @@ def auth_logout(token):
         }
     }
 
+def auth_logout_everywhere(email, password):
+    """Logs out a user everywhere
+    
+    Log out a user and remove their JWT token from the database. This may be
+    necessary where someone has gained unauthorised access to the user's login
+    or the user has lost their token as a result of clearing their browser
+    cache.
+
+    Args:
+        email       (String): email of user logging out
+        password    (String): password of user logging out
+
+    Returns:
+        Status 200
+            token:  String
+        Status 400
+            errors: [String]
+    
+    """
+    
+    # Connect to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    
+    # Check that email has been registered in database and if so obtain password
+    cur.execute("SELECT id, password FROM users WHERE email = %s;", (email,))
+
+    # Check password if account exists for given email, password combination
+    sql_result = cur.fetchone()
+    u_id, stored_pw = (None, None) if not sql_result else sql_result
+    if not stored_pw or not bcrypt.checkpw(password.encode('utf-8'), \
+        stored_pw.encode('utf-8')):
+        return {
+            'status_code': 400,
+            'error': 'Account does not exist'
+        }
+
+    # Add new token to database
+    sql_query = "UPDATE users SET token = NULL WHERE id = %s;"
+    cur.execute(sql_query, (str(u_id),))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+
+        }
+    }
+
 def auth_update_pw(token, password):
     """Updates an authenticated user's password
     

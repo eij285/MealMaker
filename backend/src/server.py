@@ -4,8 +4,9 @@ from flask_cors import CORS
 from json import dumps
 import psycopg2
 
-from auth import auth_register, auth_login, auth_logout, auth_update_pw, \
-                 auth_reset_link, auth_reset_pw
+from auth import auth_register, auth_login, auth_logout, \
+                 auth_logout_everywhere, auth_update_pw, auth_reset_link, \
+                 auth_reset_pw
 from backend_helper import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences
 from recipe import create_recipe, edit_recipe, publish_recipe
@@ -43,6 +44,14 @@ def logout():
     token = payload['token']
 
     return dumps(auth_logout(token))
+
+@APP.route('/auth/logout-everywhere', methods=['POST'])
+def logout_everywhere():
+    payload = request.get_json()
+    email = payload['email']
+    password = payload['password']
+
+    return dumps(auth_logout_everywhere(email, password))
 
 @APP.route('/auth/update-password', methods=['PUT'])
 def update_password():

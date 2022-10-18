@@ -32,6 +32,15 @@ export const LargeDefaultButton = (props) => {
 };
 
 /**
+ * alternate button type
+ */
+ export const LargeAlternateButton = (props) => {
+  return (
+    <LargeButton {...props} color="secondary" />
+  );
+};
+
+/**
  * default small button type
  */
 export const SmallDefaultButton = (props) => {
@@ -72,6 +81,13 @@ export const LargeSubmitButton = (props) => {
  * left aligned button
  */
 export const LeftAlignedButton = styled(LargeButton)`
+  align-self: flex-start;
+`;
+
+/**
+ * left aligned alternate button
+ */
+export const LeftAltButton = styled(LargeAlternateButton)`
   align-self: flex-start;
 `;
 

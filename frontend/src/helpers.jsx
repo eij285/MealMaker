@@ -81,9 +81,14 @@ export const isValidEmail = (str) => {
   return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(str) !== false;
 };
 
+// check if password string is valid, returning valid status and message if not
 export const isValidPassword = (str) => {
   if (str.length < 8) {
-    return false;
+    return {
+      valid: false,
+      message: str ? 'Password is less than 8 characters'
+        : 'A password is required'
+    };
   }
   let [hasUpper, hasLower, hasDigit, hasSymbol] = [false, false, false, false];
   for (const ch of str) {
@@ -97,10 +102,26 @@ export const isValidPassword = (str) => {
       hasUpper = true;
     }
     if (hasUpper && hasLower && hasDigit && hasSymbol) {
-      return true;
+      return {
+        valid: true,
+        message: ''
+      };
     }
   }
-  return false;
+  let missing = ' ';
+  if (!hasLower) {
+    missing = 'a lower-case character';
+  } else if(!hasUpper) {
+    missing = 'an upper-case character';
+  } else if(!hasDigit) {
+    missing = 'a decimal digit';
+  } else if(!hasSymbol) {
+    missing = 'a special character';
+  }
+  return {
+    valid: false,
+    message: `Password does not contain ${missing}`
+  };
 };
 
 // display name is required
@@ -125,13 +146,7 @@ export const validateEmail = (email, setMessage) => {
 
 // password must safisfy complexity requirements
 export const validatePassword = (password, setMessage) => {
-  if (password === '') {
-    setMessage('A password is required');
-  } else if (isValidPassword(password) === false) {
-    setMessage('Password must meet complexity requirements');
-  } else {
-    setMessage('');
-  }
+  setMessage(isValidPassword(password).message);
 };
 
 // ensure confirmation matches password, thus user didn't enter random values
