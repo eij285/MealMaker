@@ -11,9 +11,9 @@ import { ErrorAlert } from '../../components/StyledNodes';
 import { backendRequest } from '../../helpers';
 
 function LoginPage () {
-  const context = React.useContext(GlobalContext);
-  const login = context.login;
-  const logout = context.logout;
+  const globals = React.useContext(GlobalContext);
+  const login = globals.login;
+  const logout = globals.logout;
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [emailError, setEmailError] = React.useState(false);
@@ -39,7 +39,7 @@ function LoginPage () {
       password: password,
     };
     backendRequest('/auth/login', body, 'POST', null, (data) => {
-      login(data.token);
+      login(data.body.token);
       navigate('/');
     }, (error) => {
       setResponseError(error);
