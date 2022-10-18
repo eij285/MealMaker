@@ -238,3 +238,19 @@ did a part of the frontend recipe screens. The recipe screens are more
 complicated than the authentication and user screens. Therefore as a group we
 will need to be very explicit over how they're intended to work, and how the
 database relation data is to be structured.
+
+Thursday
+---------
+Progressive Demo A was presented today, having completed sprint 1. The demo went
+well however it showed the presence of a few bugs which will need to be fixed.
+
+Friday
+-------
+In the interest of simplifying the application it was decided to store images
+in the database. While this isn't ideal for performance, it means not having
+to store images in the filesystem or separate routes to retrieve files. This
+allows the application to provide the required functionality, while making it
+more feasible to meet deadlines. Did some research on a WYSIWYG editor to allow
+markup to be added to text, as well as embedding images within content. Best
+solution is CKEditor with Base64 image upload. I installed the required node
+packages, and made the required changes.
