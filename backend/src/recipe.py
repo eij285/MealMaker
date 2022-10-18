@@ -1,19 +1,18 @@
 import psycopg2
 from backend_helper import connect, verify_token
+from config import DB_CONN_STRING
    
 # def create_recipe_table(connection):
 #     cur = connection.cursor()
 #     command = ("""
-#         CREATE TABLE recipe(
+#         CREATE TABLE recipes(
 #             recipe_id SERIAL PRIMARY KEY,
 #             owner_id INTEGER,
 #             recipe_name VARCHAR(255) NOT NULL,
 #             recipe_description VARCHAR(255) NOT NULL,
 #             methods VARCHAR(255) NOT NULL,
 #             is_public BOOLEAN NOT NULL DEFAULT FALSE,
-#             total_star INTEGER,
-#             review_count INTEGER,
-#             portion_size INTEGER
+#             recipe_method INTEGER
 #         )"""
 #     )
 #     try:
@@ -29,7 +28,13 @@ from backend_helper import connect, verify_token
 #         }
     
 
-def create_recipe(name, description, method, portion_size, recipe_status, token):
+def recipe_create(name, description, servings, recipe_status, token):
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
     
     if not verify_token(token):
         return {
@@ -38,31 +43,22 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
         }
     
     # Start connection to database
-    connection = connect()
-    cur = connection.cursor()
-
-    # Retrieve user id based on token
-    if token == None:
-        # Close connection
-        connection.close()
-        cur.close()
-        return {
-            'status_code': 401,
-            'error': "No token"
-        }
-    
     try:
-        command = ("""
-            SELECT 
-                id 
-            FROM 
-                users 
-            WHERE token = %s""")
-        cur.execute(command, (str(token),))
-        owner_id = cur.fetchall()[0][0]
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        owner_id, = cur.fetchone()
     except:
         # Close connection
-        connection.close()
+        conn.close()
         cur.close()
         return {
             'status_code': 400,
@@ -70,19 +66,19 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
         }
     # Add new recipe to system
     try:
-        command = ("""
+        query = ("""
             INSERT INTO
-                recipe(owner_id, recipe_name, recipe_description, methods, portion_size, recipe_status)
+                recipes(owner_id, recipe_name, recipe_description, servings, recipe_status)
             VALUES
-                (%s, %s, %s, %s, %s, %s)
+                (%s, %s, %s, %s, %s)
             RETURNING
                 recipe_id
             """)
-        cur.execute(command, (owner_id, name, description, method, portion_size, recipe_status,))
-        connection.commit()
-        recipe_id = cur.fetchall()[0]
+        cur.execute(query, (owner_id, name, description, servings, recipe_status,))
+        conn.commit()
+        recipe_id = cur.fetchone()[0]
         # Close connection
-        connection.close()
+        conn.close()
         cur.close()
         return {
             'status_code': 201,
@@ -92,11 +88,11 @@ def create_recipe(name, description, method, portion_size, recipe_status, token)
         }
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
-        connection.close()
+        conn.close()
         cur.close()
         return {
             'status_code': 400,
-            'error': "fail to insert recipe into db"
+            'error': "failed to create recipe"
         }
 
 
@@ -132,9 +128,107 @@ def publish_recipe(recipe_id, publish):
         }
         
     
-
-def edit_recipe(name, description, methods, portion_size, recipe_id, publish, token):
+def recipe_edit(recipe_id, token):
+    """
+    Retrieves the information from the database for the recipe to edit
+    """
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
     
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        owner_id, = cur.fetchone()
+    except:
+        # Close connection
+        conn.close()
+        cur.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find user id"
+        }
+    print("here")
+    try:
+        query = ("""SELECT recipe_name, recipe_description, recipe_photo,
+            recipe_status, recipe_method, created_on, edited_on,
+            preparation_hours, preparation_minutes, servings, energy, protein,
+            carbohydrates, fats, cuisine, breakfast, lunch, dinner, snack,
+            vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free,
+            egg_free, shellfish_free, soy_free
+            FROM recipes WHERE recipe_id = %s AND owner_id = %s""")
+        cur.execute(query, (str(recipe_id), str(owner_id)))
+        recipe = cur.fetchone()
+        if not recipe:
+            raise Exception
+    except:
+        # Close connection
+        conn.close()
+        cur.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find recipe id"
+        }
+    
+    return {
+        'status_code': 200,
+        'body': {
+            'recipe_name': recipe[0],
+            'recipe_description': recipe[1],
+            'recipe_photo': recipe[2],
+            'recipe_status': recipe[3],
+            'recipe_method': recipe[4],
+            'created_on': str(recipe[5]),
+            'edited_on': str(recipe[6]),
+            'preparation_hours': recipe[7],
+            'preparation_minutes': recipe[8],
+            'servings': recipe[9],
+            'energy': recipe[10],
+            'protein': recipe[11],
+            'carbohydrates': recipe[12],
+            'fats': recipe[13],
+            'cuisine': recipe[14],
+            'breakfast': recipe[15],
+            'lunch': recipe[16],
+            'dinner': recipe[17],
+            'snack': recipe[18],
+            'vegetarian': recipe[19],
+            'vegan': recipe[20],
+            'kosher': recipe[21],
+            'halal': recipe[22],
+            'dairy_free': recipe[23],
+            'gluten_free': recipe[24],
+            'nut_free': recipe[25],
+            'egg_free': recipe[26],
+            'shellfish_free': recipe[27],
+            'soy_free': recipe[28]
+        }
+    }
+
+
+def recipe_update(name, description, methods, portion_size, recipe_id, publish, token):
+    """
+    Update the given recipe
+    """
     if not verify_token(token):
         return {
             'status_code': 401,

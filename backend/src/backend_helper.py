@@ -114,7 +114,7 @@ def verify_token(token):
 
     # Connect to database
     try:
-        conn = psycopg2.connect("dbname=meal-maker-db")
+        conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
     except:
         return {

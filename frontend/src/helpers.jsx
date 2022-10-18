@@ -159,3 +159,8 @@ export const validatePasswordMatch = (password, confirm, setMessage) => {
     setMessage('');
   }
 };
+
+// determines if string is a positive integer
+export const isPositiveInteger = (str) => {
+  return /^[1-9][0-9]*$/.test(str);
+};

@@ -9,7 +9,7 @@ from auth import auth_register, auth_login, auth_logout, \
                  auth_reset_pw
 from backend_helper import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences
-from recipe import create_recipe, edit_recipe, publish_recipe
+from recipe import recipe_create, recipe_edit, recipe_update
 from backend_helper import database_reset
 
 APP = Flask(__name__)
@@ -147,13 +147,25 @@ def create_recipe():
     token = data['token']
     #if not verify_token(token):
     #    return dumps({'status_code': 401, 'error': None})
-    
     name = data['name']
     description = data['description']
-    method = data['method']
-    portion_size = data['portion_size']
+    servings = data['servings']
+    recipe_status = data['recipe_status']
+
+    return dumps(recipe_create(name, description, servings, recipe_status, token))
+
+@APP.route('/recipe/edit', methods=['POST'])
+def edit_recipe():
+    data = request.get_json()
+    # Verify token
+    print(data)
     token = data['token']
-    return dumps(create_recipe(name, description, method, portion_size, token))
+    recipe_id = data['recipe_id']
+    return dumps(recipe_edit(recipe_id, token))
+
+@APP.route('/recipe/update', methods=['POST'])
+def update_recipe():
+    pass
         
 '''
 @APP.route('/recipe/edit', methods=['PUT'])
