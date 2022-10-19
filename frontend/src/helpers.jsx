@@ -1,3 +1,4 @@
+import moment from 'moment';
 const config = require('./config.json');
 
 /**
@@ -78,6 +79,7 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
 };
 
 export const isValidEmail = (str) => {
+  /* eslint-disable no-useless-escape */
   return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(str) !== false;
 };
 
@@ -190,4 +192,25 @@ export const imageToBase64 = (file) => {
   });
   reader.readAsDataURL(file);
   return dataUrlPromise;
+};
+
+/**
+ * Convert timestamp string to long format date string
+ */
+export const longDateString = (str) => {
+  return moment(str).format('hh:mma dddd, Do MMMM, YYYY');
+};
+
+/**
+ * Ruturn null if empty string else unchanged
+ */
+export const emptyStringToNull = (str) => {
+  return str ? str : null;
+};
+
+/**
+ * Ruturn null if empty string else return integer string
+ */
+ export const intStringOrNull = (str) => {
+  return str ? (isNaN(str) ? null : `${parseInt(str, 10)}`) : null;
 };

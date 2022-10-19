@@ -158,32 +158,16 @@ def create_recipe():
 def edit_recipe():
     data = request.get_json()
     # Verify token
-    print(data)
     token = data['token']
     recipe_id = data['recipe_id']
     return dumps(recipe_edit(recipe_id, token))
 
 @APP.route('/recipe/update', methods=['POST'])
 def update_recipe():
-    pass
-        
-'''
-@APP.route('/recipe/edit', methods=['PUT'])
-def edit_recipe():
     data = request.get_json()
     # Verify token
     token = data['token']
-    if not verify_token(token):
-        return dumps({'status_code': 401, 'error': None})
-    
-    name = data['name']
-    description = data['description']
-    methods = data['method']
-    portion_size = data['portion_size']
-    recipe_id = data['recipe_id']
-
-    return dumps(edit_recipe(name, description, methods, portion_size, recipe_id))
-'''
+    return dumps(recipe_update(data, token))
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():

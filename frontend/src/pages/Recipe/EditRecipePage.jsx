@@ -9,16 +9,25 @@ import {
   Grid,
   InputLabel,
   MenuItem,
-  Select,
-  Typography
+  Select
 } from '@mui/material';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-build-classic-base64-upload';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
-import { ImageInput, TextInput, NumericInput, NarrowNumericInput } from '../../components/InputFields';
+import {
+  ImageInput,
+  TextInput,
+  NumericInput,
+  NarrowNumericInput
+} from '../../components/InputFields';
 import { CentredElementsForm } from '../../components/Forms';
-import { PageTitle, SubPageTitle, TextVCentred } from '../../components/TextNodes';
+import {
+  PageTitle,
+  SmallGreyText,
+  SubPageTitle,
+  TextVCentred
+} from '../../components/TextNodes';
 import {
   FlexColumn,
   FlexRow,
@@ -27,7 +36,13 @@ import {
   SuccessAlert
 } from '../../components/StyledNodes';
 import { LeftAlignedSubmitButton } from '../../components/Buttons';
-import { backendRequest, validateServings } from '../../helpers';
+import {
+  backendRequest,
+  validateServings,
+  longDateString,
+  emptyStringToNull,
+  intStringOrNull
+} from '../../helpers';
 import DinnerDiningIcon from '@mui/icons-material/DinnerDining';
 const config = require('../../config.json');
 
@@ -36,7 +51,7 @@ function EditRecipePage () {
 
   const token = React.useContext(GlobalContext).token;
   const [recipeName, setRecipeName] = React.useState('');
-  const [desciption, setDesciption] = React.useState('');
+  const [description, setDescription] = React.useState('');
   const [recipePhoto, setRecipePhoto] = React.useState('');
   const [recipeStatus, setRecipeStatus] = React.useState('draft');
   const [method, setMethod] = React.useState('');
@@ -68,15 +83,18 @@ function EditRecipePage () {
   const [recipeNameMessage, setRecipeNameMessage] = React.useState('');
   const [descriptionMessage, setDescriptionMessage] = React.useState('');
   const [servingsMessage, setServingsMessage] = React.useState('');
+
+  const [responseError, setResponseError] = React.useState('');
+  const [responseSuccess, setResponseSuccess] = React.useState('');
   
   const loadRecipeData = (data) => {
     setRecipeName(data.recipe_name);
-    setDesciption(data.recipe_description);
+    setDescription(data.recipe_description);
     data.recipe_photo && setRecipePhoto(data.recipe_photo);
     setRecipeStatus(data.recipe_status);
     data.recipe_method && setMethod(data.recipe_method);
     setCreatedOn(data.created_on);
-    data.edited_on && setEditedOn(data.edited_on);
+    data.edited_on && data.edited_on !== 'None' && setEditedOn(data.edited_on);
     data.preparation_hours !== null && setPrepHours(data.preparation_hours);
     data.preparation_minutes !== null && setPrepMinutes(data.preparation_minutes);
     setServings(data.servings);
@@ -108,25 +126,56 @@ function EditRecipePage () {
     backendRequest('/recipe/edit', body, 'POST', token, (data) => {
       loadRecipeData(data.body);
     }, (error) => {
-      //setResponseError(error);
+      setResponseError(error);
     });
-  }, [token]);
+  }, [token, recipeId]);
 
   const updateRecipe = (e) => {
     e.preventDefault();
-    console.log(typeof prepHours);
-    /*const body = {
-      name: recipeName,
-      desciption: desciption,
-      status: recipeStatus,
-      method: method,
-      servings: servings
-    };
-    backendRequest('/recipe/create', body, 'POST', token, (data) => {
-      
-    }, (error) => {
-      
-    });*/
+
+    if (recipeName !== '' && recipeNameMessage === '' && 
+        description !== '' && descriptionMessage === '' &&
+        servings > 0 && servingsMessage === '') {
+      const body = {
+        recipe_id: recipeId,
+        recipe_name: recipeName,
+        recipe_description: description,
+        recipe_photo: emptyStringToNull(recipePhoto),
+        recipe_status: recipeStatus,
+        recipe_method: emptyStringToNull(method),
+        preparation_hours: intStringOrNull(prepHours),
+        preparation_minutes: intStringOrNull(prepMinutes),
+        servings: `${servings}`,
+        energy: intStringOrNull(energy),
+        protein: intStringOrNull(protein),
+        carbohydrates: intStringOrNull(carbs),
+        fats: intStringOrNull(fats),
+        cuisine: emptyStringToNull(cuisine),
+        breakfast: breakfast,
+        lunch: lunch,
+        dinner: dinner,
+        snack: snack,
+        vegetarian: vegetarian,
+        vegan: vegan,
+        kosher: kosher,
+        halal: halal,
+        dairy_free: dairyFree,
+        gluten_free: glutenFree,
+        nut_free: nutFree,
+        egg_free: eggFree,
+        shellfish_free: shellfishFree,
+        soy_free: soyFree
+      };
+      backendRequest('/recipe/update', body, 'POST', token, (data) => {
+        setResponseSuccess('Recipe Updated Successfully');
+      }, (error) => {
+        setResponseError(error);
+      });
+    } else {
+      setRecipeNameMessage(recipeName?'':'Recipe name required');
+      setDescriptionMessage(description?'':'Recipe description required');
+      validateServings(`${servings}`, setServingsMessage);
+    }
   };
 
   return (
@@ -134,6 +183,16 @@ function EditRecipePage () {
       <Grid item xl={6} lg={8} md={10} sm={12} xs={12}>
         <PageTitle>Edit Recipe</PageTitle>
         <FlexColumn>
+          {responseSuccess !== '' &&
+          <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
+          {responseError !== '' &&
+          <ErrorAlert message={responseError} setMessage={setResponseError} />}
+          <FlexRowWrap sx={{ color: '#333333' }}>
+            {createdOn &&
+            <SmallGreyText>created: {longDateString(createdOn)}</SmallGreyText>}
+            {editedOn &&
+            <SmallGreyText>edited: {longDateString(editedOn)}</SmallGreyText>}
+          </FlexRowWrap>
           <CentredElementsForm noValidate onSubmit={updateRecipe}>
             <TextInput
               label="Recipe Name"
@@ -152,8 +211,8 @@ function EditRecipePage () {
               required
               multiline
               minRows={5}
-              value={desciption}
-              onChange={(e) => setDesciption(e.target.value)}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               onBlur={(e) =>
                 setDescriptionMessage(e.target.value?'':'Recipe description required')}
               error={descriptionMessage !== ''}

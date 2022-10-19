@@ -4,5 +4,8 @@
   "COUNTRIES": ["Australia", "New Zealand", "USA", "Canada", "United Kingdom"],
   "EFFICIENCY": ["Beginner", "Intermediate", "Expert"],
   "UNITS": ["Metric", "Imperial"],
-  "CUISINES": ["Modern Australian", "Other"]
+  "CUISINES": ["Asian Fusion", "Chinese", "French", "Greek", "Indian",
+               "Japanese", "Korean", "Lebanese", "Malaysian",
+               "Modern Australian", "Other", "Seafood", "Sushi", "Thai",
+               "Vietnamese"]
 }

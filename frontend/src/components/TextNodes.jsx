@@ -49,3 +49,8 @@ export const TextVCentred = styled(Typography)`
   flex-direction: column;
   justify-content: center;
 `;
+
+export const SmallGreyText = styled(Typography)`
+  font-size: 0.8em;
+  color: #888888;
+`;

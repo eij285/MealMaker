@@ -58,8 +58,8 @@ def recipe_create(name, description, servings, recipe_status, token):
         owner_id, = cur.fetchone()
     except:
         # Close connection
-        conn.close()
         cur.close()
+        conn.close()
         return {
             'status_code': 400,
             'error': "cannot find user id"
@@ -78,8 +78,8 @@ def recipe_create(name, description, servings, recipe_status, token):
         conn.commit()
         recipe_id = cur.fetchone()[0]
         # Close connection
-        conn.close()
         cur.close()
+        conn.close()
         return {
             'status_code': 201,
             'body': {
@@ -88,8 +88,8 @@ def recipe_create(name, description, servings, recipe_status, token):
         }
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
-        conn.close()
         cur.close()
+        conn.close()
         return {
             'status_code': 400,
             'error': "failed to create recipe"
@@ -161,13 +161,13 @@ def recipe_edit(recipe_id, token):
         owner_id, = cur.fetchone()
     except:
         # Close connection
-        conn.close()
         cur.close()
+        conn.close()
         return {
             'status_code': 400,
             'error': "cannot find user id"
         }
-    print("here")
+
     try:
         query = ("""SELECT recipe_name, recipe_description, recipe_photo,
             recipe_status, recipe_method, created_on, edited_on,
@@ -178,12 +178,14 @@ def recipe_edit(recipe_id, token):
             FROM recipes WHERE recipe_id = %s AND owner_id = %s""")
         cur.execute(query, (str(recipe_id), str(owner_id)))
         recipe = cur.fetchone()
+        cur.close()
+        conn.close()
         if not recipe:
             raise Exception
     except:
         # Close connection
-        conn.close()
         cur.close()
+        conn.close()
         return {
             'status_code': 400,
             'error': "cannot find recipe id"
@@ -225,10 +227,17 @@ def recipe_edit(recipe_id, token):
     }
 
 
-def recipe_update(name, description, methods, portion_size, recipe_id, publish, token):
+def recipe_update(data, token):
     """
     Update the given recipe
     """
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
     if not verify_token(token):
         return {
             'status_code': 401,
@@ -236,29 +245,105 @@ def recipe_update(name, description, methods, portion_size, recipe_id, publish, 
         }
     
     # Start connection to database
-    connection = connect()
-    cur = connection.cursor()
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        owner_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find user id"
+        }
+    
+    try:
+        recipe_id = data['recipe_id']
+        query = ("SELECT COUNT(*) FROM recipes WHERE recipe_id = %s AND owner_id = %s")
+        cur.execute(query, (str(recipe_id), str(owner_id)))
+        if not cur.fetchone():
+            raise Exception
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find recipe owned by user"
+        }
     
     # Update recipe
     try:
-        command = ("""
-            UPDATE recipe
-            SET recipe_name = %s, recipe_description = %s, methods = %s, portion_size = %s, recipe_status = %s
+        recipe_name = data['recipe_name']
+        recipe_description = data['recipe_description']
+        recipe_photo = data['recipe_photo']
+        recipe_status = data['recipe_status']
+        recipe_method = data['recipe_method']
+        preparation_hours = data['preparation_hours']
+        preparation_minutes = data['preparation_minutes']
+        servings = data['servings']
+        energy = data['energy']
+        protein = data['protein']
+        carbohydrates = data['carbohydrates']
+        fats = data['fats']
+        cuisine = data['cuisine']
+        breakfast = data['breakfast']
+        lunch = data['lunch']
+        dinner = data['dinner']
+        snack = data['snack']
+        vegetarian = data['vegetarian']
+        vegan = data['vegan']
+        kosher = data['kosher']
+        halal = data['halal']
+        dairy_free = data['dairy_free']
+        gluten_free = data['gluten_free']
+        nut_free = data['nut_free']
+        egg_free = data['egg_free']
+        shellfish_free = data['shellfish_free']
+        soy_free = data['soy_free']
+
+        params = (recipe_name, recipe_description, recipe_photo, recipe_status,\
+            recipe_method, preparation_hours, preparation_minutes, servings, \
+            energy, protein, carbohydrates, fats, cuisine, breakfast, lunch, \
+            dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, \
+            gluten_free, nut_free, egg_free, shellfish_free, soy_free, \
+            recipe_id)
+
+        query = ("""
+            UPDATE recipes
+            SET recipe_name = %s, recipe_description = %s, recipe_photo = %s,
+            recipe_status = %s, recipe_method = %s, preparation_hours = %s,
+            preparation_minutes = %s, servings = %s, energy = %s, protein = %s,
+            carbohydrates = %s, fats = %s, cuisine = %s, breakfast = %s,
+            lunch = %s, dinner = %s, snack = %s, vegetarian = %s, vegan = %s,
+            kosher = %s, halal = %s, dairy_free = %s, gluten_free = %s,
+            nut_free = %s, egg_free = %s, shellfish_free = %s, soy_free = %s,
+            edited_on = CURRENT_TIMESTAMP
             WHERE recipe_id = %s
             """)
-        cur.execute(command, (name, description, methods, portion_size, publish, recipe_id,))
-        connection.commit()
+        cur.execute(query, params)
+        conn.commit()
         # Close connection
-        connection.close()
         cur.close()
+        conn.close()
         return {
             'status_code': 200
         }
         
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
-        connection.close()
         cur.close()
+        conn.close()
         return {
             'status_code': 400,
             'error': None

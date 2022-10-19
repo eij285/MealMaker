@@ -93,11 +93,14 @@ export const ImageInput = ({elementTitle, icon, image, setImage}) => {
 
   const CustomIcon = styled(icon)`
     font-size: 12em;
+    max-width: 100%;
   `;
 
   const CustomImg = styled.img`
     max-width: 100%;
     max-height: 200px;
+    width: auto;
+    height: auto;
   `;
 
   const ImgButton = styled(Button)`
@@ -118,7 +121,7 @@ export const ImageInput = ({elementTitle, icon, image, setImage}) => {
   return (
     <FormControl>
       <Grid container spacing={3}>
-        <Grid item md={3} sm={4} xs={6}>
+        <Grid item md={4} sm={5} xs={6}>
           {!image && <CustomIcon/>}
           {image && <CustomImg src={image} alt={`${elementTitle} photo`} />}
         </Grid>
