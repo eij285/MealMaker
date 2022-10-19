@@ -164,3 +164,30 @@ export const validatePasswordMatch = (password, confirm, setMessage) => {
 export const isPositiveInteger = (str) => {
   return /^[1-9][0-9]*$/.test(str);
 };
+
+export const validateServings = (value, setMessage) => {
+  if (value === '') {
+    setMessage('Servings required');
+  } else if (!isPositiveInteger(value)) {
+    setMessage('Requires positive integer');
+  } else {
+    setMessage('');
+  }
+};
+
+/**
+ * Convert a raster image to base64 encoded string
+ */
+export const imageToBase64 = (file) => {
+  // ensure right type of image provided, else return empty string
+  if (!['image/jpeg', 'image/png', 'image/jpg'].find(type=>type===file.type)) {
+    return '';
+  }
+  const reader = new FileReader();
+  const dataUrlPromise = new Promise((resolve, reject) => {
+    reader.onerror = reject;
+    reader.onload = () => resolve(reader.result);
+  });
+  reader.readAsDataURL(file);
+  return dataUrlPromise;
+};

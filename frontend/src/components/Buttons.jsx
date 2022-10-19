@@ -34,7 +34,7 @@ export const LargeDefaultButton = (props) => {
 /**
  * alternate button type
  */
- export const LargeAlternateButton = (props) => {
+export const LargeAlternateButton = (props) => {
   return (
     <LargeButton {...props} color="secondary" />
   );
@@ -46,6 +46,15 @@ export const LargeDefaultButton = (props) => {
 export const SmallDefaultButton = (props) => {
   return (
     <SmallButton {...props} color="primary" />
+  );
+};
+
+/**
+ * default small button type
+ */
+ export const SmallAlternateButton = (props) => {
+  return (
+    <SmallButton {...props} color="secondary" />
   );
 };
 

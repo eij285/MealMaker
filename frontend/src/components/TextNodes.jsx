@@ -42,3 +42,10 @@ export const CustomLink = (props) => {
     <LinkBase {...props} component={RouterLink} underline="always" />
   );
 };
+
+export const TextVCentred = styled(Typography)`
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;

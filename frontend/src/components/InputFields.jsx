@@ -1,7 +1,13 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { TextField, InputAdornment, IconButton } from '@mui/material';
+import { Button, Grid, TextField, InputAdornment, IconButton, FormControl, Typography } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import { imageToBase64 } from '../helpers';
+import { FlexColumn, FlexRow } from './StyledNodes';
+import { SubPageTitle } from '../components/TextNodes';
 
 const TextInputBlock = styled(TextField)`
   display: block;
@@ -66,4 +72,76 @@ export const PasswordInput = (props) => {
   return (
     <GeneralTextInput {...props} type="number" />
   );
+};
+
+export const NarrowNumericInput = styled(NumericInput)`
+  @media screen and (min-width: 40em) {
+    width: 100px;
+  }
+`;
+
+const imageUpload = async (files, setImage) => {
+  if (files.length !== 1) {
+    return;
+  }
+  const imageData = await imageToBase64(files[0]);
+  setImage(imageData);
+};
+
+
+export const ImageInput = ({elementTitle, icon, image, setImage}) => {
+
+  const CustomIcon = styled(icon)`
+    font-size: 12em;
+  `;
+
+  const CustomImg = styled.img`
+    max-width: 100%;
+    max-height: 200px;
+  `;
+
+  const ImgButton = styled(Button)`
+    & input {
+      display: none;
+    }
+  `;
+
+  const TypoIcon = styled(Typography)`
+    text-transform: none;
+    color: #000000;
+    & * {
+      display: inline;
+      vertical-align: middle;
+    }
+  `;
+
+  return (
+    <FormControl>
+      <Grid container spacing={3}>
+        <Grid item md={3} sm={4} xs={6}>
+          {!image && <CustomIcon/>}
+          {image && <CustomImg src={image} alt={`${elementTitle} photo`} />}
+        </Grid>
+        <Grid item>
+          <FlexColumn>
+            <SubPageTitle>Recipe Photo</SubPageTitle>
+            <FlexRow>
+              <ImgButton component="label">
+                <input
+                  type="file"
+                  accept=".jpg, .jpeg, .png"
+                  onChange={(e) => imageUpload(e.target.files, setImage)}
+                />
+                {image && <TypoIcon><AutorenewIcon/> Replace Image</TypoIcon>}
+                {!image && <TypoIcon><AddCircleIcon /> Add Image</TypoIcon>}
+              </ImgButton>
+              <ImgButton component="label" onClick={() => setImage('')}>
+                {image && <TypoIcon><RemoveCircleIcon/> Remove Image</TypoIcon>}
+              </ImgButton>
+            </FlexRow>
+          </FlexColumn>
+        </Grid>
+      </Grid>
+    </FormControl>
+  )
 };

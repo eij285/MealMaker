@@ -3,5 +3,6 @@
   "PRONOUNS": ["Mr", "Ms", "Mrs", "Miss", "Dr"],
   "COUNTRIES": ["Australia", "New Zealand", "USA", "Canada", "United Kingdom"],
   "EFFICIENCY": ["Beginner", "Intermediate", "Expert"],
-  "UNITS": ["Metric", "Imperial"]
+  "UNITS": ["Metric", "Imperial"],
+  "CUISINES": ["Modern Australian", "Other"]
 }

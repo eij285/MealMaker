@@ -6,16 +6,15 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Typography
 } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
 import { TextInput, NumericInput } from '../../components/InputFields';
 import { CentredElementsForm } from '../../components/Forms';
-import { PageTitle, SubPageTitle } from '../../components/TextNodes';
+import { PageTitle } from '../../components/TextNodes';
 import { ErrorAlert, FlexColumn, FlexRow } from '../../components/StyledNodes';
 import { LeftAlignedSubmitButton } from '../../components/Buttons';
-import { backendRequest, isPositiveInteger } from '../../helpers';
+import { backendRequest, validateServings } from '../../helpers';
 
 function CreateRecipePage () {
   const token = React.useContext(GlobalContext).token;
@@ -30,16 +29,6 @@ function CreateRecipePage () {
   const [responseError, setResponseError] = React.useState('');
 
   const navigate = useNavigate();
-
-  const validateServings = (value) => {
-    if (value === '') {
-      setServingsMessage('Servings required');
-    } else if (!isPositiveInteger(value)) {
-      setServingsMessage('Servings requires positive integer');
-    } else {
-      setServingsMessage('');
-    }
-  };
 
   const createRecipe = (e) => {
     e.preventDefault();
@@ -63,13 +52,13 @@ function CreateRecipePage () {
     } else {
       setRecipeNameMessage(recipeName?'':'Recipe name required');
       setDescriptionMessage(description?'':'Recipe description required');
-      validateServings();
+      validateServings(`${servings}`, setServingsMessage);
     }
   };
 
   return (
     <ManageLayout>
-      <Grid item xl={6} lg={8} md={10} sm={12} xs={12} spacing={2}>
+      <Grid item xl={6} lg={8} md={10} sm={12} xs={12}>
         <PageTitle>Create Recipe</PageTitle>
         <FlexColumn>
           {responseError !== '' &&
@@ -87,6 +76,7 @@ function CreateRecipePage () {
             />
             <TextInput
               label="Description"
+              required
               multiline
               minRows={5}
               value={description}
@@ -99,9 +89,10 @@ function CreateRecipePage () {
             <NumericInput
               label="Servings"
               required
+              sx={{ width: '150px' }}
               value={servings}
               onChange={(e) => setServings(e.target.value)}
-              onBlur={(e) => validateServings(e.target.value)}
+              onBlur={(e) => validateServings(e.target.value, setServingsMessage)}
               error={servingsMessage !== ''}
               helperText={servingsMessage}
             />
