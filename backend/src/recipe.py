@@ -349,28 +349,72 @@ def recipe_update(data, token):
             'error': None
         }
     
+def recipes_fetch_own(token):
+    """
+    Fetch own recipes
+    """
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
 
-def fetch_all_recipe():
     # Start connection to database
-    connection = connect()
-    cur = connection.cursor()
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
     
     try:
-        command = ("SELECT * FROM recipe")
-        cur.execute(command)
-        output = cur.fetchall()
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        owner_id, = cur.fetchone()
+    except:
         # Close connection
-        connection.close()
         cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find user id"
+        }
+    
+    try:
+        query = ("""
+            SELECT recipe_id, recipe_name, recipe_photo, recipe_status, cuisine 
+            FROM recipes WHERE owner_id = %s""")
+        cur.execute(query, (owner_id,))
+        output = cur.fetchall()
+        recipes_list = []
+        for recipe in output:
+            recipes_list.append({
+                'recipe_id': recipe[0],
+                'recipe_name': recipe[1],
+                'recipe_photo': recipe[2],
+                'recipe_status': recipe[3],
+                'cuisine': recipe[4]
+            })
+
+        # Close connection
         return {
             'status_code':200,
-            'body': output
+            'body': recipes_list
         }
         
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
-        connection.close()
         cur.close()
+        conn.close()
         return {
             'status_code':400,
             'error': None

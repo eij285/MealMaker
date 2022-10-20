@@ -9,7 +9,7 @@ from auth import auth_register, auth_login, auth_logout, \
                  auth_reset_pw
 from backend_helper import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences
-from recipe import recipe_create, recipe_edit, recipe_update
+from recipe import recipe_create, recipe_edit, recipe_update, recipes_fetch_own
 from backend_helper import database_reset
 
 APP = Flask(__name__)
@@ -157,7 +157,6 @@ def create_recipe():
 @APP.route('/recipe/edit', methods=['POST'])
 def edit_recipe():
     data = request.get_json()
-    # Verify token
     token = data['token']
     recipe_id = data['recipe_id']
     return dumps(recipe_edit(recipe_id, token))
@@ -165,9 +164,14 @@ def edit_recipe():
 @APP.route('/recipe/update', methods=['POST'])
 def update_recipe():
     data = request.get_json()
-    # Verify token
     token = data['token']
     return dumps(recipe_update(data, token))
+
+@APP.route('/recipes/fetch-own', methods=['POST'])
+def fetch_own_recipes():
+    data = request.get_json()
+    token = data['token']
+    return dumps(recipes_fetch_own(token))
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():

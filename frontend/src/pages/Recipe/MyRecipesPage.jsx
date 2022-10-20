@@ -7,23 +7,36 @@ import {
 } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
-import { TextInput } from '../../components/InputFields';
-import { CentredElementsForm } from '../../components/Forms';
-import { PageTitle, SubPageTitle } from '../../components/TextNodes';
+import { PageTitle } from '../../components/TextNodes';
 import {
   FlexColumn,
   FlexRow,
-  FlexRowWrap,
-  ErrorAlert,
-  SuccessAlert
 } from '../../components/StyledNodes';
-import { LeftAlignedButton, LeftAlignedSubmitButton } from '../../components/Buttons';
+import { OwnRecipeItem } from '../../components/Recipe/RecipeItems';
+import { LeftAlignedButton } from '../../components/Buttons';
 import { backendRequest } from '../../helpers';
 
 function MyRecipesPage () {
   const token = React.useContext(GlobalContext).token;
   const [numPublished, setNumPublished] = React.useState(0);
   const [totalRecipes, setTotalRecipes] = React.useState(0);
+  const [recipesList, setRecipesList] = React.useState([]);
+
+  const loadRecipes = () => {
+    backendRequest('/recipes/fetch-own', {}, 'POST', token, (data) => {
+      setRecipesList([...data.body]);
+      setNumPublished(data.body.filter(recipe => 
+        recipe.recipe_status === 'published').length);
+      setTotalRecipes(data.body.length);
+    }, (error) => {
+      //setResponseError(error);
+      console.log(error);
+    });
+  };
+
+  React.useEffect(() => {
+    loadRecipes();
+  }, [token]);
 
   return (
     <ManageLayout>
@@ -39,6 +52,12 @@ function MyRecipesPage () {
               Create Recipe
             </LeftAlignedButton>
           </FlexRow>
+          <Grid container spacing={2}>
+            {recipesList.length > 0 && recipesList.map((recipe, index) => (
+            <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
+              <OwnRecipeItem data={recipe} />
+            </Grid>))}
+          </Grid>
         </FlexColumn>
       </Grid>
     </ManageLayout>

@@ -46,8 +46,7 @@ export const CustomLink = (props) => {
 export const TextVCentred = styled(Typography)`
   white-space: nowrap;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
 `;
 
 export const SmallGreyText = styled(Typography)`
