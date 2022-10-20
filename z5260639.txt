@@ -254,3 +254,17 @@ more feasible to meet deadlines. Did some research on a WYSIWYG editor to allow
 markup to be added to text, as well as embedding images within content. Best
 solution is CKEditor with Base64 image upload. I installed the required node
 packages, and made the required changes.
+
+################################################################################
+
+Week 6
+=======
+Fixed frontend issue relating to login. Rewrote most of the backend code and
+database structure relating to recipes. Specifically rewrote backend python code
+relevant to creating, editing (retrieving), updating and fetching all recipes.
+I feel the backend implementation in certain areas is not really ideal in terms
+of adherence to DRY principles, where certain functionality should be delegated
+to separate functions. However everyone has their own workflow so don't want to
+dwell on code structure and conventions, and instead focus on working code so
+that we can meet deadlines. I also implemented the frontend code relevant to
+creating, editing (retrieving), updating and fetching recipes.
