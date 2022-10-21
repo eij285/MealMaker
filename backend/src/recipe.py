@@ -1,3 +1,4 @@
+from sre_constants import SUCCESS
 import psycopg2
 from backend_helper import connect, verify_token
 from config import DB_CONN_STRING
@@ -178,8 +179,6 @@ def recipe_edit(recipe_id, token):
             FROM recipes WHERE recipe_id = %s AND owner_id = %s""")
         cur.execute(query, (str(recipe_id), str(owner_id)))
         recipe = cur.fetchone()
-        cur.close()
-        conn.close()
         if not recipe:
             raise Exception
     except:
@@ -189,6 +188,30 @@ def recipe_edit(recipe_id, token):
         return {
             'status_code': 400,
             'error': "cannot find recipe id"
+        }
+
+    try:
+        query = ("""SELECT ingredient_id, ingredient_name, quantity, unit
+            FROM recipe_ingredients WHERE recipe_id = %s""")
+        cur.execute(query, (str(recipe_id),))
+        output = cur.fetchall()
+        cur.close()
+        conn.close()
+        ingredients_list = []
+        for ingredient in output:
+            ingredients_list.append({
+                'ingredient_id': ingredient[0],
+                'ingredient_name': ingredient[1],
+                'quantity': ingredient[2],
+                'unit': ingredient[3]
+            })
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find ingredients"
         }
     
     return {
@@ -222,9 +245,80 @@ def recipe_edit(recipe_id, token):
             'nut_free': recipe[25],
             'egg_free': recipe[26],
             'shellfish_free': recipe[27],
-            'soy_free': recipe[28]
+            'soy_free': recipe[28],
+            'ingredients': ingredients_list
         }
     }
+
+def recipe_update_ingredients(recipe_id, ingredients):
+    """
+    Update ingredients for a given recipe (this function must only be used
+    withing this module)
+    """
+    conn = None
+    cur = None
+    success = True
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        exist_ings = []
+        new_ings = []
+        
+        for ing in ingredients:
+            if ing['ingredient_id'] > 0:
+                exist_ings.append(ing)
+            else:
+                new_ings.append(ing)
+        exist_ids = tuple([ing['ingredient_id'] for ing in exist_ings])
+        # delete the ingredients for recipe_id not in ingredient_id list
+        delete_query = ("""
+            DELETE FROM recipe_ingredients WHERE recipe_id = %s AND
+            ingredient_id NOT IN %s RETURNING ingredient_id
+            """)
+        cur.execute(delete_query, (str(recipe_id), exist_ids))
+        conn.commit()
+        delete_result = cur.fetchall()
+        update_query = ("""
+            UPDATE recipe_ingredients SET ingredient_name = %s, quantity = %s,
+            unit = %s WHERE ingredient_id = %s
+            """)
+        for ing in exist_ings:
+            ingredient_id = ing['ingredient_id']
+            ingredient_name = ing['ingredient_name']
+            quantity = ing['quantity']
+            unit = ing['unit']
+            # skip attempt to update deleted record
+            if ingredient_id in delete_result:
+                continue
+            values = (ingredient_name, str(quantity), unit, ingredient_id)
+            cur.execute(update_query, values)
+            conn.commit()
+            # ensure record was updated
+            if cur.rowcount < 1:
+                raise Exception
+
+        insert_query = ("""
+            INSERT INTO recipe_ingredients (recipe_id, ingredient_name,
+            quantity, unit) VALUES (%s, %s, %s, %s)
+            """)
+        for ing in new_ings:
+            ingredient_name = ing['ingredient_name']
+            quantity = ing['quantity']
+            unit = ing['unit']
+            values = (str(recipe_id), ingredient_name, str(quantity), unit)
+            cur.execute(insert_query, values)
+            conn.commit()
+            # ensure record was inserted
+            if cur.rowcount < 1:
+                raise Exception
+    except:
+        success = False
+    finally:
+        if cur is not None:
+            cur.close()
+        if conn is not None:
+            conn.close()
+    return success
 
 
 def recipe_update(data, token):
@@ -311,6 +405,7 @@ def recipe_update(data, token):
         egg_free = data['egg_free']
         shellfish_free = data['shellfish_free']
         soy_free = data['soy_free']
+        ingredients = data['ingredients']
 
         params = (recipe_name, recipe_description, recipe_photo, recipe_status,\
             recipe_method, preparation_hours, preparation_minutes, servings, \
@@ -336,9 +431,6 @@ def recipe_update(data, token):
         # Close connection
         cur.close()
         conn.close()
-        return {
-            'status_code': 200
-        }
         
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
@@ -348,6 +440,38 @@ def recipe_update(data, token):
             'status_code': 400,
             'error': None
         }
+
+    if recipe_update_ingredients(recipe_id, ingredients):
+        return {
+                'status_code': 200
+            }
+    else:
+        return {
+            'status_code': 400,
+            'error': "Ingredients update failure"
+        }
+
+
+def recipe_copy(recipe_id, token):
+    """
+    Copy recipe with given id (only recipe owner permitted to do that)
+    """
+    # not yet finished, return only to keep flask happy
+    return {
+            'status_code':400,
+            'error': "Not yet finished"
+        }
+
+def recipe_delete(recipe_id, token):
+    """
+    Delete recipe with given id (only recipe owner permitted to do that)
+    """
+    # not yet finished, return only to keep flask happy
+    return {
+            'status_code':400,
+            'error': "Not yet finished"
+        }
+
     
 def recipes_fetch_own(token):
     """

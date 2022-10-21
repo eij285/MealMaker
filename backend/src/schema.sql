@@ -1,6 +1,7 @@
 -- Meal Maker database schema
 
-DROP TABLE IF EXISTS recipe;
+DROP TABLE IF EXISTS recipe_ingredients;
+DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -75,6 +76,16 @@ CREATE TABLE recipes (
     CONSTRAINT valid_status CHECK (recipe_status in ('draft', 'published')),
     PRIMARY KEY (recipe_id),
     FOREIGN KEY (owner_id) REFERENCES users(id)
+);
+
+CREATE TABLE recipe_ingredients (
+    ingredient_id   SERIAL,
+    recipe_id       INTEGER NOT NULL,
+    ingredient_name VARCHAR(30) NOT NULL,
+    quantity        INTEGER NOT NULL,
+    unit            VARCHAR(10) NOT NULL,
+    PRIMARY KEY (ingredient_id),
+    FOREIGN KEY (recipe_id) REFERENCES recipes(recipe_id) ON DELETE CASCADE
 );
 
 INSERT INTO
