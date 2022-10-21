@@ -9,7 +9,11 @@ import {
   Grid,
   InputLabel,
   MenuItem,
-  Select
+  Select,
+  Button,
+  Tooltip,
+  IconButton,
+  Alert
 } from '@mui/material';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-build-classic-base64-upload';
@@ -41,9 +45,12 @@ import {
   validateServings,
   longDateString,
   emptyStringToNull,
-  intStringOrNull
+  intStringOrNull,
+  isPositiveInteger
 } from '../../helpers';
 import DinnerDiningIcon from '@mui/icons-material/DinnerDining';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 const config = require('../../config.json');
 
 function EditRecipePage () {
@@ -79,13 +86,16 @@ function EditRecipePage () {
   const [eggFree, setEggFree] = React.useState(false);
   const [shellfishFree, setShellfishFree] = React.useState(false);
   const [soyFree, setSoyFree] = React.useState(false);
+  const [ingredients, setIngredients] = React.useState([]);
 
   const [recipeNameMessage, setRecipeNameMessage] = React.useState('');
   const [descriptionMessage, setDescriptionMessage] = React.useState('');
   const [servingsMessage, setServingsMessage] = React.useState('');
+  const [ingredientsMessage, setIngredientsMessage] = React.useState('');
 
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
+
   
   const loadRecipeData = (data) => {
     setRecipeName(data.recipe_name);
@@ -117,6 +127,46 @@ function EditRecipePage () {
     setEggFree(data.egg_free);
     setShellfishFree(data.shellfish_free);
     setSoyFree(data.soy_free);
+    setIngredients([...data.ingredients]);
+  };
+
+  const updateIngredient = (index, qty, unit, name) => {
+    const oldIngredient = ingredients[index];
+    const newIngredient = {
+      ingredient_id: oldIngredient.ingredient_id,
+      ingredient_name: name !== null ? name : oldIngredient.ingredient_name,
+      quantity: qty !== null && !isNaN(qty) ? qty : oldIngredient.quantity,
+      unit: unit ? unit : oldIngredient.unit
+    };
+    setIngredients((ingredients) => 
+    [...ingredients.slice(0, index),
+      newIngredient, ...ingredients.slice(index + 1)]);
+    console.log(ingredients);
+  };
+
+  const removeIngredient = (index) => {
+    setIngredients((ingredients) =>
+      [...ingredients.slice(0, index), ...ingredients.slice(index + 1)]);
+  };
+
+  const addIngredient = () => {
+    const newIngredient = {
+      ingredient_id: -1,
+      ingredient_name: '',
+      quantity: '',
+      unit: config.METRIC_UNITS[0]
+    };
+    setIngredients((ingredients) => [...ingredients, newIngredient]);
+  };
+
+  const checkIngredientsValid = () => {
+    for (let ing of ingredients) {
+      if(!ing.ingredient_name || !ing.quantity ||
+        !isPositiveInteger(`${ing.quantity}`) || !ing.unit) {
+        return false;
+      }
+    }
+    return true;
   };
 
   React.useEffect(() => {
@@ -133,9 +183,12 @@ function EditRecipePage () {
   const updateRecipe = (e) => {
     e.preventDefault();
 
+    const ingredientsValid = checkIngredientsValid();
+
     if (recipeName !== '' && recipeNameMessage === '' && 
         description !== '' && descriptionMessage === '' &&
-        servings > 0 && servingsMessage === '') {
+        servings > 0 && servingsMessage === '' &&
+        ingredientsValid) {
       const body = {
         recipe_id: recipeId,
         recipe_name: recipeName,
@@ -164,7 +217,8 @@ function EditRecipePage () {
         nut_free: nutFree,
         egg_free: eggFree,
         shellfish_free: shellfishFree,
-        soy_free: soyFree
+        soy_free: soyFree,
+        ingredients: ingredients
       };
       backendRequest('/recipe/update', body, 'POST', token, (data) => {
         setResponseSuccess('Recipe Updated Successfully');
@@ -175,6 +229,10 @@ function EditRecipePage () {
       setRecipeNameMessage(recipeName?'':'Recipe name required');
       setDescriptionMessage(description?'':'Recipe description required');
       validateServings(`${servings}`, setServingsMessage);
+      if (!ingredientsValid) {
+        setIngredientsMessage(
+          'All ingredients must have non-zero Qty, Unit and Ingredient Name');
+      }
     }
   };
 
@@ -325,6 +383,57 @@ function EditRecipePage () {
               ))}
               </Select>
             </FormControl>
+            <FormGroup>
+              <SubPageTitle>Ingredients</SubPageTitle>
+              <FlexColumn>
+                {ingredients.length > 0 && ingredients.map((ingredient, index) => (
+                <FlexRow key={index}>
+                  <NumericInput
+                    label="Qty"
+                    value={ingredient.quantity}
+                    onChange={(e) =>
+                      updateIngredient(index, e.target.value, null, null)}
+                  />
+                  <FormControl fullWidth sx={{ maxWidth:'300px' }}>
+                    <InputLabel id={`ingredient-unit-${index}`}>Unit</InputLabel>
+                    <Select labelId={`ingredient-unit-${index}`} label="Unit"
+                      value={ingredient.unit}
+                      onChange={(e) =>
+                        updateIngredient(index, null, e.target.value, null)}>
+                    {config.METRIC_UNITS.map((dataItem, idx) => (
+                      <MenuItem key={idx} value={dataItem}>
+                        {dataItem}
+                      </MenuItem>
+                    ))}
+                    </Select>
+                  </FormControl>
+                  <TextInput
+                    label="Ingredient"
+                    value={ingredient.ingredient_name}
+                    onChange={(e) =>
+                      updateIngredient(index, null, null, e.target.value)}
+                  />
+                  <Tooltip title="Delete ingredient" placement="top" arrow>
+                    <IconButton color="error"
+                      onClick={(e) => removeIngredient(index)}>
+                      <RemoveCircleIcon />
+                    </IconButton>
+                  </Tooltip>
+                </FlexRow>))}
+                <FlexRow>
+                  <Button color="success"
+                    size="large"
+                    onClick={addIngredient}
+                    sx={{textTransform: 'none'}}
+                    startIcon={<AddCircleIcon />}>
+                    Add ingredient
+                  </Button>
+                </FlexRow>
+                {ingredientsMessage !== '' &&
+                <ErrorAlert message={ingredientsMessage}
+                  setMessage={setIngredientsMessage} />}
+              </FlexColumn>
+            </FormGroup>
             <Box sx={{ mt:4, mb:4 }}>
               <InputLabel>Method</InputLabel>
               <CKEditor
