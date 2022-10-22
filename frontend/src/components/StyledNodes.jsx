@@ -83,12 +83,6 @@ export const ImageContainer4by3 = styled.div`
   );
 };
 
-const ModalFlexColumn = styled(FlexColumn)`
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-`;
-
 /**
  * Confirmation dialog to prevent accidental destructive actions such as content
  * deletion

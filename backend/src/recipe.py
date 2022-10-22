@@ -1,4 +1,3 @@
-from sre_constants import SUCCESS
 import psycopg2
 from backend_helper import connect, verify_token
 from config import DB_CONN_STRING
@@ -127,8 +126,36 @@ def publish_recipe(recipe_id, publish):
             'status_code': 400,
             'error': None
         }
-        
-    
+
+def recipe_fetch_ingredients(recipe_id):
+    """
+    Update ingredients for a given recipe (this function must only be used
+    withing this module)
+    """
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        query = ("""SELECT ingredient_id, ingredient_name, quantity, unit
+            FROM recipe_ingredients WHERE recipe_id = %s""")
+        cur.execute(query, (str(recipe_id),))
+        output = cur.fetchall()
+        ingredients_list = []
+        for ingredient in output:
+            ingredients_list.append({
+                'ingredient_id': ingredient[0],
+                'ingredient_name': ingredient[1],
+                'quantity': ingredient[2],
+                'unit': ingredient[3]
+            })
+        cur.close()
+        conn.close()
+    except:
+        cur.close()
+        conn.close()
+        raise Exception
+    return ingredients_list
+
+
 def recipe_edit(recipe_id, token):
     """
     Retrieves the information from the database for the recipe to edit
@@ -189,26 +216,14 @@ def recipe_edit(recipe_id, token):
             'status_code': 400,
             'error': "cannot find recipe id"
         }
+    cur.close()
+    conn.close()
 
     try:
-        query = ("""SELECT ingredient_id, ingredient_name, quantity, unit
-            FROM recipe_ingredients WHERE recipe_id = %s""")
-        cur.execute(query, (str(recipe_id),))
-        output = cur.fetchall()
-        cur.close()
-        conn.close()
-        ingredients_list = []
-        for ingredient in output:
-            ingredients_list.append({
-                'ingredient_id': ingredient[0],
-                'ingredient_name': ingredient[1],
-                'quantity': ingredient[2],
-                'unit': ingredient[3]
-            })
+        ingredients_list = recipe_fetch_ingredients(recipe_id)
+        
     except:
         # Close connection
-        cur.close()
-        conn.close()
         return {
             'status_code': 400,
             'error': "cannot find ingredients"
@@ -271,12 +286,20 @@ def recipe_update_ingredients(recipe_id, ingredients):
                 new_ings.append(ing)
         exist_ids = tuple([ing['ingredient_id'] for ing in exist_ings])
         # delete the ingredients for recipe_id not in ingredient_id list
-        delete_query = ("""
-            DELETE FROM recipe_ingredients WHERE recipe_id = %s AND
-            ingredient_id NOT IN %s RETURNING ingredient_id
-            """)
-        cur.execute(delete_query, (str(recipe_id), exist_ids))
+        if exist_ids:
+            delete_query = ("""
+                DELETE FROM recipe_ingredients WHERE recipe_id = %s AND
+                ingredient_id NOT IN %s RETURNING ingredient_id
+                """)
+            cur.execute(delete_query, (str(recipe_id), exist_ids))
+        else:
+            delete_query = ("""
+                DELETE FROM recipe_ingredients WHERE recipe_id = %s
+                RETURNING ingredient_id
+                """)
+            cur.execute(delete_query, (str(recipe_id),))
         conn.commit()
+        print('testing')
         delete_result = cur.fetchall()
         update_query = ("""
             UPDATE recipe_ingredients SET ingredient_name = %s, quantity = %s,
@@ -700,3 +723,202 @@ def recipes_fetch_own(token):
             'status_code':400,
             'error': None
         }
+
+def recipe_review_details(recipe_id, auth_user_id):
+    """
+    Returns the review details
+    """
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        reviews_list = []
+        query = ("""
+            SELECT u.id, u.display_name, u.base64_image, r.review_id,
+            r.rating, r.comment, r.reply, r.created_on
+            FROM users u JOIN recipe_reviews r ON (u.id = r.user_id)
+            WHERE r.recipe_id = %s and u.visibility = 'public'
+        """)
+        cur.execute(query, (recipe_id,))
+        sql_result = cur.fetchall()
+        reviews_list = []
+        votes_query = ("""
+            SELECT COUNT(*) FROM recipe_reviews_votes
+            WHERE review_id = %s AND is_upvote = %s
+        """)
+        user_vote = ("""
+            SELECT is_upvote FROM recipe_reviews_votes
+            WHERE review_id = %s
+        """)
+        for review in sql_result:
+            user_id, display_name, user_image, review_id, rating, comment, \
+                created_on = review
+
+            cur.execute(votes_query, (review_id, True))
+            upvotes, = cur.fetchone()
+
+            cur.execute(votes_query, (review_id, False))
+            downvotes, = cur.fetchone()
+
+            if auth_user_id:
+                cur.execute(user_vote, (review_id, False))
+                cur_user_vote, = cur.fetchone()
+            else:
+                cur_user_vote = None
+            
+            reviews_list.append({
+                'user_id': user_id,
+                'display_name': display_name,
+                'user_image': user_image,
+                'review_id': review_id,
+                'rating': rating,
+                'comment': comment,
+                'created_on': created_on,
+                'upvote_count': upvotes,
+                'downvote_count': downvotes,
+                'cur_user_vote': cur_user_vote
+            })
+
+        cur.close()
+        conn.close()
+    except:
+        cur.close()
+        conn.close()
+        raise Exception
+    return reviews_list
+
+
+def recipe_fetch_user_likes(recipe_id, auth_user_id):
+    """
+    Returns the review details
+    """
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        query = "SELECT COUNT(*) FROM recipe_user_likes WHERE recipe_id = %s"
+        cur.execute(query, (recipe_id))
+        likes_count, = cur.fetchone()
+        if auth_user_id:
+            query = ("""
+            SELECT like_id FROM recipe_user_likes WHERE recipe_id = %s
+            AND user_id = %s
+            """)
+        cur.execute(query, (recipe_id, auth_user_id))
+        has_liked = cur.rowcount > 0
+        
+        cur.close()
+        conn.close()
+    except:
+        cur.close()
+        conn.close()
+        raise Exception
+    return {
+        'likes_count': likes_count,
+        'has_liked': has_liked
+    }
+
+
+def recipe_details(recipe_id, token):
+    """
+    Get details for one recipe
+    """
+    if not recipe_id:
+        return {
+            'status_code': 400,
+            'error': "Bad Request"
+        }
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    
+    try:
+        query = ("""
+            SELECT u.id, u.display_name, u.base64_image,
+            r.recipe_name, r.recipe_description, r.recipe_photo,
+            r.recipe_status, r.recipe_method, r.created_on, r.edited_on,
+            r.preparation_hours, r.preparation_minutes, r.servings, r.energy,
+            r.protein, r.carbohydrates, r.fats, r.cuisine, r.breakfast, r.lunch,
+            r.dinner, r.snack, r.vegetarian, r.vegan, r.kosher, r.halal,
+            r.dairy_free, r.gluten_free, r.nut_free, r.egg_free,
+            r.shellfish_free, r.soy_free
+            FROM users u JOIN recipes r ON (u.id = r.owner_id)
+            WHERE r.recipe_id = %s AND
+            (u.token = %s OR r.recipe_status = 'published')
+        """)
+        
+        cur.execute(query, (recipe_id, token))
+        recipe = cur.fetchone()
+        if not recipe:
+            raise Exception
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 404,
+            'error': "recipe does not exist"
+        }
+
+    try:
+        if token:
+            query = ("SELECT id FROM users WHERE token = %s")
+            cur.execute(query, (str(token),))
+            user_id, = cur.fetchone()
+        else:
+            user_id = None
+        ingredients_list = recipe_fetch_ingredients(recipe_id)
+        reviews = recipe_review_details(recipe_id, user_id)
+        likes = recipe_fetch_user_likes(recipe_id, user_id)
+        reviews = []
+        likes = []
+    except:
+        return {
+            'status_code': 400,
+            'error': "cannot fetch recipe"
+        }
+
+    return {
+        'status_code': 200,
+        'body': {
+            'user_id': recipe[0],
+            'user_display_name': recipe[1],
+            'user_image': recipe[2],
+            'recipe_name': recipe[3],
+            'recipe_description': recipe[4],
+            'recipe_photo': recipe[5],
+            'recipe_status': recipe[6],
+            'recipe_method': recipe[7],
+            'created_on': str(recipe[8]),
+            'edited_on': str(recipe[9]),
+            'preparation_hours': recipe[10],
+            'preparation_minutes': recipe[11],
+            'servings': recipe[12],
+            'energy': recipe[13],
+            'protein': recipe[14],
+            'carbohydrates': recipe[15],
+            'fats': recipe[16],
+            'cuisine': recipe[17],
+            'breakfast': recipe[18],
+            'lunch': recipe[19],
+            'dinner': recipe[20],
+            'snack': recipe[21],
+            'vegetarian': recipe[22],
+            'vegan': recipe[23],
+            'kosher': recipe[24],
+            'halal': recipe[25],
+            'dairy_free': recipe[26],
+            'gluten_free': recipe[27],
+            'nut_free': recipe[28],
+            'egg_free': recipe[29],
+            'shellfish_free': recipe[30],
+            'soy_free': recipe[31],
+            'ingredients': ingredients_list,
+            'reviews': reviews,
+            'likes': likes
+        }
+    }
+    

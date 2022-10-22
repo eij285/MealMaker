@@ -1,5 +1,9 @@
 -- Meal Maker database schema
 
+DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS recipe_user_likes;
+DROP TABLE IF EXISTS recipe_reviews_votes;
+DROP TABLE IF EXISTS recipe_reviews;
 DROP TABLE IF EXISTS recipe_ingredients;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS users;
@@ -75,7 +79,7 @@ CREATE TABLE recipes (
     soy_free        BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT valid_status CHECK (recipe_status in ('draft', 'published')),
     PRIMARY KEY (recipe_id),
-    FOREIGN KEY (owner_id) REFERENCES users(id)
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE recipe_ingredients (
@@ -86,6 +90,49 @@ CREATE TABLE recipe_ingredients (
     unit            VARCHAR(10) NOT NULL,
     PRIMARY KEY (ingredient_id),
     FOREIGN KEY (recipe_id) REFERENCES recipes(recipe_id) ON DELETE CASCADE
+);
+
+CREATE TABLE recipe_reviews (
+    review_id       SERIAL,
+    recipe_id       INTEGER NOT NULL,
+    user_id         INTEGER NOT NULL,
+    rating          INTEGER NOT NULL,
+    comment         TEXT,
+    reply           TEXT,
+    created_on      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (review_id),
+    FOREIGN KEY (recipe_id) REFERENCES recipes(recipe_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT one_review_per_recipe UNIQUE(recipe_id, user_id)
+);
+
+CREATE TABLE recipe_reviews_votes (
+    vote_id         SERIAL,
+    review_id       INTEGER NOT NULL,
+    user_id         INTEGER NOT NULL,
+    is_upvote       BOOLEAN NOT NULL DEFAULT TRUE,
+    PRIMARY KEY (vote_id),
+    FOREIGN KEY (review_id) REFERENCES recipe_reviews(review_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT one_vote_per_review UNIQUE(review_id, user_id)
+);
+
+CREATE TABLE recipe_user_likes (
+    like_id         SERIAL,
+    user_id         INTEGER NOT NULL,
+    recipe_id       INTEGER NOT NULL,
+    PRIMARY KEY (like_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (recipe_id) REFERENCES recipes(recipe_id) ON DELETE CASCADE,
+    CONSTRAINT one_like_per_recipe UNIQUE(user_id, recipe_id)
+);
+
+CREATE TABLE subscriptions (
+    subscription_id SERIAL,
+    following_id    INTEGER NOT NULL,
+    follower_id     INTEGER NOT NULL,
+    FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 INSERT INTO

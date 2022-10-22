@@ -17,6 +17,7 @@ import UserPreferencesPage from './pages/User/UserPreferencesPage';
 import MyRecipesPage from './pages/Recipe/MyRecipesPage';
 import CreateRecipePage from './pages/Recipe/CreateRecipePage';
 import EditRecipePage from './pages/Recipe/EditRecipePage';
+import ViewRecipePage from './pages/Recipe/ViewRecipePage';
 import Forbidden403Page from './pages/Error/Forbidden403Page';
 import NotFound404Page from './pages/Error/NotFound404Page';
 import './App.css';
@@ -31,6 +32,7 @@ function App() {
           <Route exact path="/signup" element={<SignupPage />} />
           <Route exact path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route exact path="/password-reset" element={<PasswordResetPage />} />
+          <Route path="/recipe/:recipeId" element={<ViewRecipePage />} />
           <Route element={<AuthorisedRoute />}>
             <Route exact path="/user-profile" element={<UserProfilePage />} />
             <Route exact path="/update-password" element={<UpdatePasswordPage />} />
