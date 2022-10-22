@@ -12,6 +12,16 @@ const LargeButton = (props) => {
   );
 };
 
+const MediumButton = (props) => {
+  const styles = {
+    borderRadius: '25px',
+    minWidth: '100px'
+  };
+  return (
+    <Button {...props} variant="contained" size="medium" sx={ styles } />
+  );
+};
+
 const SmallButton = (props) => {
   const styles = {
     borderRadius: '20px',
@@ -37,6 +47,24 @@ export const LargeDefaultButton = (props) => {
 export const LargeAlternateButton = (props) => {
   return (
     <LargeButton {...props} color="secondary" />
+  );
+};
+
+/**
+ * default medium button type
+ */
+ export const MediumDefaultButton = (props) => {
+  return (
+    <MediumButton {...props} color="primary" />
+  );
+};
+
+/**
+ * default medium button type
+ */
+ export const MediumAlternateButton = (props) => {
+  return (
+    <MediumButton {...props} color="secondary" />
   );
 };
 

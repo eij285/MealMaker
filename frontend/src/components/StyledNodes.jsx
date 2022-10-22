@@ -1,7 +1,21 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Alert, Box, IconButton, Paper, Rating, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Rating,
+  Typography
+} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { MediumDefaultButton, MediumAlternateButton } from './Buttons';
 
 const CustomAlert = ({props, status, message, setMessage}) => {
   return (
@@ -66,5 +80,44 @@ export const ImageContainer4by3 = styled.div`
     <ImageContainer4by3>
       <img src={src} alt={alt} />
     </ImageContainer4by3>
+  );
+};
+
+const ModalFlexColumn = styled(FlexColumn)`
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+`;
+
+/**
+ * Confirmation dialog to prevent accidental destructive actions such as content
+ * deletion
+ */
+export const ConfirmationDialog = ({ title, description, acceptContent,
+  rejectContent, openState, setOpenState, execOnAccept }) => {
+  return (
+    <Dialog
+      open={openState}
+      onClose={() => setOpenState(false)}
+      aria-labelledby="confirmation-dialog-title"
+      aria-describedby="confirmation-dialog-description"
+    >
+      <DialogTitle id="confirmation-dialog-title">
+        {title}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="confirmation-dialog-description">
+          {description}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <MediumDefaultButton onClick={() => execOnAccept()}>
+          {acceptContent}
+        </MediumDefaultButton>
+        <MediumAlternateButton onClick={() => setOpenState(false)} autoFocus>
+          {rejectContent}
+        </MediumAlternateButton>
+      </DialogActions>
+    </Dialog>
   );
 };
