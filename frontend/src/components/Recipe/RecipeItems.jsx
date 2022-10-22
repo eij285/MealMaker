@@ -59,7 +59,13 @@ const ActionButton = styled(Button)`
   padding: 0;
 `;
 
-export const OwnRecipeItem = ({data, token, refresh}) => {
+export const OwnRecipeItem = ({data, index, cloneRecipe, setDeleteIndex,
+  setDialogOpen, setDeleteDesciption}) => {
+  const handleDelete = () => {
+    setDeleteIndex(index);
+    setDialogOpen(true);
+    setDeleteDesciption(data.recipe_name);
+  };
   return (
     <RecipeItemPaper>
       <RecipeItemActionPanel>
@@ -69,10 +75,10 @@ export const OwnRecipeItem = ({data, token, refresh}) => {
             to={`/edit-recipe/${data.recipe_id}`}>
             <EditOutlinedIcon />
           </ActionButton>
-          <ActionButton color="warning">
+          <ActionButton color="warning" onClick={() => cloneRecipe(index)}>
             <ContentCopyIcon />
           </ActionButton>
-          <ActionButton color="error">
+          <ActionButton color="error" onClick={handleDelete}>
             <DeleteOutlinedIcon />
           </ActionButton>
         </RecipeItemActions>

@@ -452,25 +452,182 @@ def recipe_update(data, token):
         }
 
 
-def recipe_copy(recipe_id, token):
+def recipe_clone(recipe_id, token):
     """
-    Copy recipe with given id (only recipe owner permitted to do that)
+    Clone recipe with given id (only recipe owner permitted to do that)
     """
-    # not yet finished, return only to keep flask happy
-    return {
-            'status_code':400,
-            'error': "Not yet finished"
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
         }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        owner_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find user id"
+        }
+
+    try:
+        query = ("SELECT COUNT(*) FROM recipes WHERE recipe_id = %s AND owner_id = %s")
+        cur.execute(query, (str(recipe_id), str(owner_id)))
+        if not cur.fetchone():
+            raise Exception
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find recipe owned by user"
+        }
+    
+    try:
+        query = ("""
+        INSERT INTO recipes (owner_id, recipe_name, recipe_description,
+        recipe_photo, recipe_status, recipe_method, preparation_hours,
+        preparation_minutes, servings, energy, protein, carbohydrates, fats,
+        cuisine, breakfast, lunch, dinner, snack, vegetarian, vegan, kosher,
+        halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free,
+        soy_free)
+        SELECT owner_id, recipe_name, recipe_description, recipe_photo,
+        recipe_status, recipe_method, preparation_hours, preparation_minutes,
+        servings, energy, protein, carbohydrates, fats, cuisine, breakfast,
+        lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free,
+        gluten_free, nut_free, egg_free, shellfish_free, soy_free
+        FROM recipes WHERE recipe_id = %s RETURNING recipe_id
+        """)
+        cur.execute(query, (str(recipe_id)))
+        conn.commit()
+        new_recipe_id = cur.fetchone()[0]
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "problem cloning recipe"
+        }
+
+    try:
+        query = ("""
+            INSERT INTO recipe_ingredients
+            (recipe_id, ingredient_name, quantity, unit)
+            SELECT %s, ingredient_name, quantity, unit
+            FROM recipe_ingredients WHERE recipe_id = %s
+            """)
+        cur.execute(query, (str(new_recipe_id), str(recipe_id)))
+        conn.commit()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "problem cloning recipe ingredients"
+        }
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200,
+        'body': {
+            'recipe_id': new_recipe_id
+        }
+    }
 
 def recipe_delete(recipe_id, token):
     """
     Delete recipe with given id (only recipe owner permitted to do that)
     """
-    # not yet finished, return only to keep flask happy
-    return {
-            'status_code':400,
-            'error': "Not yet finished"
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
         }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        owner_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find user id"
+        }
+
+    # no need to handle deleting child records that are handled by
+    # delete cascade
+    try:
+        query = ("""
+            DELETE FROM recipes WHERE recipe_id = %s AND owner_id = %s
+            RETURNING recipe_id
+            """)
+        cur.execute(query, (str(recipe_id), str(owner_id)))
+        conn.commit()
+        deleted_recipe_id, = cur.fetchone()
+        if recipe_id != deleted_recipe_id:
+            raise Exception
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "failed to delete specified"
+        }
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {
+            'recipe_id': deleted_recipe_id
+        }
+    }
 
     
 def recipes_fetch_own(token):

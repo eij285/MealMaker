@@ -9,8 +9,11 @@ import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
 import { PageTitle } from '../../components/TextNodes';
 import {
+  ConfirmationDialog,
   FlexColumn,
   FlexRow,
+  ErrorAlert,
+  SuccessAlert
 } from '../../components/StyledNodes';
 import { OwnRecipeItem } from '../../components/Recipe/RecipeItems';
 import { LeftAlignedButton } from '../../components/Buttons';
@@ -22,6 +25,13 @@ function MyRecipesPage () {
   const [totalRecipes, setTotalRecipes] = React.useState(0);
   const [recipesList, setRecipesList] = React.useState([]);
 
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [deleteIndex, setDeleteIndex] = React.useState(-1);
+  const [deleteDescription, setDeleteDesciption] = React.useState("");
+
+  const [responseError, setResponseError] = React.useState('');
+  const [responseSuccess, setResponseSuccess] = React.useState('');
+
   const loadRecipes = () => {
     backendRequest('/recipes/fetch-own', {}, 'POST', token, (data) => {
       setRecipesList([...data.body]);
@@ -29,20 +39,58 @@ function MyRecipesPage () {
         recipe.recipe_status === 'published').length);
       setTotalRecipes(data.body.length);
     }, (error) => {
-      //setResponseError(error);
-      console.log(error);
+      setResponseError(error);
     });
+  };
+
+  const cloneRecipe = (index) => {
+    const recipeId = recipesList[index].recipe_id;
+    const body = {
+      recipe_id: recipeId
+    };
+    backendRequest('/recipe/clone', body, 'POST', token, (data) => {
+      loadRecipes();
+      setResponseSuccess(
+        `Successfully cloned recipe (New recipe id: ${data.body.recipe_id})`);
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
+  const deleteRecipe = () => {
+    const recipeId = recipesList[deleteIndex].recipe_id;
+    const body = {
+      recipe_id: recipeId
+    };
+    backendRequest('/recipe/delete', body, 'POST', token, (data) => {
+      loadRecipes();
+      setResponseSuccess(
+        `Successfully deleted recipe (recipe id: ${data.body.recipe_id})`);
+    }, (error) => {
+      setResponseError(error);
+    });
+    setDialogOpen(false);
   };
 
   React.useEffect(() => {
     loadRecipes();
   }, [token]);
 
+  React.useEffect(() => {
+    if (!dialogOpen) {
+      setDeleteIndex(-1);
+    }
+  }, [dialogOpen, deleteIndex]);
+
   return (
     <ManageLayout>
       <Grid item xs={12}>
         <PageTitle>My Recipes</PageTitle>
         <FlexColumn>
+          {responseSuccess !== '' &&
+          <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
+          {responseError !== '' &&
+          <ErrorAlert message={responseError} setMessage={setResponseError} />}
           <Box>
             <Typography>Published: {numPublished}</Typography>
             <Typography>Total: {totalRecipes}</Typography>
@@ -55,11 +103,18 @@ function MyRecipesPage () {
           <Grid container spacing={2}>
             {recipesList.length > 0 && recipesList.map((recipe, index) => (
             <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
-              <OwnRecipeItem data={recipe} />
+              <OwnRecipeItem data={recipe} index={index} 
+                cloneRecipe={cloneRecipe} setDeleteIndex={setDeleteIndex}
+                setDialogOpen={setDialogOpen}
+                setDeleteDesciption={setDeleteDesciption} />
             </Grid>))}
           </Grid>
         </FlexColumn>
       </Grid>
+      <ConfirmationDialog title="Confirm deletion of:"
+        description={deleteDescription}
+        acceptContent="Delete" rejectContent="Cancel" openState={dialogOpen}
+        setOpenState={setDialogOpen} execOnAccept={deleteRecipe} />
     </ManageLayout>
   );
 }
