@@ -1,4 +1,5 @@
 import moment from 'moment';
+import convert from 'convert';
 const config = require('./config.json');
 
 /**
@@ -224,4 +225,14 @@ export const getAverageRating = (reviews) => {
     return 0;
   }
   return 4.5;
+};
+
+export const formatNutrient = (qty, isMass, reqImperial) => {
+  if (qty === -1) {
+    return 'NA';
+  }
+  if (isMass) {
+    return reqImperial ? convert(qty, 'gram').to('ounce').toFixed(2) + 'oz.' : `${qty}g`;
+  }
+  return reqImperial ? (qty / 4.184).toFixed(2) + 'Cal' : `${qty}g`;
 };

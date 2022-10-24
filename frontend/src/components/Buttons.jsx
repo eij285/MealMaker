@@ -5,7 +5,7 @@ import { Button } from '@mui/material';
 const LargeButton = (props) => {
   const styles = {
     borderRadius: '25px',
-    minWidth: '220px'
+    minWidth: '220px',
   };
   return (
     <Button {...props} variant="contained" size="large" sx={ styles } />
@@ -15,7 +15,8 @@ const LargeButton = (props) => {
 const MediumButton = (props) => {
   const styles = {
     borderRadius: '25px',
-    minWidth: '100px'
+    minWidth: '100px',
+    maxHeight: '36px'
   };
   return (
     <Button {...props} variant="contained" size="medium" sx={ styles } />
@@ -25,7 +26,8 @@ const MediumButton = (props) => {
 const SmallButton = (props) => {
   const styles = {
     borderRadius: '20px',
-    minWidth: '50px'
+    minWidth: '50px',
+    maxHeight: '30px'
   };
   return (
     <Button {...props} variant="contained" size="small" sx={ styles } />
@@ -132,6 +134,13 @@ export const LeftAltButton = styled(LargeAlternateButton)`
 * right aligned button
 */
 export const RightAlignedButton = styled(LargeButton)`
+  align-self: flex-end;
+`;
+
+/*
+* right aligned medium button
+*/
+export const RightAlignMedButton = styled(MediumButton)`
   align-self: flex-end;
 `;
 

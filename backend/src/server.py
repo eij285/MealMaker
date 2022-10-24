@@ -200,7 +200,6 @@ def details_for_recipe():
         else:
             recipe_id = None
         token = None
-
     return dumps(recipe_details(recipe_id, token))
 
 # @APP.route('/recipe/publish', methods=['PUT'])

@@ -299,7 +299,6 @@ def recipe_update_ingredients(recipe_id, ingredients):
                 """)
             cur.execute(delete_query, (str(recipe_id),))
         conn.commit()
-        print('testing')
         delete_result = cur.fetchall()
         update_query = ("""
             UPDATE recipe_ingredients SET ingredient_name = %s, quantity = %s,
@@ -836,8 +835,13 @@ def recipe_details(recipe_id, token):
             'status_code': 500,
             'error': 'Unable to connect to database'
         }
-    
     try:
+        if token:
+            query = "SELECT id, units, efficiency FROM users WHERE token = %s"
+            cur.execute(query, (str(token),))
+            user_id, units, efficiency = cur.fetchone()
+        else:
+            user_id, units, efficiency = -1, 'Metric', 'Intermediate'
         query = ("""
             SELECT u.id, u.display_name, u.base64_image,
             r.recipe_name, r.recipe_description, r.recipe_photo,
@@ -849,10 +853,9 @@ def recipe_details(recipe_id, token):
             r.shellfish_free, r.soy_free
             FROM users u JOIN recipes r ON (u.id = r.owner_id)
             WHERE r.recipe_id = %s AND
-            (u.token = %s OR r.recipe_status = 'published')
+            (u.id = %s OR r.recipe_status = 'published')
         """)
-        
-        cur.execute(query, (recipe_id, token))
+        cur.execute(query, (recipe_id, str(user_id)))
         recipe = cur.fetchone()
         if not recipe:
             raise Exception
@@ -865,12 +868,6 @@ def recipe_details(recipe_id, token):
         }
 
     try:
-        if token:
-            query = "SELECT id, units, efficiency FROM users WHERE token = %s"
-            cur.execute(query, (str(token),))
-            user_id, units, efficiency = cur.fetchone()
-        else:
-            user_id, units, efficiency = None
         ingredients_list = recipe_fetch_ingredients(recipe_id)
         reviews = recipe_review_details(recipe_id, user_id)
         likes = recipe_fetch_user_likes(recipe_id, user_id)
@@ -920,7 +917,7 @@ def recipe_details(recipe_id, token):
             'efficiency': str(efficiency),
             'ingredients': ingredients_list,
             'reviews': reviews,
-            'likes': likes
+            'likes': likes,
+            'user_is_author': user_id == recipe[0]
         }
     }
-    
