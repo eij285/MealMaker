@@ -3,6 +3,7 @@
   "PRONOUNS": ["Mr", "Ms", "Mrs", "Miss", "Dr"],
   "COUNTRIES": ["Australia", "New Zealand", "USA", "Canada", "United Kingdom"],
   "EFFICIENCY": ["Beginner", "Intermediate", "Expert"],
+  "EFFICIENCY_CONV": 0.7,
   "UNITS": ["Metric", "Imperial"],
   "METRIC_UNITS": ["litres", "grams"],
   "CUISINES": ["Asian Fusion", "Chinese", "French", "Greek", "Indian",

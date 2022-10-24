@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Checkbox,
@@ -12,8 +12,7 @@ import {
   Select,
   Button,
   Tooltip,
-  IconButton,
-  Alert
+  IconButton
 } from '@mui/material';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-build-classic-base64-upload';
@@ -39,7 +38,7 @@ import {
   ErrorAlert,
   SuccessAlert
 } from '../../components/StyledNodes';
-import { LeftAlignedSubmitButton } from '../../components/Buttons';
+import { LeftAlignedSubmitButton, LeftAltButton } from '../../components/Buttons';
 import {
   backendRequest,
   validateServings,
@@ -280,6 +279,7 @@ function EditRecipePage () {
               label="Servings"
               required
               sx={{ width: '150px' }}
+              inputProps={{ min: 1, max: 100 }}
               value={servings}
               onChange={(e) => setServings(e.target.value)}
               onBlur={(e) => validateServings(e.target.value, setServingsMessage)}
@@ -302,11 +302,13 @@ function EditRecipePage () {
               <TextVCentred>Preparation Time: </TextVCentred>
               <NarrowNumericInput
                 label="hours"
+                inputProps={{ min: 0, max: 36 }}
                 value={prepHours}
                 onChange={(e) => setPrepHours(e.target.value)}
               />
               <NarrowNumericInput
                 label="minutes"
+                inputProps={{ min: 0, max: 59 }}
                 value={prepMinutes}
                 onChange={(e) => setPrepMinutes(e.target.value)}
               />
@@ -315,21 +317,25 @@ function EditRecipePage () {
               <TextVCentred>Nutrition: </TextVCentred>
               <NarrowNumericInput
                 label="Energy (kJ)"
+                inputProps={{ min: 0, max: 100000 }}
                 value={energy}
                 onChange={(e) => setEnergy(e.target.value)}
               />
               <NarrowNumericInput
                 label="Protein (g)"
+                inputProps={{ min: 0, max: 3000 }}
                 value={protein}
                 onChange={(e) => setProtein(e.target.value)}
               />
               <NarrowNumericInput
                 label="Carbs (g)"
+                inputProps={{ min: 0, max: 3000 }}
                 value={carbs}
                 onChange={(e) => setCarbs(e.target.value)}
               />
               <NarrowNumericInput
                 label="Fat (g)"
+                inputProps={{ min: 0, max: 3000 }}
                 value={fats}
                 onChange={(e) => setFats(e.target.value)}
               />
@@ -390,6 +396,7 @@ function EditRecipePage () {
                 <FlexRow key={index}>
                   <NumericInput
                     label="Qty"
+                    inputProps={{ min: 1, max: 100000 }}
                     value={ingredient.quantity}
                     onChange={(e) =>
                       updateIngredient(index, e.target.value, null, null)}
@@ -458,6 +465,9 @@ function EditRecipePage () {
               <LeftAlignedSubmitButton>
                 Update Recipe
               </LeftAlignedSubmitButton>
+              <LeftAltButton component={RouterLink} to={`/recipe/${recipeId}`}>
+                View Recipe
+              </LeftAltButton>
             </FlexRow>
           </CentredElementsForm>
         </FlexColumn>
