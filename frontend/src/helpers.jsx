@@ -214,3 +214,14 @@ export const emptyStringToNull = (str) => {
  export const intStringOrNull = (str) => {
   return str ? (isNaN(str) ? null : `${parseInt(str, 10)}`) : null;
 };
+
+/**
+ * Returns average review rating
+ */
+export const getAverageRating = (reviews) => {
+  // fix when have reviews
+  if (typeof reviews !== typeof []) {
+    return 0;
+  }
+  return 4.5;
+};

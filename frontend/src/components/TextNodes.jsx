@@ -49,7 +49,17 @@ export const TextVCentred = styled(Typography)`
   align-items: center;
 `;
 
+export const MediumGreyText = styled(Typography)`
+  font-size: 1em;
+  color: #888888;
+`;
+
 export const SmallGreyText = styled(Typography)`
   font-size: 0.8em;
   color: #888888;
+`;
+
+export const SmallBlackText = styled(Typography)`
+  font-size: 0.8em;
+  color: #000000;
 `;

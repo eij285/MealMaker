@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import styled from '@emotion/styled';
 import {
   Alert,
@@ -10,12 +11,15 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  Link,
   Paper,
   Rating,
   Typography
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { MediumDefaultButton, MediumAlternateButton } from './Buttons';
+import { SmallBlackText } from './TextNodes';
 
 const CustomAlert = ({props, status, message, setMessage}) => {
   return (
@@ -59,9 +63,12 @@ export const FlexRowWrap = styled(FlexRow)`
   flex-wrap: wrap;
 `;
 
-export const ImageContainer4by3 = styled.div`
+export const FlexRowWrapSpaced = styled(FlexRowWrap)`
+  justify-content: space-between;
+`;
+
+export const ImageContainer = styled.div`
   position: relative;
-  padding-bottom: 75%;
   & img, & svg {
     position: absolute;
     top: 0;
@@ -70,6 +77,14 @@ export const ImageContainer4by3 = styled.div`
     height: 100%;
     object-fit: cover;
   }
+`;
+
+export const ImageContainer4by3 = styled(ImageContainer)`
+  padding-bottom: 75%;
+`;
+
+export const ImageContainerSquare = styled(ImageContainer)`
+  padding-bottom: 100%;
 `;
 
 /**
@@ -81,6 +96,34 @@ export const ImageContainer4by3 = styled.div`
       <img src={src} alt={alt} />
     </ImageContainer4by3>
   );
+};
+
+const UserNameText = styled(Typography)`
+  color: #333333;
+  align-self: center;
+  padding-left: 4px;
+`;
+
+export const UserImageName = ({ src, name }) => {
+  return (
+    <Box sx={{display: 'flex', color: '#000000'}}>
+      <Box sx={{width: '32px'}}>
+        <ImageContainerSquare>
+          {src && <img src={src} alt={name} />}
+          {!src && <AccountCircleIcon />}
+        </ImageContainerSquare>
+      </Box>
+      <UserNameText>{name}</UserNameText>
+    </Box>
+  );
+};
+
+export const UserImageNameLink = ({ src, name, to }) => {
+  return (
+    <Link component={RouterLink} to={to} sx={{textDecoration: 'none'}}>
+      <UserImageName src={src} name={name} />
+    </Link>
+  )
 };
 
 /**
