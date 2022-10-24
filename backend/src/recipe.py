@@ -875,7 +875,6 @@ def recipe_details(recipe_id, token):
         reviews = recipe_review_details(recipe_id, user_id)
         likes = recipe_fetch_user_likes(recipe_id, user_id)
         reviews = []
-        likes = []
     except:
         return {
             'status_code': 400,
@@ -885,9 +884,9 @@ def recipe_details(recipe_id, token):
     return {
         'status_code': 200,
         'body': {
-            'user_id': recipe[0],
-            'user_display_name': recipe[1],
-            'user_image': recipe[2],
+            'author_id': recipe[0],
+            'author_display_name': recipe[1],
+            'author_image': recipe[2],
             'recipe_name': recipe[3],
             'recipe_description': recipe[4],
             'recipe_photo': recipe[5],
