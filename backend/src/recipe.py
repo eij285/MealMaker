@@ -751,7 +751,7 @@ def recipe_review_details(recipe_id, auth_user_id):
         """)
         for review in sql_result:
             user_id, display_name, user_image, review_id, rating, comment, \
-                created_on = review
+                reply, created_on = review
 
             cur.execute(votes_query, (review_id, True))
             upvotes, = cur.fetchone()
@@ -771,11 +771,12 @@ def recipe_review_details(recipe_id, auth_user_id):
                 'user_image': user_image,
                 'review_id': review_id,
                 'rating': rating,
-                'comment': comment,
+                'comment': comment if comment else '',
+                'reply': reply if reply else '',
                 'created_on': created_on,
                 'upvote_count': upvotes,
                 'downvote_count': downvotes,
-                'cur_user_vote': cur_user_vote
+                'cur_user_vote': cur_user_vote if cur_user_vote is not None else ''
             })
 
         cur.close()
@@ -865,11 +866,11 @@ def recipe_details(recipe_id, token):
 
     try:
         if token:
-            query = ("SELECT id FROM users WHERE token = %s")
+            query = "SELECT id, units, efficiency FROM users WHERE token = %s"
             cur.execute(query, (str(token),))
-            user_id, = cur.fetchone()
+            user_id, units, efficiency = cur.fetchone()
         else:
-            user_id = None
+            user_id, units, efficiency = None
         ingredients_list = recipe_fetch_ingredients(recipe_id)
         reviews = recipe_review_details(recipe_id, user_id)
         likes = recipe_fetch_user_likes(recipe_id, user_id)
@@ -916,6 +917,8 @@ def recipe_details(recipe_id, token):
             'egg_free': recipe[29],
             'shellfish_free': recipe[30],
             'soy_free': recipe[31],
+            'units': str(units),
+            'efficiency': str(efficiency),
             'ingredients': ingredients_list,
             'reviews': reviews,
             'likes': likes
