@@ -27,12 +27,15 @@ export const CentredPageTitle = (props) => {
 /**
  * sub page title h3 element
  */
- export const SubPageTitle = (props) => {
+export const SubPageTitle = (props) => {
   return (
     <PageTitleBase {...props} component="h3" variant="h5" />
   );
 };
 
+export const SubPageTitleNoMargins = styled(SubPageTitle)`
+  margin: 0;
+`;
 
 export const CustomLink = (props) => {
   const LinkBase = styled(Link)`
@@ -47,6 +50,11 @@ export const TextVCentred = styled(Typography)`
   white-space: nowrap;
   display: flex;
   align-items: center;
+`;
+
+export const MediumBlackText = styled(Typography)`
+  font-size: 1em;
+  color: #000000;
 `;
 
 export const MediumGreyText = styled(Typography)`

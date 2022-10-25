@@ -232,7 +232,40 @@ export const formatNutrient = (qty, isMass, reqImperial) => {
     return 'NA';
   }
   if (isMass) {
-    return reqImperial ? convert(qty, 'gram').to('ounce').toFixed(2) + 'oz.' : `${qty}g`;
+    return reqImperial ? convert(qty, 'gram').to('ounce').toFixed(2) + 'oz.'
+      : `${qty}g`;
   }
-  return reqImperial ? (qty / 4.184).toFixed(2) + 'Cal' : `${qty}g`;
+  return reqImperial ? (qty / 4.184).toFixed(2) + 'Cal' : `${qty}kJ`;
+};
+
+const formatIngredientUnit = (qty, unit) => {
+  return qty === 1 ? unit.replace(/s$/, '') : unit;
+};
+
+export const formatIngredient = (ingredient, reqImperial) => {
+  if (ingredient.quantity === -1) {
+    return 'NA';
+  }
+  const quantity = ingredient.quantity;
+  const unit = ingredient.unit;
+  if (!reqImperial) {
+    // remove s suffix from singluar to make unit grammatically correct
+    return `${quantity} ${formatIngredientUnit(quantity, unit)}`;
+  }
+  let obj = null;
+  //"litres", "ml", "grams", "kg", "cups", "tbsp", "tsp", "pieces"
+  if (unit === 'gram' || unit === 'grams') {
+    obj = convert(quantity, 'gram').to('best', 'imperial');
+  } else if (unit === 'kg' || unit === 'kilogram' || unit === 'kilograms') {
+    obj = convert(quantity, 'kilogram').to('best', 'imperial');
+  } else if (unit === 'ml' || unit === 'millilitres' || unit === 'milliliters') {
+    obj = convert(quantity, 'ml').to('best', 'imperial');
+  } else if (unit === 'litre' || unit === 'litres' || unit === 'liter' ||
+             unit === 'liters') {
+    obj = convert(quantity, 'litre').to('best', 'imperial');
+  }
+  if (obj !== null) {
+    return `${obj.quantity.toFixed(2)} ${formatIngredientUnit(obj.quantity, obj.unit)}`;
+  }
+  return `${quantity} ${formatIngredientUnit(quantity, unit)}`;
 };

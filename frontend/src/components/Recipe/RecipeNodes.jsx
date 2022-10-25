@@ -1,20 +1,24 @@
 import React from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { Box, Button, IconButton, Paper, Rating, Tooltip, Typography } from '@mui/material';
+import { Box, IconButton, Rating, Tooltip, Typography } from '@mui/material';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import { FlexRow, FlexRowWrapSpaced, FlexColumn } from '../StyledNodes';
-import { MediumGreyText, SmallBlackText, SmallGreyText, TextVCentred } from '../TextNodes';
 import {
-  ImageInput,
-  TextInput,
-  NumericInput,
-  NarrowNumericInput
-} from '../../components/InputFields';
-import { formatNutrient, getAverageRating } from '../../helpers';
+  MediumGreyText,
+  MediumBlackText,
+  SmallBlackText,
+  SmallGreyText,
+  SubPageTitle
+} from '../TextNodes';
+import { NumericInput } from '../../components/InputFields';
+import {
+  formatIngredient,
+  formatNutrient,
+  getAverageRating
+} from '../../helpers';
 const config = require('../../config.json');
 
 const RecipeImgContainer = styled.div`
@@ -30,6 +34,9 @@ const RecipeImgContainer = styled.div`
   }
 `;
 
+/**
+ * Recipe image component
+ */
 export const RecipeImg = ({src, alt}) => {
   return (
     <RecipeImgContainer>
@@ -39,6 +46,9 @@ export const RecipeImg = ({src, alt}) => {
   );
 };
 
+/**
+ * Recipe rating component
+ */
 export const RecipeRating = ({reviews}) => {
   const [avgRating, setAvgRating] = React.useState(0);
   React.useEffect(() => {
@@ -62,15 +72,18 @@ export const RecipeRating = ({reviews}) => {
   );
 };
 
+/**
+ * Like/unlike recipe component
+ */
 export const RecipeLikes = ({likesObject, likeRecipe}) => {
   return (
     <>
     {typeof likesObject === typeof {} &&
     <Tooltip title="Like Recipe" placement="top" arrow>
       <IconButton color="info" onClick={likeRecipe}>
-        {likesObject.has_liked && <ThumbUpIcon />}
-        {!likesObject.has_liked && <ThumbUpOutlinedIcon />}
-        &nbsp;{likesObject.likes_count}
+        {likesObject.hasLiked && <ThumbUpIcon />}
+        {!likesObject.hasLiked && <ThumbUpOutlinedIcon />}
+        &nbsp;{likesObject.likesCount}
       </IconButton>
     </Tooltip>}
     </>
@@ -112,6 +125,9 @@ const RecipePrepartionTimeText = React.forwardRef((props, ref) => {
   );
 });
 
+/**
+ * Recipe preparation time and user efficiency component
+ */
 const RecipePrepartionTime = ({hours, minutes, level}) => {
   let totalMinutes = 0;
   let ttMsg = '';
@@ -152,6 +168,9 @@ const RecipePrepartionTime = ({hours, minutes, level}) => {
   );
 };
 
+/**
+ * Recipe tags (alergens and dietary needs) component
+ */
 const RecipeTags = ({data}) => {
   let tags = [];
   data.vegetarian && tags.push('Vegetarian');
@@ -170,6 +189,10 @@ const RecipeTags = ({data}) => {
   );
 };
 
+/**
+ * Recipe information component, allows selection of servings and displays
+ * nutritional information, cooking time and recipe tags
+ */
 export const RecipeInfoPanel = ({data, currData, setServings}) => {
   const reqImperial = data.units === 'Imperial';
   const energy = formatNutrient(currData.energy, false, reqImperial);
@@ -182,7 +205,8 @@ export const RecipeInfoPanel = ({data, currData, setServings}) => {
         <NumericInput
           label="Servings"
           sx={{ width: '100px' }}
-          value={data.servings}
+          inputProps={{ min: 1, max: 200 }}
+          value={currData.servings}
           onChange={(e) =>
             setServings(e.target.value ? `${parseInt(e.target.value)}`: '')}
         />
@@ -195,5 +219,68 @@ export const RecipeInfoPanel = ({data, currData, setServings}) => {
         minutes={data.preparation_minutes} level={data.efficiency} />
       <RecipeTags data={data} />
     </RecipeInfoPanelContainer>
+  );
+};
+
+/**
+ * Meal suitability tags (Breakfast, Lunch, Dinner, Snack)
+ */
+export const MealSuitabilityTags = ({data}) => {
+  let tags = [];
+  data.breakfast && tags.push('Breakfast');
+  data.lunch && tags.push('Lunch');
+  data.dinner && tags.push('Dinner');
+  data.snack && tags.push('Snack');
+  return (
+    <>
+    {tags.length > 0 &&
+    <MediumBlackText>
+      Meal Suitability: {tags.join(', ')}
+    </MediumBlackText>}
+    </>
+  );
+};
+
+const IngredientsListingContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const IngredientsListingGrid = styled.div`
+  display: grid;
+  grid-template-columns: max-content auto;
+  column-gap: 8px;
+  row-gap: 4px;
+  margin-bottom: 30px;
+`;
+
+/**
+ * Displays information for a single ingredient
+ */
+const SingleIngredient = ({ingredient, reqImperial}) => {
+  return (
+    <>
+      <Typography sx={{fontWeight: '600'}}>
+        {formatIngredient(ingredient, reqImperial)}
+      </Typography>
+      <Typography>{ingredient.ingredient_name}</Typography>
+    </>
+  );
+};
+
+/**
+ * Displays a listing of all ingredients
+ */
+export const IngredientsListing = ({data, reqImperial}) => {
+  return (
+    <IngredientsListingContainer>
+      <SubPageTitle>Ingredients</SubPageTitle>
+      <IngredientsListingGrid>
+      {data.ingredients.map((ingredient, index) => (
+        <SingleIngredient ingredient={ingredient} key={index}
+          reqImperial={reqImperial} />
+      ))}
+      </IngredientsListingGrid>
+    </IngredientsListingContainer>
   );
 };

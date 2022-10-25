@@ -65,6 +65,8 @@ function UserPreferencesPage () {
     setEggFree(data.egg_free);
     setShellfishFree(data.shellfish_free);
     setSoyFree(data.soy_free);
+    setEfficiency(data.efficiency);
+    setMeasuringUnits(data.units);
   };
 
   React.useEffect(() => {

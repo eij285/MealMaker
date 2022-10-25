@@ -10,7 +10,7 @@ from auth import auth_register, auth_login, auth_logout, \
 from backend_helper import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences
 from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
-                   recipe_delete, recipes_fetch_own, recipe_details
+                   recipe_delete, recipes_fetch_own, recipe_details, recipe_like
 from backend_helper import database_reset
 
 APP = Flask(__name__)
@@ -201,6 +201,13 @@ def details_for_recipe():
             recipe_id = None
         token = None
     return dumps(recipe_details(recipe_id, token))
+
+@APP.route('/recipe/like', methods=['POST'])
+def like_recipe():
+    data = request.get_json()
+    token = data['token']
+    recipe_id = data['recipe_id']
+    return recipe_like(recipe_id, token)
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():

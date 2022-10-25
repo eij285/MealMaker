@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { Button, Paper, Rating, Typography } from '@mui/material';
+import { Box, Button, Paper, Rating, Typography } from '@mui/material';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -9,6 +9,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { FlexRow, FlexColumn, ImageContainer4by3, ResponsiveImage4by3 } from '../StyledNodes';
 import { SmallGreyText, TextVCentred } from '../TextNodes';
+import { SmallDefaultButton } from '../Buttons';
 
 const RecipeItemActionPanel = styled.div`
   box-shadow: -10px 40px 5px -10px rgba(0,0,0,0.75) inset;
@@ -59,6 +60,16 @@ const ActionButton = styled(Button)`
   padding: 0;
 `;
 
+const ViewRecipeButton = styled(SmallDefaultButton)`
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  opacity: 0.8;
+  &:hover {
+    opacity: 1;
+  }
+`;
+
 export const OwnRecipeItem = ({data, index, cloneRecipe, setDeleteIndex,
   setDialogOpen, setDeleteDesciption}) => {
   const handleDelete = () => {
@@ -68,22 +79,27 @@ export const OwnRecipeItem = ({data, index, cloneRecipe, setDeleteIndex,
   };
   return (
     <RecipeItemPaper>
-      <RecipeItemActionPanel>
-        <RecipeItemTitle>{data.cuisine}</RecipeItemTitle>
-        <RecipeItemActions>
-          <ActionButton color="info" component={RouterLink}
-            to={`/edit-recipe/${data.recipe_id}`}>
-            <EditOutlinedIcon />
-          </ActionButton>
-          <ActionButton color="warning" onClick={() => cloneRecipe(index)}>
-            <ContentCopyIcon />
-          </ActionButton>
-          <ActionButton color="error" onClick={handleDelete}>
-            <DeleteOutlinedIcon />
-          </ActionButton>
-        </RecipeItemActions>
-      </RecipeItemActionPanel>
-      <RecipeItemPhoto src={data.recipe_photo} alt={data.recipe_name} />
+      <Box sx={{position: 'relative'}}>
+        <RecipeItemActionPanel>
+          <RecipeItemTitle>{data.cuisine}</RecipeItemTitle>
+          <RecipeItemActions>
+            <ActionButton color="info" component={RouterLink}
+              to={`/edit-recipe/${data.recipe_id}`}>
+              <EditOutlinedIcon />
+            </ActionButton>
+            <ActionButton color="warning" onClick={() => cloneRecipe(index)}>
+              <ContentCopyIcon />
+            </ActionButton>
+            <ActionButton color="error" onClick={handleDelete}>
+              <DeleteOutlinedIcon />
+            </ActionButton>
+          </RecipeItemActions>
+        </RecipeItemActionPanel>
+        <RecipeItemPhoto src={data.recipe_photo} alt={data.recipe_name} />
+        <ViewRecipeButton component={RouterLink} to={`/recipe/${data.recipe_id}`}>
+          View Recipe
+        </ViewRecipeButton>
+      </Box>
       <RecipeItemTextContainer>
         <FlexColumn>
           <Rating value={4.5} precision={0.5} readOnly />
