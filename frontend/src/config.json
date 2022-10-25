@@ -5,7 +5,7 @@
   "EFFICIENCY": ["Beginner", "Intermediate", "Expert"],
   "EFFICIENCY_CONV": 0.7,
   "UNITS": ["Metric", "Imperial"],
-  "METRIC_UNITS": ["litres", "grams"],
+  "METRIC_UNITS": ["litres", "ml", "grams", "kg", "cups", "tbsp", "tsp", "pieces"],
   "CUISINES": ["Asian Fusion", "Chinese", "French", "Greek", "Indian",
                "Japanese", "Korean", "Lebanese", "Malaysian",
                "Modern Australian", "Other", "Seafood", "Sushi", "Thai",

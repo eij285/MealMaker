@@ -1,3 +1,4 @@
+from re import S
 import psycopg2
 from backend_helper import connect, verify_token
 from config import DB_CONN_STRING
@@ -919,5 +920,115 @@ def recipe_details(recipe_id, token):
             'reviews': reviews,
             'likes': likes,
             'user_is_author': user_id == recipe[0]
+        }
+    }
+
+def recipe_like(recipe_id, token):
+    """
+    Like toggle a given recipe (like => unlike, unlike => like)
+    """
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        user_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "only authenticated users can like a recipe"
+        }
+
+    try:
+        query = ("""
+            SELECT owner_id FROM recipes WHERE recipe_id = %s
+            AND recipe_status = 'published'
+            """)
+        cur.execute(query, (recipe_id,))
+        owner_id, = cur.fetchone()
+        
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code':400,
+            'error': "cannot find recipe id"
+        }
+
+    if user_id == owner_id:
+        return {
+            'status_code':400,
+            'error': "cannot like or unlike own recipe"
+        }
+
+    try:
+        query = ("""
+            SELECT like_id FROM recipe_user_likes
+            WHERE recipe_id = %s AND user_id = %s
+        """)
+        cur.execute(query, (recipe_id, user_id))
+        sql_result = cur.fetchone()
+        if sql_result:
+            like_id, = sql_result
+            delete_query = "DELETE FROM recipe_user_likes WHERE like_id = %s"
+            cur.execute(delete_query, (like_id,))
+            conn.commit()
+            has_liked = False
+        else:
+            insert_query = ("""
+                INSERT INTO recipe_user_likes(user_id, recipe_id)
+                VALUES (%s, %s)
+                """)
+            cur.execute(insert_query, (user_id, recipe_id))
+            conn.commit()
+            has_liked = True
+        count_query = ("""SELECT COUNT(*) FROM recipe_user_likes
+            WHERE recipe_id = %s
+            """)
+        cur.execute(count_query, (recipe_id))
+        likes_count, = cur.fetchone()
+        
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code':400,
+            'error': "cannot like or unlike recipe"
+        }
+
+    cur.close()
+    conn.close()
+    
+    return {
+        'status_code': 200,
+        'body': {
+            'likes_count': likes_count,
+            'has_liked': has_liked
         }
     }

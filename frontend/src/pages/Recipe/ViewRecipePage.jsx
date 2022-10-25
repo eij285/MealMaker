@@ -11,11 +11,28 @@ import {
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
 import { CentredElementsForm } from '../../components/Forms';
-import { PageTitle, SubPageTitle } from '../../components/TextNodes';
-import { ErrorAlert, FlexColumn, FlexRow, FlexRowWrapSpaced, UserImageNameLink } from '../../components/StyledNodes';
-import { RightAlignMedButton, SmallAlternateButton } from '../../components/Buttons';
-import { RecipeImg, RecipeInfoPanel, RecipeLikes, RecipeRating } from '../../components/Recipe/RecipeNodes';
-import { backendRequest, validateServings } from '../../helpers';
+import { PageTitle, SubPageTitleNoMargins } from '../../components/TextNodes';
+import {
+  ErrorAlert,
+  FlexColumn,
+  FlexRow,
+  FlexRowWrapSpaced,
+  UserImageNameLink,
+  WYSIWYGOutput
+} from '../../components/StyledNodes';
+import {
+  RightAlignMedButton,
+  SmallAlternateButton
+} from '../../components/Buttons';
+import {
+  IngredientsListing,
+  MealSuitabilityTags,
+  RecipeImg,
+  RecipeInfoPanel,
+  RecipeLikes,
+  RecipeRating
+} from '../../components/Recipe/RecipeNodes';
+import { backendRequest } from '../../helpers';
 
 function ViewRecipePage () {
   const { recipeId } = useParams();
@@ -35,6 +52,7 @@ function ViewRecipePage () {
     }
   });
   const [servings, setServings] = React.useState('4');
+  const [responseError, setResponseError] = React.useState('');
 
   const initCurrData = (data) => {
     setCurrData({
@@ -43,33 +61,42 @@ function ViewRecipePage () {
       protein: data.protein === null ? -1 : data.protein,
       carbohydrates: data.carbohydrates === null ? -1 : data.carbohydrates,
       fats: data.fats === null ? -1 : data.fats,
-      ingredients: data.ingredients,
+      ingredients: [...data.ingredients],
       likes: {
         likesCount: data.likes.likes_count,
         hasLiked: data.likes.has_liked
       }
     });
-    console.log(currData);
   };
 
-  const calcPortion = (origServes, currServes, value) => {
-    if (isNaN(origServes) || isNaN(currServes), isNaN(value)) {
+  const calcPortion = (origServes, origValue, currServes) => {
+    if (isNaN(origServes) || isNaN(origValue) || isNaN(currServes) || 
+      parseInt(currServes) < 1 || parseInt(origValue) < 1) {
       return -1;
     }
+    return origValue * (currServes / origServes);
   };
 
   const updateCurrData = () => {
     if (Object.keys(recipeData).length === 0) {
       return;
     }
-    const validServings = !isNaN(servings);
+    let ingredients = [];
+    for (let ing of recipeData.ingredients) {
+      ingredients.push({
+        ingredient_id: ing.ingredient_id,
+        ingredient_name: ing.ingredient_name,
+        quantity: calcPortion(recipeData.servings, ing.quantity, servings),
+        unit: ing.unit
+      });
+    }
     setCurrData({
       servings: servings,
-      energy: -1,
-      protein: -1,
-      carbohydrates: -1,
-      fats: -1,
-      ingredients: [],
+      energy: calcPortion(recipeData.servings, recipeData.energy, servings),
+      protein: calcPortion(recipeData.servings, recipeData.protein, servings),
+      carbohydrates: calcPortion(recipeData.servings, recipeData.carbohydrates, servings),
+      fats: calcPortion(recipeData.servings, recipeData.fats, servings),
+      ingredients: [...ingredients],
       likes: {
         likesCount: recipeData.likes.likes_count,
         hasLiked: recipeData.likes.has_liked
@@ -90,12 +117,25 @@ function ViewRecipePage () {
       setServings(`${body.servings}`);
       initCurrData(body);
     }, (error) => {
-      console.log(error);
+      setResponseError(error);
     });
   };
 
   const likeRecipe = () => {
-    console.log('like');
+    const body = {
+      recipe_id: recipeId
+    };
+    backendRequest('/recipe/like', body, 'POST', token, (data) => {
+      setCurrData({
+        ...currData,
+        likes: {
+          likesCount: data.body.likes_count,
+          hasLiked: data.body.has_liked
+        }
+      });
+    }, (error) => {
+      setResponseError(error);
+    });
   };
 
   const subscribeToUser = () => {
@@ -113,6 +153,10 @@ function ViewRecipePage () {
   return (
     <ExploreLayout>
       <FlexColumn>
+        {responseError !== '' &&
+        <Box mt={2}>
+          <ErrorAlert message={responseError} setMessage={setResponseError} />
+        </Box>}
         {Object.keys(recipeData).length > 0 &&
         <Box>
           <FlexRowWrapSpaced>
@@ -124,12 +168,12 @@ function ViewRecipePage () {
             </RightAlignMedButton>}
           </FlexRowWrapSpaced>
           {recipeData.cuisine &&
-          <SubPageTitle>{recipeData.cuisine}</SubPageTitle>}
+          <SubPageTitleNoMargins>{recipeData.cuisine}</SubPageTitleNoMargins>}
           <RecipeImg src={recipeData.recipe_photo} alt={recipeData.recipe_name} />
           <FlexRowWrapSpaced>
             <FlexRow>
               <RecipeRating reviews={recipeData.reviews} />
-              <RecipeLikes likesObject={recipeData.likes} likeRecipe={likeRecipe} />
+              <RecipeLikes likesObject={currData.likes} likeRecipe={likeRecipe} />
             </FlexRow>
             <FlexRow>
               <UserImageNameLink src={recipeData.author_image}
@@ -144,6 +188,13 @@ function ViewRecipePage () {
           <RecipeInfoPanel data={recipeData} currData={currData} 
             setServings={setServings} />
         </Box>}
+        <MealSuitabilityTags data={recipeData} />
+        <IngredientsListing data={currData}
+          reqImperial={recipeData.units === 'Imperial'} />
+        <Box>
+          <SubPageTitleNoMargins>Method</SubPageTitleNoMargins>
+          <WYSIWYGOutput>{recipeData.recipe_method}</WYSIWYGOutput>
+        </Box>
       </FlexColumn>
     </ExploreLayout>
   );

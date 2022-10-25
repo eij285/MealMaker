@@ -158,3 +158,20 @@ export const ConfirmationDialog = ({ title, description, acceptContent,
     </Dialog>
   );
 };
+
+const WYSIWYGOutputContainer = styled.section`
+  overflow: hidden;
+  max-width: 100vw;
+  & * {
+    max-width: 100%;
+  }
+`;
+
+export const WYSIWYGOutput = ({children}) => {
+  // this approach should only be used temporarily until a html parser is added
+  // else the website become vulnerable to client-side attacks (e.g. XSS, HTML
+  // injection, etc)
+  return (
+    <WYSIWYGOutputContainer dangerouslySetInnerHTML={{__html: children}} />
+  );
+};
