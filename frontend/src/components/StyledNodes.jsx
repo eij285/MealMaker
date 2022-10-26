@@ -47,15 +47,25 @@ export const SuccessAlert = ({props, message, setMessage}) => {
   );
 };
 
-export const FlexColumn = styled.div`
+export const FlexColumnNoGap = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+export const FlexColumnVCentred = styled(FlexColumnNoGap)`
+  justify-content: center;
+`;
+
+export const FlexColumn = styled(FlexColumnNoGap)`
   row-gap: 20px;
 `;
 
-export const FlexRow = styled.div`
+export const FlexRowNoGap = styled.div`
   display: flex;
   flex-direction: row;
+`;
+
+export const FlexRow = styled(FlexRowNoGap)`
   column-gap: 20px;
 `;
 

@@ -144,6 +144,21 @@ export const RightAlignMedButton = styled(MediumButton)`
   align-self: flex-end;
 `;
 
+/*
+* left aligned medium button
+*/
+export const LeftAlignMedButton = styled(MediumButton)`
+  align-self: flex-start;
+`;
+
+/*
+* left aligned medium button
+*/
+export const LeftAltMedButton = styled(MediumAlternateButton)`
+  align-self: flex-start;
+`;
+
+
 /**
  * left aligned submit button
  */

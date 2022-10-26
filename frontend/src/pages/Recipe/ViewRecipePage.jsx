@@ -33,6 +33,7 @@ import {
   RecipeRating
 } from '../../components/Recipe/RecipeNodes';
 import { backendRequest } from '../../helpers';
+import RecipeReviews from '../../components/Recipe/RecipeReviews';
 
 function ViewRecipePage () {
   const { recipeId } = useParams();
@@ -157,7 +158,7 @@ function ViewRecipePage () {
         <Box mt={2}>
           <ErrorAlert message={responseError} setMessage={setResponseError} />
         </Box>}
-        {Object.keys(recipeData).length > 0 &&
+        {Object.keys(recipeData).length > 0 &&<>
         <Box>
           <FlexRowWrapSpaced>
             <PageTitle>{recipeData.recipe_name}</PageTitle>
@@ -187,7 +188,7 @@ function ViewRecipePage () {
           </FlexRowWrapSpaced>
           <RecipeInfoPanel data={recipeData} currData={currData} 
             setServings={setServings} />
-        </Box>}
+        </Box>
         <MealSuitabilityTags data={recipeData} />
         <IngredientsListing data={currData}
           reqImperial={recipeData.units === 'Imperial'} />
@@ -195,6 +196,7 @@ function ViewRecipePage () {
           <SubPageTitleNoMargins>Method</SubPageTitleNoMargins>
           <WYSIWYGOutput>{recipeData.recipe_method}</WYSIWYGOutput>
         </Box>
+        <RecipeReviews recipeId={recipeId} recipeData={recipeData} /></>}
       </FlexColumn>
     </ExploreLayout>
   );

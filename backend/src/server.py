@@ -11,6 +11,8 @@ from backend_helper import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences
 from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
                    recipe_delete, recipes_fetch_own, recipe_details, recipe_like
+from review import reviews_all_for_recipe, review_create, review_delete, \
+                   review_reply, review_reply_delete
 from backend_helper import database_reset
 
 APP = Flask(__name__)
@@ -208,6 +210,53 @@ def like_recipe():
     token = data['token']
     recipe_id = data['recipe_id']
     return recipe_like(recipe_id, token)
+
+@APP.route('/reviews/all-for-recipe', methods=['GET', 'POST'])
+def all_reviews_for_recipe():
+    if request.method == 'POST':
+        data = request.get_json()
+        token = data['token']
+        recipe_id = data['recipe_id']
+    else:
+        if 'recipe_id' in request.args:
+            recipe_id = request.args.get('recipe_id')
+        else:
+            recipe_id = None
+        token = None
+    return dumps(reviews_all_for_recipe(recipe_id, token))
+
+@APP.route('/review/create', methods=['POST'])
+def create_review():
+    data = request.get_json()
+    token = data['token']
+    recipe_id = data['recipe_id']
+    rating = data['rating']
+    comment = data['comment']
+    return review_create(recipe_id, rating, comment, token)
+
+"""
+@APP.route('/review/delete', methods=['POST'])
+def create_review():
+    data = request.get_json()
+    token = data['token']
+    review_id = data['review_id']
+    return review_delete(review_id, token)
+
+@APP.route('/review/reply', methods=['POST'])
+def reply_to_review():
+    data = request.get_json()
+    token = data['token']
+    review_id = data['review_id']
+    reply = data['rating']
+    return review_reply(review_id, reply, token)
+
+@APP.route('/review/reply/delete', methods=['POST'])
+def reply_to_review():
+    data = request.get_json()
+    token = data['token']
+    review_id = data['review_id']
+    return review_reply_delete(review_id, token)
+"""
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
