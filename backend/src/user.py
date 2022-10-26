@@ -493,7 +493,8 @@ def user_update_visibility(token, visibility):
     if visibility is "private":
         sql_search_query = """SELECT recipe_id from Recipes r join users u on r.owner_id = u.id WHERE recipe_status = %s AND u.token = %s;"""
         input_data = ("published", token)
-        public_recipes = cur.execute(sql_search_query, input_data)
+        cur.execute(sql_search_query, input_data)
+        public_recipes = cur.fetchall()
         # changes all public recipes to drafts
         for recipe in public_recipes:
             sql_update_query = """UPDATE recipes SET recipe_status = %s WHERE recipe_id = %s;"""
@@ -554,3 +555,123 @@ def user_update_profile_picture(token):
     Returns:
 
 """
+
+def user_subscribe(token, subscribe_to):
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_search_query = """select follower_id FROM subcriptions join users on users.id = follower_id where users_token = %s;"""
+    input_data = token
+    cur.execute(sql_search_query, input_data)
+    subscribed = cur.fetchall()
+    for s in subscribed:
+        if s[0] is subscribe_to:
+            return {
+                'status_code': 200,
+                'errors': ['already subscribed']
+            }
+    sql_search_query = """SELECT id from users where token = %s"""
+    input_data = token
+    cur.execute(sql_search_query, input_data)
+    u = cur.fetchall()
+    u_id = u[0]
+    sql_insert_query = """INSERT INTO subscriptions (following_id, follower_id) VALUES (%s, %s);"""
+    input_data = (subscribe_to, u_id)
+    cur.execute(sql_insert_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200
+    }
+
+def user_unsubscribe(token, unsubscribe_to):
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_search_query = """SELECT id from users where token = %s"""
+    input_data = token
+    cur.execute(sql_search_query, input_data)
+    u = cur.fetchall()
+    u_id = u[0]
+    sql_delete_query = """DELETE FROM subscriptions WHERE following_id = %s and follower_id = %s"""
+    input_data = (unsubscribe_to, u_id)
+    cur.execute(sql_delete_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200
+    }
+
+def user_get_followers(token):
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_search_query = """SELECT id from users where token = %s"""
+    input_data = token
+    cur.execute(sql_search_query, input_data)
+    u = cur.fetchall()
+    u_id = u[0]
+    sql_search_query = """select follower_id FROM subscriptions WHERE following_id = %s"""
+    input_data = (u_id)
+    cur.execute(input_data)
+    followers = cur.fetchall()
+    followers_array = []
+    for follower in followers:
+        followers_array.append(follower[0])
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200,
+        'followers': followers_array
+    }
+
+def user_get_following(token):
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_search_query = """SELECT id from users where token = %s"""
+    input_data = token
+    cur.execute(sql_search_query, input_data)
+    u = cur.fetchall()
+    u_id = u[0]
+    sql_search_query = """select following_id FROM subscriptions WHERE follower_id = %s"""
+    input_data = (u_id)
+    cur.execute(input_data)
+    following = cur.fetchall()
+    following_array = []
+    for follow in following:
+        following_array.append(follow[0])
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200,
+        'folling': following_array
+    }
