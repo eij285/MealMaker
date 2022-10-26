@@ -268,3 +268,15 @@ to separate functions. However everyone has their own workflow so don't want to
 dwell on code structure and conventions, and instead focus on working code so
 that we can meet deadlines. I also implemented the frontend code relevant to
 creating, editing (retrieving), updating and fetching recipes.
+
+################################################################################
+
+Week 7
+=======
+Finished preparation of retrospective A document with team for submission. Also
+wrote backend python code relating to recipe, ingredients, serving size
+adjustment, units, likes, reviews, review replies, review votes. Also added to
+the database schema (SQL file) to allow for the addition of this data. Most of
+the time was spent working on the frontend to get recipe, ingredients, serving
+size adjustment, units, likes, reviews, review replies, review votes to work
+correctly.
