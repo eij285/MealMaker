@@ -1,6 +1,7 @@
 from re import S
 import psycopg2
 from backend_helper import connect, verify_token
+from review import review_details
 from config import DB_CONN_STRING
    
 # def create_recipe_table(connection):
@@ -724,69 +725,6 @@ def recipes_fetch_own(token):
             'error': None
         }
 
-def recipe_review_details(recipe_id, auth_user_id):
-    """
-    Returns the review details
-    """
-    try:
-        conn = psycopg2.connect(DB_CONN_STRING)
-        cur = conn.cursor()
-        reviews_list = []
-        query = ("""
-            SELECT u.id, u.display_name, u.base64_image, r.review_id,
-            r.rating, r.comment, r.reply, r.created_on
-            FROM users u JOIN recipe_reviews r ON (u.id = r.user_id)
-            WHERE r.recipe_id = %s and u.visibility = 'public'
-        """)
-        cur.execute(query, (recipe_id,))
-        sql_result = cur.fetchall()
-        reviews_list = []
-        votes_query = ("""
-            SELECT COUNT(*) FROM recipe_reviews_votes
-            WHERE review_id = %s AND is_upvote = %s
-        """)
-        user_vote = ("""
-            SELECT is_upvote FROM recipe_reviews_votes
-            WHERE review_id = %s
-        """)
-        for review in sql_result:
-            user_id, display_name, user_image, review_id, rating, comment, \
-                reply, created_on = review
-
-            cur.execute(votes_query, (review_id, True))
-            upvotes, = cur.fetchone()
-
-            cur.execute(votes_query, (review_id, False))
-            downvotes, = cur.fetchone()
-
-            if auth_user_id:
-                cur.execute(user_vote, (review_id, False))
-                cur_user_vote, = cur.fetchone()
-            else:
-                cur_user_vote = None
-            
-            reviews_list.append({
-                'user_id': user_id,
-                'display_name': display_name,
-                'user_image': user_image,
-                'review_id': review_id,
-                'rating': rating,
-                'comment': comment if comment else '',
-                'reply': reply if reply else '',
-                'created_on': created_on,
-                'upvote_count': upvotes,
-                'downvote_count': downvotes,
-                'cur_user_vote': cur_user_vote if cur_user_vote is not None else ''
-            })
-
-        cur.close()
-        conn.close()
-    except:
-        cur.close()
-        conn.close()
-        raise Exception
-    return reviews_list
-
 
 def recipe_fetch_user_likes(recipe_id, auth_user_id):
     """
@@ -870,9 +808,8 @@ def recipe_details(recipe_id, token):
 
     try:
         ingredients_list = recipe_fetch_ingredients(recipe_id)
-        reviews = recipe_review_details(recipe_id, user_id)
+        reviews = review_details(recipe_id, user_id)
         likes = recipe_fetch_user_likes(recipe_id, user_id)
-        reviews = []
     except:
         return {
             'status_code': 400,

@@ -62,7 +62,7 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
       } else {
         throw new Error('Something went wrong');
       }
-      console.log(data);
+      //console.log(data);
       return data;
     } else if (status >= 400 && status < 500) {
       const data = await request.json();
@@ -78,6 +78,18 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
     }
   }
 };
+
+export const tokenToUserId = (token) => {
+  try {
+    if (token) {
+      return JSON.parse(atob(token.split('.')[1])).u_id;
+    } else {
+      throw new Error;
+    }
+  } catch (error) {
+    return -1;
+  }
+}
 
 export const isValidEmail = (str) => {
   /* eslint-disable no-useless-escape */
@@ -203,6 +215,13 @@ export const longDateString = (str) => {
 };
 
 /**
+ * Convert timestamp string to long format date string
+ */
+ export const shortDateString = (str) => {
+  return moment(str).format('DD/MM/YYYY');
+};
+
+/**
  * Ruturn null if empty string else unchanged
  */
 export const emptyStringToNull = (str) => {
@@ -221,10 +240,10 @@ export const emptyStringToNull = (str) => {
  */
 export const getAverageRating = (reviews) => {
   // fix when have reviews
-  if (typeof reviews !== typeof []) {
+  if (typeof reviews !== typeof [] || reviews.length === 0) {
     return 0;
   }
-  return 4.5;
+  return reviews.map(obj => obj.rating).reduce((a, b) => a + b, 0) / reviews.length;
 };
 
 export const formatNutrient = (qty, isMass, reqImperial) => {

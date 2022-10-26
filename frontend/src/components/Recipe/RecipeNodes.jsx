@@ -55,11 +55,11 @@ export const RecipeRating = ({reviews}) => {
     setAvgRating(getAverageRating(reviews));
   }, [reviews]);
   return (
-    <Box sx={{ alignSelf: 'center' }}>
+    <Box sx={{ alignSelf: 'center', textAlign: 'center' }}>
       {typeof reviews === typeof [] && <>
         {reviews.length < 1 && <MediumGreyText>No Reviews</MediumGreyText>}
         {reviews.length > 0 && <>
-        <Rating value={avgRating} precision={0.5} readOnly />
+        <Rating value={avgRating} precision={0.1} readOnly />
         <MediumGreyText>
           {avgRating.toFixed(1)}&nbsp;
           ({reviews.length}&nbsp;
