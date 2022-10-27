@@ -566,6 +566,15 @@ def user_subscribe(token, subscribe_to):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
+    sql_search_query = """select visibility FROM users where id = %s;"""
+    input_data = subscribe_to
+    cur.execute(sql_search_query, input_data)
+    visibility = cur.fetchall()
+    if visibility is "private":
+                return {
+            'status_code': 400,
+            'errors': ['Cannot subscribe to a private user']
+        }
     sql_search_query = """select follower_id FROM subcriptions join users on users.id = follower_id where users_token = %s;"""
     input_data = token
     cur.execute(sql_search_query, input_data)
