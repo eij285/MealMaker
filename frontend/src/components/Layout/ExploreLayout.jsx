@@ -6,7 +6,7 @@ import Layout from './Layout';
 function ExploreLayout ({ children }) {
   return (
     <Layout incSearch={true} incButtons={true}>
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{pt: 2, pb: 2}}>
         {children}
       </Container>
     </Layout>

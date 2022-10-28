@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Box, IconButton, Rating, Tooltip, Typography } from '@mui/material';
+import { Box, Button, IconButton, Paper, Rating, Tooltip, Typography } from '@mui/material';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
@@ -18,22 +18,26 @@ import {
 } from '../TextNodes';
 import { TextInput } from '../InputFields';
 import { backendRequest, shortDateString, tokenToUserId } from '../../helpers';
-import { LeftAlignedButton, LeftAlignMedButton, LeftAltMedButton } from '../Buttons';
+import { LeftAlignedButton, LeftAlignMedButton, LeftAltMedButton, LeftAltSmallButton, LeftSmallSubmitButton } from '../Buttons';
+import { CentredElementsForm } from '../Forms';
 
-const loadReviews = (recipeId, token, setReviews, setError) => {
+const loadReviews = (recipeId, token, recipeData, setRecipeData, setError) => {
   const body = {
     recipe_id: recipeId
   };
   const reqURL = '/reviews/all-for-recipe' + (token ? '' : `?recipe_id=${recipeId}`);
   const reqMethod = token ? 'POST' : 'GET';
   backendRequest(reqURL, body, reqMethod, token, (data) => {
-    setReviews([...data.reviews])
+    setRecipeData({
+      ...recipeData, reviews: [...data.reviews]
+    });
   }, (error) => {
     setError(error);
   });
 };
 
-const CreateReviewComponent = ({recipeId, setReviews, setShow, setError, token}) => {
+const CreateReviewComponent = ({recipeId, recipeData, setRecipeData, setShow,
+  setError, token}) => {
   const [rating, setRating] = React.useState(3);
   const [comment, setComment] = React.useState('');
   const handleSubmit = () => {
@@ -43,7 +47,7 @@ const CreateReviewComponent = ({recipeId, setReviews, setShow, setError, token})
       comment: comment
     };
     backendRequest('/review/create', body, 'POST', token, (data) => {
-      loadReviews(recipeId, token, setReviews, setError);
+      loadReviews(recipeId, token, recipeData, setRecipeData, setError);
     }, (error) => {
       setError(error);
     });
@@ -74,7 +78,7 @@ const CreateReviewComponent = ({recipeId, setReviews, setShow, setError, token})
   );
 };
 
-const SingleReview = ({review}) => {
+const SingleReview = ({review, recipeData, setRecipeData, index, token}) => {
   return (
     <FlexRow>
       <FlexColumnNoGap>
@@ -108,25 +112,124 @@ const SingleReview = ({review}) => {
   );
 };
 
-function RecipeReviews ({recipeId, recipeData}) {
+const ReplyButton = (props) => {
+  return (
+    <Button {...props} sx={{
+      textTransform: 'none',
+      color: '#333333',
+      minWidth: 'auto',
+      padding: '4px 0'
+    }} />
+  )
+};
+
+const ReviewReplyContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 0 0 20px;
+`;
+
+const ReviewReplyForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  row-gap: 10px;
+  width: 100%;
+`;
+
+const ReviewReplyComponent = ({review, recipeData, setRecipeData, index,
+  token}) => {
+  const reviewId = review.review_id;
+  const userIsAuthor = recipeData.user_is_author;
+  const authorId = recipeData.author_id;
+  const authorDisplayName = recipeData.author_display_name;
+  const authorImage = recipeData.author_image;
+  
+  const [showReplyForm, setShowReplyForm] = React.useState(false);
+  const submitReply = (e) => {
+    e.preventDefault();
+    const reply = e.target.reply.value;
+    const body = {
+      review_id: reviewId,
+      reply: reply
+    };
+    backendRequest('/review/reply', body, 'POST', token, (data) => {
+      setRecipeData({
+        ...recipeData,
+        reviews: [...recipeData.reviews.slice(0, index),
+          {...review, reply: reply}, ...recipeData.reviews.slice(index + 1)]
+      });
+      setShowReplyForm(false);
+    }, (error) => {
+      //setError(error);
+      console.log(error);
+    });
+  };
+  const cancelReply = (e) => {
+    e.preventDefault();
+    e.target.reply.value = '';
+    setShowReplyForm(false);
+  };
+
+  const deleteReply = (e) => {
+    e.preventDefault();
+    const reviewId = review.review_id;
+    const body = {
+      review_id: reviewId
+    };
+    backendRequest('/review/reply/delete', body, 'POST', token, (data) => {
+      setRecipeData({
+        ...recipeData,
+        reviews: [...recipeData.reviews.slice(0, index),
+          {...review, reply: ''}, ...recipeData.reviews.slice(index + 1)]
+      });
+    }, (error) => {
+      //setError(error);
+      console.log(error);
+    });
+  };
+
+  return (
+    <ReviewReplyContainer>
+      {!showReplyForm && userIsAuthor && review.reply === '' &&
+      <ReplyButton onClick={() => setShowReplyForm(true)}>reply</ReplyButton>}
+      {!showReplyForm && userIsAuthor && review.reply !== '' && <>
+      <ReplyButton onClick={deleteReply}>
+        delete reply
+      </ReplyButton>
+      <UserImageNameLink src={authorImage} name={authorDisplayName}
+          to={`/user/${authorId}`} />
+      <MediumBlackText>{review.reply}</MediumBlackText>
+      </>
+      }
+      {showReplyForm &&
+      <ReviewReplyForm onSubmit={submitReply} onReset={cancelReply}>
+        <TextInput
+          name="reply"
+          label="Reply"
+          multiline
+          minRows={2}
+        />
+        <FlexRow>
+          <LeftSmallSubmitButton>Submit</LeftSmallSubmitButton>
+          <LeftAltSmallButton type="reset">
+            Cancel
+          </LeftAltSmallButton>
+        </FlexRow>
+      </ReviewReplyForm>
+      }
+    </ReviewReplyContainer>
+  );
+};
+
+function RecipeReviews ({recipeId, recipeData, setRecipeData}) {
   const token = React.useContext(GlobalContext).token;
   const userId = tokenToUserId(token);
-
   const userIsAuthor = recipeData.user_is_author;
-  const authorImage = recipeData.author_image;
-  const authorDisplayName = recipeData.author_display_name;
-  const [reviewsData, setReviewsData] = React.useState([...recipeData.reviews]);
   const [showCreateReview, setShowCreateReview] = React.useState(false);
   const [userHasReviewed, setUserHasReviewed] = React.useState(false);
   const [responseError, setResponseError] = React.useState('');
-
-  //console.log(reviewsData);
-  
-  /*React.useEffect(() => {
-    if (userId !== -1) {
-
-    }
-  }, [reviewsData]);*/
 
   return (
     <FlexColumn>
@@ -138,15 +241,20 @@ function RecipeReviews ({recipeId, recipeData}) {
         Create Review
       </LeftAlignedButton>}
       {showCreateReview && <CreateReviewComponent
-        recipeId={recipeId} setReviews={setReviewsData}
+        recipeId={recipeId} recipeData={recipeData} setRecipeData={setRecipeData}
         setShow={setShowCreateReview} setError={setResponseError}
         token={token} />}
-      {reviewsData.length > 0 &&
+      {Object.keys(recipeData).length && recipeData.reviews.length > 0 &&
       <FlexColumn>
-      {reviewsData.map((review, index) => (
-        <SingleReview review={review} key={index} />
-      ))}
-      </FlexColumn>}
+      {recipeData.reviews.map((review, index) => (
+        <Paper sx={{p: 1}} key={index}>
+          <SingleReview review={review} recipeData={recipeData}
+            setRecipeData={setRecipeData} index={index} token={token} />
+          {userIsAuthor &&
+          <ReviewReplyComponent review={review} recipeData={recipeData}
+            setRecipeData={setRecipeData} index={index} token={token} />}
+          </Paper>))}
+          </FlexColumn>}
     </FlexColumn>
   );
 };

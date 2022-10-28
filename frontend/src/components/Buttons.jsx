@@ -117,6 +117,15 @@ export const LargeSubmitButton = (props) => {
 };
 
 /**
+ * small submit button using default button styling
+ */
+ export const SmallSubmitButton = (props) => {
+  return (
+    <SmallDefaultButton {...props} type="submit" />
+  );
+};
+
+/**
  * left aligned button
  */
 export const LeftAlignedButton = styled(LargeButton)`
@@ -158,12 +167,25 @@ export const LeftAltMedButton = styled(MediumAlternateButton)`
   align-self: flex-start;
 `;
 
+/*
+* left aligned medium button
+*/
+export const LeftAltSmallButton = styled(SmallAlternateButton)`
+  align-self: flex-start;
+`;
 
 /**
  * left aligned submit button
  */
 export const LeftAlignedSubmitButton = styled(LargeSubmitButton)`
   align-self: flex-start;
+`;
+
+/**
+ * left aligned submit button
+ */
+ export const LeftSmallSubmitButton = styled(SmallSubmitButton)`
+ align-self: flex-start;
 `;
 
 /**

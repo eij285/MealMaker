@@ -226,8 +226,142 @@ def review_create(recipe_id, rating, comment, token):
 def review_delete(review_id, token):
     return {}
 
+def verify_recipe_owner_for_reply(review_id, token, is_delete):
+    """
+    Recipe owner/author create/delete reply to review helper function
+    """
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = "SELECT id FROM users WHERE token = %s"
+        cur.execute(query, (str(token),))
+        user_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        cond_msg = 'delete reply' if is_delete else 'create reply'
+        return {
+            'status_code': 400,
+            'error': f"recipe author must be authenticated to {cond_msg}"
+        }
+
+    try:
+        query = "SELECT recipe_id FROM recipe_reviews WHERE review_id = %s"
+        cur.execute(query, (review_id, ))
+        recipe_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find review"
+        }
+
+    try:
+        query = "SELECT owner_id FROM recipes WHERE recipe_id = %s"
+        cur.execute(query, (recipe_id, ))
+        owner_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find recipe id"
+        }
+
+    cur.close()
+    conn.close()
+    if user_id != owner_id:
+        cond_msg = 'delete' if is_delete else 'create'
+        return {
+            'status_code':400,
+            'error': f"only recipe author can {cond_msg} reply to reviews"
+        }
+    return True
+
 def review_reply(review_id, reply, token):
-    return {}
+    """
+    Recipe owner/author reply to existing review
+    """
+    response = verify_recipe_owner_for_reply(review_id, token, False)
+    if isinstance(response, dict):
+        return response
+
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        query = ("""
+            UPDATE recipe_reviews SET reply = %s WHERE review_id = %s
+            """)
+        cur.execute(query, (str(reply), review_id))
+        conn.commit()
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 200,
+            'body': {}
+        }
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "failed to reply to review"
+        }
 
 def review_reply_delete(review_id, token):
-    return {}
+    """
+    Recipe owner/author delete reply to existing review
+    """
+    response = verify_recipe_owner_for_reply(review_id, token, False)
+    if isinstance(response, dict):
+        return response
+    
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        query = ("""
+            UPDATE recipe_reviews SET reply = NULL WHERE review_id = %s
+            """)
+        cur.execute(query, (review_id,))
+        conn.commit()
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 200,
+            'body': {}
+        }
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "failed to delete reply to review"
+        }
