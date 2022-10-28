@@ -196,7 +196,8 @@ function ViewRecipePage () {
           <SubPageTitleNoMargins>Method</SubPageTitleNoMargins>
           <WYSIWYGOutput>{recipeData.recipe_method}</WYSIWYGOutput>
         </Box>
-        <RecipeReviews recipeId={recipeId} recipeData={recipeData} /></>}
+        <RecipeReviews recipeId={recipeId} recipeData={recipeData}
+          setRecipeData={setRecipeData} /></>}
       </FlexColumn>
     </ExploreLayout>
   );

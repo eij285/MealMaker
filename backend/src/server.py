@@ -241,22 +241,23 @@ def create_review():
     token = data['token']
     review_id = data['review_id']
     return review_delete(review_id, token)
+"""
 
 @APP.route('/review/reply', methods=['POST'])
 def reply_to_review():
     data = request.get_json()
     token = data['token']
     review_id = data['review_id']
-    reply = data['rating']
+    reply = data['reply']
     return review_reply(review_id, reply, token)
 
 @APP.route('/review/reply/delete', methods=['POST'])
-def reply_to_review():
+def delete_reply_to_review():
     data = request.get_json()
     token = data['token']
     review_id = data['review_id']
     return review_reply_delete(review_id, token)
-"""
+
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
