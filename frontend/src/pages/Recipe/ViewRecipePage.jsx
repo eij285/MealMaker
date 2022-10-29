@@ -32,7 +32,7 @@ import {
   RecipeLikes,
   RecipeRating
 } from '../../components/Recipe/RecipeNodes';
-import { backendRequest } from '../../helpers';
+import { backendRequest, formatNumString } from '../../helpers';
 import RecipeReviews from '../../components/Recipe/RecipeReviews';
 
 function ViewRecipePage () {

@@ -14,6 +14,7 @@ import {
   Link,
   Paper,
   Rating,
+  Tooltip,
   Typography
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -50,6 +51,10 @@ export const SuccessAlert = ({props, message, setMessage}) => {
 export const FlexColumnNoGap = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+export const FlexColumnSpaced = styled(FlexColumnNoGap)`
+  justify-content: space-between;
 `;
 
 export const FlexColumnVCentred = styled(FlexColumnNoGap)`
@@ -134,6 +139,32 @@ export const UserImageNameLink = ({ src, name, to }) => {
       <UserImageName src={src} name={name} />
     </Link>
   )
+};
+
+const UserImageNameTooltipInner = React.forwardRef((props, ref) => {
+  return (<Box sx={{alignSelf: 'flex-start'}} {...props} ref={ref}>
+    <UserImageName src={props.src} name={props.name} />
+  </Box>);
+});
+
+export const UserImageNameTooltip = ({ src, name, title }) => {
+  return (
+    <Tooltip title={title} placement="right" arrow>
+      <UserImageNameTooltipInner src={src} name={name} />
+    </Tooltip>
+  )
+};
+
+export const UserImageNameControl = ({ src, name, to, visibility }) => {
+  return (
+    <>
+      {visibility === 'public' &&
+      <UserImageNameLink src={src} name={name} to={to} />}
+      {visibility !== 'public' &&
+      <UserImageNameTooltip src={src} name={name}
+        title="this is a private profile" />}
+    </>
+  );
 };
 
 /**

@@ -1,13 +1,23 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { Box, Button, IconButton, Paper, Rating, Tooltip, Typography } from '@mui/material';
-import FoodBankIcon from '@mui/icons-material/FoodBank';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import DeleteIcon from '@mui/icons-material/Delete';
 import GlobalContext from '../../utils/GlobalContext';
-import { ErrorAlert, FlexColumn, FlexColumnNoGap, FlexColumnVCentred, FlexRow, FlexRowNoGap, UserImageNameLink } from '../StyledNodes';
+import {
+  ConfirmationDialog,
+  ErrorAlert,
+  FlexColumn,
+  FlexColumnNoGap,
+  FlexColumnVCentred,
+  FlexRow,
+  FlexRowNoGap,
+  UserImageNameControl,
+  UserImageNameLink
+} from '../StyledNodes';
 import {
   MediumGreyText,
   MediumBlackText,
@@ -19,7 +29,6 @@ import {
 import { TextInput } from '../InputFields';
 import { backendRequest, shortDateString, tokenToUserId } from '../../helpers';
 import { LeftAlignedButton, LeftAlignMedButton, LeftAltMedButton, LeftAltSmallButton, LeftSmallSubmitButton } from '../Buttons';
-import { CentredElementsForm } from '../Forms';
 
 const loadReviews = (recipeId, token, recipeData, setRecipeData, setError) => {
   const body = {
@@ -48,6 +57,9 @@ const CreateReviewComponent = ({recipeId, recipeData, setRecipeData, setShow,
     };
     backendRequest('/review/create', body, 'POST', token, (data) => {
       loadReviews(recipeId, token, recipeData, setRecipeData, setError);
+      setShow(false);
+      setComment('');
+      setRating(3);
     }, (error) => {
       setError(error);
     });
@@ -78,12 +90,56 @@ const CreateReviewComponent = ({recipeId, recipeData, setRecipeData, setShow,
   );
 };
 
-const SingleReview = ({review, recipeData, setRecipeData, index, token}) => {
+const SingleReview = ({review, recipeData, setRecipeData, index, token,
+  setResponseError}) => {
+  const userId = tokenToUserId(token);
+  const [showDialog, setShowDialog] = React.useState(false);
+
+  const deleteReview = () => {
+    const reviewId = review.review_id;
+    const body = {
+      review_id: reviewId,
+    };
+    backendRequest('/review/delete', body, 'POST', token, (data) => {
+      setRecipeData({
+        ...recipeData,
+        reviews: [...recipeData.reviews.slice(0, index),
+          ...recipeData.reviews.slice(index + 1)]
+      });
+      setShowDialog(false);
+    }, (error) => {
+      setResponseError(error);
+      setShowDialog(false);
+      console.log(error);
+    });
+  };
+
+  const reviewVote = (isUpvote) => {
+    const reviewId = review.review_id;
+    const body = {
+      review_id: reviewId,
+      is_upvote: isUpvote
+    };
+    backendRequest('/review/vote', body, 'POST', token, (data) => {
+      setRecipeData({
+        ...recipeData,
+        reviews: [...recipeData.reviews.slice(0, index),
+          {...review,
+            upvote_count: data.body.upvote_count,
+            downvote_count: data.body.downvote_count,
+            cur_user_vote: data.body.cur_user_vote},
+          ...recipeData.reviews.slice(index + 1)]
+      });
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
   return (
     <FlexRow>
       <FlexColumnNoGap>
-        <UserImageNameLink src={review.user_image} name={review.display_name}
-          to={`/user/${review.user_id}`} />
+        <UserImageNameControl src={review.user_image} name={review.display_name}
+          to={`/user/${review.user_id}`} visibility={review.user_visibility} />
         <SmallGreyText>
           Reviewed: {shortDateString(review.created_on)}
         </SmallGreyText>
@@ -92,14 +148,14 @@ const SingleReview = ({review, recipeData, setRecipeData, index, token}) => {
       </FlexColumnNoGap>
       <FlexColumnVCentred>
         <FlexRow>
-          <IconButton>
+          <IconButton onClick={() => reviewVote(true)}>
             {(review.cur_user_vote === '' || review.cur_user_vote === false) &&
             <ThumbUpOutlinedIcon />}
             {review.cur_user_vote === true &&
             <ThumbUpIcon />}
             &nbsp;{review.upvote_count}
           </IconButton>
-          <IconButton>
+          <IconButton onClick={() => reviewVote(false)}>
             {(review.cur_user_vote === '' || review.cur_user_vote === true) &&
             <ThumbDownOutlinedIcon />}
             {review.cur_user_vote === false &&
@@ -108,6 +164,18 @@ const SingleReview = ({review, recipeData, setRecipeData, index, token}) => {
           </IconButton>
         </FlexRow>
       </FlexColumnVCentred>
+      {userId === review.user_id && <>
+      <Tooltip sx={{alignSelf: 'baseline', marginLeft: 'auto'}}
+        title="Delete Review" placement="top" arrow>
+        <IconButton color="error" onClick={() => setShowDialog(true)}>
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
+      <ConfirmationDialog title="Confirm deletion of review"
+        description="This cannot be undone"
+        acceptContent="Delete" rejectContent="Cancel" openState={showDialog}
+        setOpenState={setShowDialog} execOnAccept={deleteReview} />
+      </>}
     </FlexRow>
   );
 };
@@ -139,7 +207,7 @@ const ReviewReplyForm = styled.form`
 `;
 
 const ReviewReplyComponent = ({review, recipeData, setRecipeData, index,
-  token}) => {
+  token, setResponseError}) => {
   const reviewId = review.review_id;
   const userIsAuthor = recipeData.user_is_author;
   const authorId = recipeData.author_id;
@@ -162,8 +230,7 @@ const ReviewReplyComponent = ({review, recipeData, setRecipeData, index,
       });
       setShowReplyForm(false);
     }, (error) => {
-      //setError(error);
-      console.log(error);
+      setResponseError(error);
     });
   };
   const cancelReply = (e) => {
@@ -185,8 +252,7 @@ const ReviewReplyComponent = ({review, recipeData, setRecipeData, index,
           {...review, reply: ''}, ...recipeData.reviews.slice(index + 1)]
       });
     }, (error) => {
-      //setError(error);
-      console.log(error);
+      setResponseError(error);
     });
   };
 
@@ -194,15 +260,14 @@ const ReviewReplyComponent = ({review, recipeData, setRecipeData, index,
     <ReviewReplyContainer>
       {!showReplyForm && userIsAuthor && review.reply === '' &&
       <ReplyButton onClick={() => setShowReplyForm(true)}>reply</ReplyButton>}
-      {!showReplyForm && userIsAuthor && review.reply !== '' && <>
+      {!showReplyForm && userIsAuthor && review.reply !== '' &&
       <ReplyButton onClick={deleteReply}>
         delete reply
-      </ReplyButton>
+      </ReplyButton>}
+      {review.reply !== '' && <>
       <UserImageNameLink src={authorImage} name={authorDisplayName}
           to={`/user/${authorId}`} />
-      <MediumBlackText>{review.reply}</MediumBlackText>
-      </>
-      }
+      <MediumBlackText>{review.reply}</MediumBlackText></>}
       {showReplyForm &&
       <ReviewReplyForm onSubmit={submitReply} onReset={cancelReply}>
         <TextInput
@@ -223,6 +288,23 @@ const ReviewReplyComponent = ({review, recipeData, setRecipeData, index,
   );
 };
 
+const ExistingReviewComponent = ({review, recipeData, setRecipeData, index,
+  token}) => {
+  const [responseError, setResponseError] = React.useState('');
+  return (
+    <Paper sx={{p: 1}}>
+      {responseError !== '' &&
+      <ErrorAlert message={responseError} setMessage={setResponseError} />}
+      <SingleReview review={review} recipeData={recipeData}
+        setRecipeData={setRecipeData} index={index} token={token}
+        setResponseError={setResponseError} />
+      <ReviewReplyComponent review={review} recipeData={recipeData}
+        setRecipeData={setRecipeData} index={index} token={token}
+        setResponseError={setResponseError} />
+    </Paper>
+  );
+};
+
 function RecipeReviews ({recipeId, recipeData, setRecipeData}) {
   const token = React.useContext(GlobalContext).token;
   const userId = tokenToUserId(token);
@@ -231,30 +313,33 @@ function RecipeReviews ({recipeId, recipeData, setRecipeData}) {
   const [userHasReviewed, setUserHasReviewed] = React.useState(false);
   const [responseError, setResponseError] = React.useState('');
 
+  React.useEffect(() => {
+    setUserHasReviewed(recipeData.reviews.filter(
+      (obj) => obj.user_id === userId).length > 0);
+  }, [recipeData]);
+
   return (
     <FlexColumn>
       <SubPageTitleNoMargins>Reviews</SubPageTitleNoMargins>
       {responseError !== '' &&
       <ErrorAlert message={responseError} setMessage={setResponseError} />}
-      {userId !== -1 && !showCreateReview &&
+      {userId !== -1 && !userIsAuthor && !showCreateReview && !userHasReviewed &&
       <LeftAlignedButton onClick={() => setShowCreateReview(true)}>
         Create Review
       </LeftAlignedButton>}
-      {showCreateReview && <CreateReviewComponent
+      {showCreateReview && !userHasReviewed &&
+      <CreateReviewComponent
         recipeId={recipeId} recipeData={recipeData} setRecipeData={setRecipeData}
         setShow={setShowCreateReview} setError={setResponseError}
         token={token} />}
       {Object.keys(recipeData).length && recipeData.reviews.length > 0 &&
       <FlexColumn>
       {recipeData.reviews.map((review, index) => (
-        <Paper sx={{p: 1}} key={index}>
-          <SingleReview review={review} recipeData={recipeData}
-            setRecipeData={setRecipeData} index={index} token={token} />
-          {userIsAuthor &&
-          <ReviewReplyComponent review={review} recipeData={recipeData}
-            setRecipeData={setRecipeData} index={index} token={token} />}
-          </Paper>))}
-          </FlexColumn>}
+        <ExistingReviewComponent key={index} review={review}
+        recipeData={recipeData} setRecipeData={setRecipeData} index={index}
+        token={token} />
+      ))}
+      </FlexColumn>}
     </FlexColumn>
   );
 };
