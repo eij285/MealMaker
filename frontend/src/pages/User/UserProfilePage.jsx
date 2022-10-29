@@ -11,14 +11,15 @@ import {
 } from '@mui/material';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-build-classic-base64-upload';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
-import { EmailInput, TextInput } from '../../components/InputFields';
+import { EmailInput, ImageInput, TextInput } from '../../components/InputFields';
 import { CentredElementsForm } from '../../components/Forms';
 import { PageTitle } from '../../components/TextNodes';
 import { FlexColumn, FlexRow, ErrorAlert, SuccessAlert } from '../../components/StyledNodes';
-import { LeftAlignedButton, LeftAlignedSubmitButton } from '../../components/Buttons';
-import { validateDisplayName, validateEmail, backendRequest } from '../../helpers';
+import { LeftAlignedButton, LeftAlignedSubmitButton, LeftAltButton } from '../../components/Buttons';
+import { validateDisplayName, validateEmail, backendRequest, emptyStringToNull, tokenToUserId } from '../../helpers';
 const config = require('../../config.json');
 
 function UserProfilePage () {
@@ -30,6 +31,7 @@ function UserProfilePage () {
   const [lastName, setLastName] = React.useState('');
   const [displayName, setDisplayName] = React.useState('');
   const [email, setEmail] = React.useState('');
+  const [base64Image, setBase64Image] = React.useState('');
   const [country, setCountry] = React.useState('Australia');
   const [about, setAbout] = React.useState('');
   const [visibility, setVisibility] = React.useState('private');
@@ -48,6 +50,7 @@ function UserProfilePage () {
     setLastName(data.last_name ? data.last_name : '');
     setDisplayName(data.display_name ? data.display_name : '');
     setEmail(data.email ? data.email : '');
+    setBase64Image(data.base64_image ? data.base64_image : '');
     setCountry(data.country ? data.country : config.COUNTRIES[0]);
     setAbout(data.about ? data.about : '');
     setVisibility(data.visibility ? data.visibility : 'private');
@@ -56,6 +59,7 @@ function UserProfilePage () {
   React.useEffect(() => {
     backendRequest('/user/info', {}, 'POST', token, (data) => {
       loadUserData(data);
+      console.log(data);
     }, (error) => {
       setResponseError(error);
     });
@@ -73,6 +77,7 @@ function UserProfilePage () {
         'last-name': lastName,
         'display-name': displayName,
         'email': email,
+        'base64-image': emptyStringToNull(base64Image),
         'country': country,
         'about': about,
         'visibility': visibility
@@ -104,6 +109,8 @@ function UserProfilePage () {
           {responseSuccess === '' && responseError !== '' &&
           <ErrorAlert message={responseError} setMessage={setResponseError} />}
           <CentredElementsForm noValidate onSubmit={updateProfile}>
+            <ImageInput elementTitle="Profile Image" icon={AccountCircleIcon}
+              image={base64Image} setImage={setBase64Image} />
             <FlexRow>
               <FormControl sx={{ minWidth: '80px' }}>
                 <Select
@@ -189,6 +196,10 @@ function UserProfilePage () {
               <LeftAlignedSubmitButton>
                 Update Profile
               </LeftAlignedSubmitButton>
+              <LeftAltButton component={RouterLink}
+                to={`/user/${tokenToUserId(token)}`}>
+                View Profile
+              </LeftAltButton>
             </FlexRow>
           </CentredElementsForm>
         </FlexColumn>

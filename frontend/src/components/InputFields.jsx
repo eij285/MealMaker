@@ -127,7 +127,7 @@ export const ImageInput = ({elementTitle, icon, image, setImage}) => {
         </Grid>
         <Grid item>
           <FlexColumn>
-            <SubPageTitle>Recipe Photo</SubPageTitle>
+            <SubPageTitle>{elementTitle}</SubPageTitle>
             <FlexRow>
               <ImgButton component="label">
                 <input
