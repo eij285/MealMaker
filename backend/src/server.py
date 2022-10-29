@@ -8,7 +8,7 @@ from auth import auth_register, auth_login, auth_logout, \
                  auth_logout_everywhere, auth_update_pw, auth_reset_link, \
                  auth_reset_pw
 from backend_helper import database_reset, files_reset
-from user import user_preferences, user_update, user_info, user_update_preferences, user_subscribe, user_unsubscribe, user_get_followers, user_get_following
+from user import user_preferences, user_update, user_info, user_update_preferences, user_subscribe, user_unsubscribe, user_get_followers, user_get_following, user_get_profile
 from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
                    recipe_delete, recipes_fetch_own, recipe_details, recipe_like
 from review import reviews_all_for_recipe, review_create, review_delete, \
@@ -155,7 +155,7 @@ def subscribe():
     
     return dumps(user_subscribe(token, subscribe_to))
 
-@APP.route('/user/subscribe', methods=['DELETE'])
+@APP.route('/user/unsubscribe', methods=['DELETE'])
 def unsubscribe():
     payload = request.get_json()
     # Verify token
@@ -184,7 +184,17 @@ def get_subscriptions():
     #if not verify_token(token):
     #   return dumps({'status_code': 401, 'error': None})
     
-    return dumps(user_get_following(token))\
+    return dumps(user_get_following(token))
+
+@APP.route('/user/get/profile', methods=['POST'])
+def get_profile():
+    payload = request.get_json()
+    # Verify token
+    id = payload['id']
+    #if not verify_token(token):
+    #   return dumps({'status_code': 401, 'error': None})
+    
+    return dumps(user_get_profile(id))
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
