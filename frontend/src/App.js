@@ -14,6 +14,7 @@ import PasswordResetPage from './pages/Auth/PasswordResetPage';
 import UserProfilePage from './pages/User/UserProfilePage';
 import UpdatePasswordPage from './pages/Auth/UpdatePasswordPage';
 import UserPreferencesPage from './pages/User/UserPreferencesPage';
+import UserPublicPage from './pages/User/UserPublicPage';
 import MyRecipesPage from './pages/Recipe/MyRecipesPage';
 import CreateRecipePage from './pages/Recipe/CreateRecipePage';
 import EditRecipePage from './pages/Recipe/EditRecipePage';
@@ -32,6 +33,7 @@ function App() {
           <Route exact path="/signup" element={<SignupPage />} />
           <Route exact path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route exact path="/password-reset" element={<PasswordResetPage />} />
+          <Route path="/user/:userId" element={<UserPublicPage />} />
           <Route path="/recipe/:recipeId" element={<ViewRecipePage />} />
           <Route element={<AuthorisedRoute />}>
             <Route exact path="/user-profile" element={<UserProfilePage />} />
