@@ -668,7 +668,7 @@ def user_get_followers(token):
     for follower in followers:
         sql_search_query = """select display_name, base64_image FROM users WHERE id = %s"""
         input_data = (follower[0])
-        cur.execute(input_data)
+        cur.execute(sql_search_query, input_data)
         follower_details = cur.fetchall()
         sub = {
             'display_name': follower_details[0],
@@ -701,24 +701,67 @@ def user_get_following(token):
     u_id = u[0]
     sql_search_query = """select following_id FROM subscriptions WHERE follower_id = %s"""
     input_data = (u_id)
-    cur.execute(input_data)
+    cur.execute(sql_search_query, input_data)
     following = cur.fetchall()
     following_array = []
     for follow in following:
         sql_search_query = """select display_name, base64_image FROM users WHERE id = %s"""
         input_data = (follow[0])
-        cur.execute(input_data)
+        cur.execute(sql_search_query, input_data)
         follow_details = cur.fetchall()
         sub_to = {
             'display_name': follow_details[0],
             'base64_image': follow_details[1],
             'id': follow[0]
         }
-        following_array.append(sub_TO)
+        following_array.append(sub_to)
     conn.commit()
     cur.close()
     conn.close()
     return {
         'status_code': 200,
         'folling': following_array
+    }
+
+def user_get_profile(id):
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_search_query = """select visibility FROM users WHERE id = %s"""
+    input_data = (id)
+    cur.execute(sql_search_query, input_data)
+    status = cur.fetchall()
+    if status[0] is "private":
+        sql_search_query = """select display_name, base64_image FROM users WHERE id = %s"""
+        input_data = (id)
+        cur.execute(sql_search_query, input_data)
+        user_details = cur.fetchall()
+        return {
+            'status_code': 200,
+            'display_name': user_details[0],
+            'base64_image': user_details[1],
+            'id': id
+        }
+    cur.execute("SELECT pronoun, given_names, last_name, display_name, email, country, about, visibility, base64_image FROM users WHERE id = %s;", (id,))
+    user = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200,
+        'pronoun': user[0][0],
+        'given_names': user[0][1],
+        'last_name': user[0][2],
+        'display_name': user[0][3],
+        'email': user[0][4],
+        'country': user[0][5],
+        'about': user[0][6],
+        'visibility': user[0][7],
+        'base64_image': user[0][8],
+        'id': id
     }
