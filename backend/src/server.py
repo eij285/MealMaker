@@ -12,7 +12,7 @@ from user import user_preferences, user_update, user_info, user_update_preferenc
 from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
                    recipe_delete, recipes_fetch_own, recipe_details, recipe_like
 from review import reviews_all_for_recipe, review_create, review_delete, \
-                   review_reply, review_reply_delete
+                   review_reply, review_reply_delete, review_vote
 from backend_helper import database_reset
 
 APP = Flask(__name__)
@@ -287,9 +287,8 @@ def create_review():
     comment = data['comment']
     return review_create(recipe_id, rating, comment, token)
 
-"""
 @APP.route('/review/delete', methods=['POST'])
-def create_review():
+def delete_review():
     data = request.get_json()
     token = data['token']
     review_id = data['review_id']
@@ -300,16 +299,24 @@ def reply_to_review():
     data = request.get_json()
     token = data['token']
     review_id = data['review_id']
-    reply = data['rating']
+    reply = data['reply']
     return review_reply(review_id, reply, token)
 
 @APP.route('/review/reply/delete', methods=['POST'])
-def reply_to_review():
+def delete_reply_to_review():
     data = request.get_json()
     token = data['token']
     review_id = data['review_id']
     return review_reply_delete(review_id, token)
-"""
+
+@APP.route('/review/vote', methods=['POST'])
+def vote_for_review():
+    data = request.get_json()
+    token = data['token']
+    review_id = data['review_id']
+    is_upvote = data['is_upvote']
+    return review_vote(review_id, is_upvote, token)
+
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():

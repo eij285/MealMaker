@@ -23,7 +23,7 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
       'Content-Type': 'application/json',
     },
   };
-  if (body !== null && token !== null && token !== '') {
+  if (body !== null) {
     body.token = token;
   }
   if ((method === 'POST' || method === 'PUT') && body !== null) {
@@ -84,7 +84,7 @@ export const tokenToUserId = (token) => {
     if (token) {
       return JSON.parse(atob(token.split('.')[1])).u_id;
     } else {
-      throw new Error;
+      throw new Error();
     }
   } catch (error) {
     return -1;
@@ -243,7 +243,24 @@ export const getAverageRating = (reviews) => {
   if (typeof reviews !== typeof [] || reviews.length === 0) {
     return 0;
   }
+  if (reviews.length === 1)  {
+    return reviews[0].rating;
+  }
   return reviews.map(obj => obj.rating).reduce((a, b) => a + b, 0) / reviews.length;
+};
+
+export const formatNumString = (val) => {
+  const numStr = `${val}`;
+  if (/^\d+$/.test(numStr)) {
+    return numStr;
+  }
+  if (/^\d+\.0+$/.test(numStr) || /^\d+\.0{2,}[0-4]*$/.test(numStr)) {
+    return `${parseInt(numStr)}`;
+  }
+  if (/^\d+\.[1-9]0[0-4]*$/.test(numStr) || /^\d+\.[1-9]0*$/.test(numStr)) {
+    return parseFloat(numStr).toFixed(1);
+  }
+  return parseFloat(numStr).toFixed(2);
 };
 
 export const formatNutrient = (qty, isMass, reqImperial) => {
@@ -251,10 +268,12 @@ export const formatNutrient = (qty, isMass, reqImperial) => {
     return 'NA';
   }
   if (isMass) {
-    return reqImperial ? convert(qty, 'gram').to('ounce').toFixed(2) + 'oz.'
-      : `${qty}g`;
+    return reqImperial ?
+      formatNumString(convert(qty, 'gram').to('ounce')) + 'oz.'
+      : `${formatNumString(qty)}g`;
   }
-  return reqImperial ? (qty / 4.184).toFixed(2) + 'Cal' : `${qty}kJ`;
+  return reqImperial ? formatNumString(qty / 4.184) + 'Cal'
+    : `${formatNumString(qty)}kJ`;
 };
 
 const formatIngredientUnit = (qty, unit) => {
@@ -269,7 +288,7 @@ export const formatIngredient = (ingredient, reqImperial) => {
   const unit = ingredient.unit;
   if (!reqImperial) {
     // remove s suffix from singluar to make unit grammatically correct
-    return `${quantity} ${formatIngredientUnit(quantity, unit)}`;
+    return `${formatNumString(quantity)} ${formatIngredientUnit(quantity, unit)}`;
   }
   let obj = null;
   //"litres", "ml", "grams", "kg", "cups", "tbsp", "tsp", "pieces"
@@ -284,7 +303,8 @@ export const formatIngredient = (ingredient, reqImperial) => {
     obj = convert(quantity, 'litre').to('best', 'imperial');
   }
   if (obj !== null) {
-    return `${obj.quantity.toFixed(2)} ${formatIngredientUnit(obj.quantity, obj.unit)}`;
+    return `${formatNumString(obj.quantity)} ${
+      formatIngredientUnit(obj.quantity, obj.unit)}`;
   }
-  return `${quantity} ${formatIngredientUnit(quantity, unit)}`;
+  return `${formatNumString(quantity)} ${formatIngredientUnit(quantity, unit)}`;
 };

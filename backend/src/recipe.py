@@ -696,18 +696,40 @@ def recipes_fetch_own(token):
     
     try:
         query = ("""
-            SELECT recipe_id, recipe_name, recipe_photo, recipe_status, cuisine 
-            FROM recipes WHERE owner_id = %s""")
+            SELECT r.recipe_id, r.recipe_name, r.recipe_photo, r.recipe_status,
+            r.cuisine, s.review_cnt, s.rating_avg, v.likes_cnt
+            FROM recipes r LEFT OUTER JOIN (
+                SELECT COUNT(*) review_cnt, AVG(rating) rating_avg, recipe_id
+                FROM recipe_reviews GROUP BY recipe_id
+            ) s ON (r.recipe_id = s.recipe_id)
+            LEFT OUTER JOIN (
+				SELECT COUNT(*) likes_cnt, recipe_id
+				FROM recipe_user_likes GROUP BY recipe_id
+			) v ON (r.recipe_id = v.recipe_id)
+            WHERE r.owner_id = %s
+            """)
         cur.execute(query, (owner_id,))
         output = cur.fetchall()
         recipes_list = []
         for recipe in output:
+            # need average but json in flask doesn't like decimal data
+            recipe_id, recipe_name, recipe_photo, recipe_status, cuisine, \
+                tmp_review_cnt, tmp_rating_avg, tmp_likes_cnt = recipe
+            review_cnt = tmp_review_cnt if tmp_review_cnt is not None else 0
+            likes_cnt = tmp_likes_cnt if tmp_likes_cnt is not None else 0
+            if tmp_rating_avg is None:
+                rating_avg = '0.0'
+            else:
+                rating_avg = f'{tmp_rating_avg:.1f}'
             recipes_list.append({
-                'recipe_id': recipe[0],
-                'recipe_name': recipe[1],
-                'recipe_photo': recipe[2],
-                'recipe_status': recipe[3],
-                'cuisine': recipe[4]
+                'recipe_id': recipe_id,
+                'recipe_name': recipe_name,
+                'recipe_photo': recipe_photo,
+                'recipe_status': recipe_status,
+                'cuisine': cuisine,
+                'review_cnt': review_cnt,
+                'rating_avg': rating_avg,
+                'likes_cnt': likes_cnt
             })
 
         # Close connection
@@ -862,19 +884,14 @@ def recipe_details(recipe_id, token):
 
 def recipe_like(recipe_id, token):
     """
-    Like toggle a given recipe (like => unlike, unlike => like)
+    Like toggle a given recipe (like => unlike, unlike => like). Recipe author
+    cannot like/unlike their own recipe.
     """
     # error if no token
-    if not token:
+    if not token or not verify_token(token):
         return {
             'status_code': 401,
-            'error': "No token"
-        }
-    
-    if not verify_token(token):
-        return {
-            'status_code': 401,
-            'error': "Invalid token"
+            'error': "only authenticated users can like a recipe"
         }
     
     # Start connection to database
