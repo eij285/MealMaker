@@ -5,7 +5,7 @@ import re
 
 from config import DB_CONN_STRING
 
-def user_update(token, given_names, surname, display_name, email, about_me, country, visibility, pronoun):
+def user_update(token, given_names, surname, display_name, email, about_me, country, visibility, pronoun, picture):
     """updates user details"""
     if email is None or display_name is None:
         return {
@@ -22,6 +22,7 @@ def user_update(token, given_names, surname, display_name, email, about_me, coun
     output["country"] = user_update_country(token, country)
     output["visibility"] = user_update_visibility(token, visibility)
     output["pronoun"] = user_update_pronoun(token, pronoun)
+    output["base64_image"] = user_update_profile_picture(token, picture)
     return output
 
 def user_update_preferences(token, units, efficiency, breakfast, lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free, soy_free):
@@ -45,7 +46,7 @@ def user_info(token):
             'status_code': 500,
             'errors': ['Unable to connect to database']
         }
-    cur.execute("SELECT pronoun, given_names, last_name, display_name, email, country, about, visibility FROM users WHERE token = %s;", (token,))
+    cur.execute("SELECT pronoun, given_names, last_name, display_name, email, country, about, visibility, base64_image FROM users WHERE token = %s;", (token,))
     user = cur.fetchall()
     cur.close()
     conn.close()
@@ -58,7 +59,8 @@ def user_info(token):
         'email': user[0][4],
         'country': user[0][5],
         'about': user[0][6],
-        'visibility': user[0][7]
+        'visibility': user[0][7],
+        'base64_image': user[0][8]
     }
 
 def user_preferences(token):
@@ -545,16 +547,34 @@ def user_update_pronoun(token, pronoun):
     return {
         'status_code': 200,
     }
-"""
-def user_update_profile_picture(token):
+
+def user_update_profile_picture(token, picture):
     """
-"""Changes users profile picture
+    Changes users profile picture
 
     Args:
 
     Returns:
 
-"""
+    """
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_update_query = """UPDATE users SET base64_image = %s WHERE token = %s;"""
+    input_data = (picture, token)
+    cur.execute(sql_update_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200,
+    }
 
 def user_subscribe(token, subscribe_to):
     try:
@@ -646,7 +666,16 @@ def user_get_followers(token):
     followers = cur.fetchall()
     followers_array = []
     for follower in followers:
-        followers_array.append(follower[0])
+        sql_search_query = """select display_name, base64_image FROM users WHERE id = %s"""
+        input_data = (follower[0])
+        cur.execute(sql_search_query, input_data)
+        follower_details = cur.fetchall()
+        sub = {
+            'display_name': follower_details[0],
+            'base64_image': follower_details[1],
+            'id': follower[0]
+        }
+        followers_array.append(sub)
     conn.commit()
     cur.close()
     conn.close()
@@ -672,15 +701,67 @@ def user_get_following(token):
     u_id = u[0]
     sql_search_query = """select following_id FROM subscriptions WHERE follower_id = %s"""
     input_data = (u_id)
-    cur.execute(input_data)
+    cur.execute(sql_search_query, input_data)
     following = cur.fetchall()
     following_array = []
     for follow in following:
-        following_array.append(follow[0])
+        sql_search_query = """select display_name, base64_image FROM users WHERE id = %s"""
+        input_data = (follow[0])
+        cur.execute(sql_search_query, input_data)
+        follow_details = cur.fetchall()
+        sub_to = {
+            'display_name': follow_details[0],
+            'base64_image': follow_details[1],
+            'id': follow[0]
+        }
+        following_array.append(sub_to)
     conn.commit()
     cur.close()
     conn.close()
     return {
         'status_code': 200,
         'folling': following_array
+    }
+
+def user_get_profile(id):
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'errors': ['Unable to connect to database']
+        }
+    sql_search_query = """select visibility FROM users WHERE id = %s"""
+    input_data = (id)
+    cur.execute(sql_search_query, input_data)
+    status = cur.fetchall()
+    if status[0] is "private":
+        sql_search_query = """select display_name, base64_image FROM users WHERE id = %s"""
+        input_data = (id)
+        cur.execute(sql_search_query, input_data)
+        user_details = cur.fetchall()
+        return {
+            'status_code': 200,
+            'display_name': user_details[0],
+            'base64_image': user_details[1],
+            'id': id
+        }
+    cur.execute("SELECT pronoun, given_names, last_name, display_name, email, country, about, visibility, base64_image FROM users WHERE id = %s;", (id,))
+    user = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200,
+        'pronoun': user[0][0],
+        'given_names': user[0][1],
+        'last_name': user[0][2],
+        'display_name': user[0][3],
+        'email': user[0][4],
+        'country': user[0][5],
+        'about': user[0][6],
+        'visibility': user[0][7],
+        'base64_image': user[0][8],
+        'id': id
     }
