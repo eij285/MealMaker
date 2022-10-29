@@ -7,8 +7,8 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { FlexRow, FlexColumn, ImageContainer4by3, ResponsiveImage4by3 } from '../StyledNodes';
-import { SmallGreyText, TextVCentred } from '../TextNodes';
+import { FlexRow, FlexColumn, ImageContainer4by3, ResponsiveImage4by3, FlexColumnNoGap, FlexColumnSpaced } from '../StyledNodes';
+import { MediumGreyText, SmallGreyText, TextVCentred } from '../TextNodes';
 import { SmallDefaultButton } from '../Buttons';
 
 const RecipeItemActionPanel = styled.div`
@@ -70,6 +70,39 @@ const ViewRecipeButton = styled(SmallDefaultButton)`
   }
 `;
 
+const RatingStarsColumn = styled(FlexColumnNoGap)`
+  height: 32px;
+`;
+
+const RatingSummary = ({data}) => {
+  return (
+    <FlexColumn>
+      <RatingStarsColumn>
+        {data.review_cnt > 0 && <>
+        <Rating value={parseFloat(data.rating_avg)} precision={0.1} readOnly />
+        {data.review_cnt == 1 &&
+        <SmallGreyText>{data.rating_avg} (1 review)</SmallGreyText>}
+        {data.review_cnt > 1 &&
+        <SmallGreyText>
+          {data.rating_avg} ({data.review_cnt} reviews)
+        </SmallGreyText>}
+        </>}
+        {data.review_cnt < 1 &&
+        <MediumGreyText>No Reviews</MediumGreyText>}
+      </RatingStarsColumn>
+      <Typography>{data.recipe_name}</Typography>
+    </FlexColumn>
+  )
+};
+
+const RecipeItemLikes = ({likesCount}) => {
+  return (
+    <Box sx={{alignSelf: 'flex-end'}}>
+      <TextVCentred><ThumbUpIcon />&nbsp;{likesCount}</TextVCentred>
+    </Box>
+  );
+};
+
 export const OwnRecipeItem = ({data, index, cloneRecipe, setDeleteIndex,
   setDialogOpen, setDeleteDesciption}) => {
   const handleDelete = () => {
@@ -101,14 +134,11 @@ export const OwnRecipeItem = ({data, index, cloneRecipe, setDeleteIndex,
         </ViewRecipeButton>
       </Box>
       <RecipeItemTextContainer>
-        <FlexColumn>
-          <Rating value={4.5} precision={0.5} readOnly />
-          <Typography>{data.recipe_name}</Typography>
-        </FlexColumn>
-        <FlexColumn>
+        <RatingSummary data={data} />
+        <FlexColumnSpaced>
           <SmallGreyText align="right">{data.recipe_status}</SmallGreyText>
-          <TextVCentred><ThumbUpIcon />{10}</TextVCentred>
-        </FlexColumn>
+          <RecipeItemLikes likesCount={data.likes_cnt} />
+        </FlexColumnSpaced>
       </RecipeItemTextContainer>
     </RecipeItemPaper>
   )
