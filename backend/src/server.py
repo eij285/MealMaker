@@ -8,7 +8,7 @@ from auth import auth_register, auth_login, auth_logout, \
                  auth_logout_everywhere, auth_update_pw, auth_reset_link, \
                  auth_reset_pw
 from backend_helper import database_reset, files_reset
-from user import user_preferences, user_update, user_info, user_update_preferences
+from user import user_preferences, user_update, user_info, user_update_preferences, user_subscribe, user_unsubscribe, user_get_followers, user_get_following
 from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
                    recipe_delete, recipes_fetch_own, recipe_details, recipe_like
 from review import reviews_all_for_recipe, review_create, review_delete, \
@@ -96,7 +96,8 @@ def update_user_details():
     country = payload['country']
     visibility = payload['visibility']
     pronoun = payload['pronoun']
-    return dumps(user_update(token, name, surname, display_name, email, about_me, country, visibility, pronoun))
+    picture = payload['base64-image']
+    return dumps(user_update(token, name, surname, display_name, email, about_me, country, visibility, pronoun, picture))
 
 @APP.route('/user/preferences/update', methods=['PUT'])
 def update_user_preferences():
@@ -142,6 +143,48 @@ def get_user_preferences():
     #   return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_preferences(token))
+
+@APP.route('/user/subscribe', methods=['PUT'])
+def subscribe():
+    payload = request.get_json()
+    # Verify token
+    token = payload['token']
+    subscribe_to = payload['id']
+    #if not verify_token(token):
+    #   return dumps({'status_code': 401, 'error': None})
+    
+    return dumps(user_subscribe(token, subscribe_to))
+
+@APP.route('/user/subscribe', methods=['DELETE'])
+def unsubscribe():
+    payload = request.get_json()
+    # Verify token
+    token = payload['token']
+    unsubscribe_to = payload['id']
+    #if not verify_token(token):
+    #   return dumps({'status_code': 401, 'error': None})
+    
+    return dumps(user_unsubscribe(token, unsubscribe_to))
+
+@APP.route('/user/get/subscribers', methods=['POST'])
+def get_subscribers():
+    payload = request.get_json()
+    # Verify token
+    token = payload['token']
+    #if not verify_token(token):
+    #   return dumps({'status_code': 401, 'error': None})
+    
+    return dumps(user_get_followers(token))
+
+@APP.route('/user/get/subscriptions', methods=['POST'])
+def get_subscriptions():
+    payload = request.get_json()
+    # Verify token
+    token = payload['token']
+    #if not verify_token(token):
+    #   return dumps({'status_code': 401, 'error': None})
+    
+    return dumps(user_get_following(token))\
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
