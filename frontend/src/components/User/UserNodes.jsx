@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Typography } from '@mui/material';
 
 const UserImgContainer = styled.div`
   display: flex;
@@ -34,3 +35,20 @@ export const ProfileContainer = styled.div`
   row-gap: 20px;
   align-items: center;
 `;
+
+export const UserAttribute = ({title, content}) => {
+  const typoStyle = {
+    display: 'flex',
+    columnGap: '8px'
+  };
+  return (
+    <Typography component="p" variant="p" sx={typoStyle}>
+      <Typography component="strong" variant="strong">
+        {title}:
+      </Typography>
+      <Typography component="span" variant="span">
+        {content}
+      </Typography>
+    </Typography>
+  );
+};

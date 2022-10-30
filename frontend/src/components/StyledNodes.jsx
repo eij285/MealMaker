@@ -203,8 +203,36 @@ export const ConfirmationDialog = ({ title, description, acceptContent,
 const WYSIWYGOutputContainer = styled.section`
   overflow: hidden;
   max-width: 100vw;
+  position: relative;
   & * {
     max-width: 100%;
+    position: relative;
+  }
+  blockquote {
+    font-style: italic;
+  }
+  & blockquote::before {
+    content: open-quote;
+    position: absolute;
+    left: -16px;
+    top: -10px;
+    font-size: 2.4em;
+  }
+  & table {
+    border-collapse: collapse;
+  }
+  & table th, & table td {
+    border: 1px solid #999999;
+    padding: 4px 8px;
+  }
+  & table th {
+    border-bottom: 2px solid #999999;
+  }
+  & a {
+    color: #999999;
+  }
+  & a:active, & a:hover {
+    color: #333333;
   }
 `;
 
