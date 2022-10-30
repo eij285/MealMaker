@@ -74,6 +74,10 @@ export const FlexRow = styled(FlexRowNoGap)`
   column-gap: 20px;
 `;
 
+export const FlexRowVCentred = styled(FlexRow)`
+  align-items: center;
+`;
+
 export const FlexRowWrap = styled(FlexRow)`
   flex-wrap: wrap;
 `;
