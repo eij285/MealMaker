@@ -130,8 +130,8 @@ export default function ManageSidebar() {
         <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />
         <SidebarItem to="/my-recipes" text="My Recipes" open={open} icon={<FoodBankIcon />} />
         <SidebarItem to="#" text="Cook Books" open={open} icon={<MenuBookIcon />} />
-        <SidebarItem to="#" text="Subscriptions" open={open} icon={<SubscriptionsIcon />} />
-        <SidebarItem to="#" text="Subscribers" open={open} icon={<LoyaltyIcon />} />
+        <SidebarItem to="/subscriptions" text="Subscriptions" open={open} icon={<SubscriptionsIcon />} />
+        <SidebarItem to="/subscribers" text="Subscribers" open={open} icon={<LoyaltyIcon />} />
         <SidebarItem to="/user-preferences" text="Preferences" open={open} icon={<SettingsApplicationsIcon />} />
         <SidebarItem to="#" text="Messages" open={open} icon={<MessageIcon />} />
         <SidebarItem to="#" text="Shopping" open={open} icon={<StoreIcon />} />

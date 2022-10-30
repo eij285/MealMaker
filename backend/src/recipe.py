@@ -802,7 +802,7 @@ def recipe_details(recipe_id, token):
             cur.execute(query, (str(token),))
             user_id, units, efficiency = cur.fetchone()
         else:
-            user_id, units, efficiency = -1, 'Metric', 'Intermediate'
+            user_id, units, efficiency, = -1, 'Metric', 'Intermediate'
         query = ("""
             SELECT u.id, u.display_name, u.base64_image,
             r.recipe_name, r.recipe_description, r.recipe_photo,
@@ -820,6 +820,19 @@ def recipe_details(recipe_id, token):
         recipe = cur.fetchone()
         if not recipe:
             raise Exception
+        owner_id = recipe[0]
+        if token and user_id != owner_id:
+            subs_query = ("""
+                SELECT COUNT(*) FROM subscriptions
+                WHERE following_id = %s AND follower_id = %s
+                """)
+            cur.execute(subs_query, (owner_id, user_id))
+            subs_count, = cur.fetchone()
+            is_subscribed = True if subs_count > 0 else False
+        else:
+            is_subscribed = False
+        cur.close()
+        conn.close()
     except:
         cur.close()
         conn.close()
@@ -878,7 +891,8 @@ def recipe_details(recipe_id, token):
             'ingredients': ingredients_list,
             'reviews': reviews,
             'likes': likes,
-            'user_is_author': user_id == recipe[0]
+            'user_is_author': user_id == recipe[0],
+            'is_subscribed': is_subscribed
         }
     }
 
@@ -966,7 +980,8 @@ def recipe_like(recipe_id, token):
             """)
         cur.execute(count_query, (recipe_id))
         likes_count, = cur.fetchone()
-        
+        cur.close()
+        conn.close()
     except:
         # Close connection
         cur.close()
@@ -975,9 +990,6 @@ def recipe_like(recipe_id, token):
             'status_code':400,
             'error': "cannot like or unlike recipe"
         }
-
-    cur.close()
-    conn.close()
     
     return {
         'status_code': 200,

@@ -117,6 +117,7 @@ function ViewRecipePage () {
       setRecipeData({...body});
       setServings(`${body.servings}`);
       initCurrData(body);
+      console.log(body);
     }, (error) => {
       setResponseError(error);
     });
@@ -140,7 +141,17 @@ function ViewRecipePage () {
   };
 
   const subscribeToUser = () => {
-    console.log('subscribe');
+    // backend needs fixing - delete request cannot have a body
+    /*const reqURL = `/user/${recipeData.is_subscribed?'unsubscribe':'subscribe'}`;
+    const reqMethod = recipeData.is_subscribed ? 'DELETE' : 'PUT';
+    const body = {
+      id: recipeData.author_id
+    };
+    backendRequest(reqURL, body, reqMethod, token, (data) => {
+      console.log(data);
+    }, (error) => {
+      setResponseError(error);
+    });*/
   };
 
   React.useEffect(() => {
@@ -180,9 +191,10 @@ function ViewRecipePage () {
               <UserImageNameLink src={recipeData.author_image}
                 name={recipeData.author_display_name}
                 to={`/user/${recipeData.author_id}`} />
-              {token && recipeData.user_is_author &&
+              {token && !recipeData.user_is_author &&
               <SmallAlternateButton onClick={subscribeToUser}>
-                Subscribe
+                {!recipeData.is_subscribed && <>Subscribe</>}
+                {recipeData.is_subscribed && <>Unubscribe</>}
               </SmallAlternateButton>}
             </FlexRow>
           </FlexRowWrapSpaced>
