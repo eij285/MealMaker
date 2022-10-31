@@ -492,12 +492,16 @@ def user_update_visibility(token, visibility):
     sql_update_query = """UPDATE users SET visibility = %s WHERE token = %s;"""
     input_data = (visibility, token)
     cur.execute(sql_update_query, input_data)
-    if visibility is "private":
-        sql_search_query = """SELECT recipe_id from Recipes r join users u on r.owner_id = u.id WHERE recipe_status = %s AND u.token = %s;"""
+    if visibility == "private":
+        sql_search_query = """
+            SELECT recipe_id FROM recipes r JOIN users u ON (r.owner_id = u.id)
+            WHERE recipe_status = %s AND u.token = %s;
+            """
         input_data = ("published", token)
         cur.execute(sql_search_query, input_data)
         public_recipes = cur.fetchall()
         # changes all public recipes to drafts
+        #print(public_recipes)
         for recipe in public_recipes:
             sql_update_query = """UPDATE recipes SET recipe_status = %s WHERE recipe_id = %s;"""
             input_data = ("draft", recipe[0])
