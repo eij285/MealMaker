@@ -33,7 +33,7 @@ function UserPublicPage () {
       // just a word of caution: telling everyone your login email is a good
       // way to get your account hacked (even if it's just what the backend
       // sends back)
-      setUserProfile(data);
+      setUserProfile({...data});
     }, (error) => {
       setResponseError(error);
     });
