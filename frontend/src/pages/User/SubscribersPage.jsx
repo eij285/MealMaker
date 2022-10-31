@@ -19,11 +19,16 @@ function SubscribersPage () {
   const loadSubscribers = () => {
     backendRequest('/user/get/subscribers', {}, 'POST', token, (data) => {
       setFollowers([...data.followers]);
-      const nSubs = data.followers.length;
-      setFollowMessage(
-        nSubs > 0 ? `Have ${nSubs} follower${nSubs>1?'s':''}` :
-          'Currently no followers'
-      );
+      if (data.visibility === 'public') {
+        const nSubs = data.followers.length;
+        setFollowMessage(
+          nSubs > 0 ? `Have ${nSubs} follower${nSubs>1?'s':''}` :
+            'Currently no followers'
+        );
+      } else {
+        setFollowMessage(
+          'Your profile is private. A private profile cannot have followers.');
+      }
     }, (error) => {
       console.log(error);
       setResponseError(error);

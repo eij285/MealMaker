@@ -8,6 +8,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  FormHelperText
 } from '@mui/material';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-build-classic-base64-upload';
@@ -182,7 +183,7 @@ function UserProfilePage () {
               />
             </Box>
             <FlexRow>
-              <FormControl>
+              <FormControl sx={{ width: '300px', maxWidth: '100%' }}>
                 <InputLabel id="user-visibility">Visibility</InputLabel>
                 <Select labelId="user-visibility" label="Visibility"
                   value={visibility}
@@ -190,6 +191,10 @@ function UserProfilePage () {
                   <MenuItem value="private">private</MenuItem>
                   <MenuItem value="public">public</MenuItem>
                 </Select>
+                {visibility === 'private' &&
+                <FormHelperText sx={{color: 'warning.main'}}>
+                  Warning: private profile cannot have followers
+                </FormHelperText>}
               </FormControl>
             </FlexRow>
             <FlexRow>

@@ -755,11 +755,37 @@ def user_get_followers(token):
         SELECT u.id, u.display_name, u.base64_image FROM users u
         INNER JOIN subscriptions s ON (u.id = s.follower_id)
         INNER JOIN users v ON (s.following_id = v.id)
-        WHERE v.token IS NOT NULL AND v.token = %s
+        WHERE v.token IS NOT NULL AND v.token = %s AND v.visibility = 'public'
         """
     error_msg = 'Unable to get followers list (subscribers)'
     dict_key = 'followers'
-    return user_get_subs(token, query, error_msg, dict_key)
+    followers_list = user_get_subs(token, query, error_msg, dict_key)
+
+    if 'error' in followers_list:
+        return followers_list
+    # determine if reason user has no followers is because they are private
+    if not followers_list[dict_key]:
+        try:
+            conn = psycopg2.connect(DB_CONN_STRING)
+            cur = conn.cursor()
+            visibility_query = """
+                SELECT visibility FROM users
+                WHERE token IS NOT NULL AND token = %s
+                """
+            cur.execute(visibility_query, (token,))
+            followers_list['visibility'] = cur.fetchone()[0]
+            cur.close()
+            conn.close()
+        except:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': error_msg
+            }
+    else:
+        followers_list['visibility'] = 'public'
+    return followers_list
 
 def user_get_following(token):
     query = """
