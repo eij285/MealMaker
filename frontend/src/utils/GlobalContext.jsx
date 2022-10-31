@@ -21,6 +21,7 @@ export const GlobalProvider = ({ children }) => {
   };
 
   const logout = () => {
+    window.localStorage.setItem('token', '');
     setToken('');
   };
 

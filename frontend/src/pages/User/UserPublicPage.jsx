@@ -9,7 +9,7 @@ import {
   WYSIWYGOutput
 } from '../../components/StyledNodes';
 import {
-  MediumAlternateButton,
+  MediumAlternateButton, MediumDefaultButton,
 } from '../../components/Buttons';
 import {
   UserImg,
@@ -34,9 +34,24 @@ function UserPublicPage () {
       // way to get your account hacked (even if it's just what the backend
       // sends back)
       setUserProfile(data);
-      console.log(data);
     }, (error) => {
-      console.log(error);
+      setResponseError(error);
+    });
+  };
+
+  const subscribeToUser = () => {
+    const reqURL = `/user/${userProfile.is_subscribed?'unsubscribe':'subscribe'}`;
+    const reqMethod = userProfile.is_subscribed ? 'POST' : 'PUT';
+    const body = {
+      id: userProfile.id
+    };
+    backendRequest(reqURL, body, reqMethod, token, (data) => {
+      // on success toggle userProfile.is_subscribed state
+      setUserProfile({
+        ...userProfile,
+        is_subscribed: !userProfile.is_subscribed
+      });
+    }, (error) => {
       setResponseError(error);
     });
   };
@@ -67,6 +82,11 @@ function UserPublicPage () {
       </>}
       {userProfile.hasOwnProperty('visibility') &&
       userProfile.visibility === 'public' && <>
+      {token && userProfile.hasOwnProperty('is_subscribed') &&
+      <MediumAlternateButton onClick={subscribeToUser}>
+        {userProfile.is_subscribed && <>Unsubscribe</>}
+        {!userProfile.is_subscribed && <>Subscribe</>}
+      </MediumAlternateButton>}
       <FlexColumnNoGap>
         {(userProfile.hasOwnProperty('given_names') || 
         userProfile.hasOwnProperty('last_name')) &&

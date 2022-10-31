@@ -111,13 +111,11 @@ function ViewRecipePage () {
     };
     const reqURL = '/recipe/details' + (token ? '' : `?recipe_id=${recipeId}`);
     const reqMethod = token ? 'POST' : 'GET';
-
     backendRequest(reqURL, body, reqMethod, token, (data) => {
       const body = data.body;
       setRecipeData({...body});
       setServings(`${body.servings}`);
       initCurrData(body);
-      console.log(body);
     }, (error) => {
       setResponseError(error);
     });
@@ -141,17 +139,19 @@ function ViewRecipePage () {
   };
 
   const subscribeToUser = () => {
-    // backend needs fixing - delete request cannot have a body
-    /*const reqURL = `/user/${recipeData.is_subscribed?'unsubscribe':'subscribe'}`;
-    const reqMethod = recipeData.is_subscribed ? 'DELETE' : 'PUT';
+    const reqURL = `/user/${recipeData.is_subscribed?'unsubscribe':'subscribe'}`;
+    const reqMethod = recipeData.is_subscribed ? 'POST' : 'PUT';
     const body = {
       id: recipeData.author_id
     };
     backendRequest(reqURL, body, reqMethod, token, (data) => {
-      console.log(data);
+      setRecipeData({
+        ...recipeData,
+        is_subscribed: !recipeData.is_subscribed
+      });
     }, (error) => {
       setResponseError(error);
-    });*/
+    });
   };
 
   React.useEffect(() => {
