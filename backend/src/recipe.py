@@ -797,12 +797,19 @@ def recipe_details(recipe_id, token):
             'error': 'Unable to connect to database'
         }
     try:
+        user_results = None
         if token:
-            query = "SELECT id, units, efficiency FROM users WHERE token = %s"
+            query = ("""
+                SELECT id, units, efficiency FROM users
+                WHERE token IS NOT NULL AND token = %s
+                """)
             cur.execute(query, (str(token),))
-            user_id, units, efficiency = cur.fetchone()
+            user_results = cur.fetchone()
+        if user_results is not None:
+            user_id, units, efficiency = user_results
         else:
             user_id, units, efficiency, = -1, 'Metric', 'Intermediate'
+
         query = ("""
             SELECT u.id, u.display_name, u.base64_image,
             r.recipe_name, r.recipe_description, r.recipe_photo,

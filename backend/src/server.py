@@ -155,7 +155,7 @@ def subscribe():
     
     return dumps(user_subscribe(token, subscribe_to))
 
-@APP.route('/user/unsubscribe', methods=['DELETE'])
+@APP.route('/user/unsubscribe', methods=['POST'])
 def unsubscribe():
     payload = request.get_json()
     # Verify token
@@ -190,11 +190,12 @@ def get_subscriptions():
 def get_profile():
     payload = request.get_json()
     # Verify token
+    token = payload['token']
     id = payload['id']
     #if not verify_token(token):
     #   return dumps({'status_code': 401, 'error': None})
     
-    return dumps(user_get_profile(id))
+    return dumps(user_get_profile(token, id))
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
