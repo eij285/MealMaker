@@ -24,7 +24,6 @@ const LogoutButton = () => {
         logout();
         navigate('/');
       }, (error) => {
-        console.error(error);
         logout();
         navigate('/');
       });
