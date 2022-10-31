@@ -128,7 +128,8 @@ const RecipePrepartionTimeText = React.forwardRef((props, ref) => {
 /**
  * Recipe preparation time and user efficiency component
  */
-const RecipePrepartionTime = ({hours, minutes, level}) => {
+export const RecipePrepartionTime = ({hours, minutes, level,
+  useSmall = false}) => {
   let totalMinutes = 0;
   let ttMsg = '';
   if (hours !== null) {
@@ -147,11 +148,16 @@ const RecipePrepartionTime = ({hours, minutes, level}) => {
   totalMinutes = Math.round(totalMinutes);
   const customHours = parseInt(totalMinutes / 60);
   const customMinutes = totalMinutes - (customHours * 60);
-  hours !== null && minutes !== null && (ttMsg += ` @ Intermediate Efficiency`);
+  if (hours !== null && minutes !== null) {
+    ttMsg += ' @ Intermediate' + (!useSmall ? ' Efficiency' : '');
+  }
+  const iconStyle = {
+    fontSize: `${useSmall? 2 : 3}em`
+  };
 
   return (
     <FlexRow>
-      <AccessTimeIcon sx={{fontSize: '3em'}} />
+      <AccessTimeIcon sx={iconStyle} />
       <PreparationTimeText>
         {hours !== null && minutes !== null && level !== config.EFFICIENCY[1] &&
         <Tooltip title={ttMsg} placement="top" arrow>
@@ -162,7 +168,7 @@ const RecipePrepartionTime = ({hours, minutes, level}) => {
         <RecipePrepartionTimeText hours={customHours} minutes={customMinutes}
           level={level} />}
         {hours === null && minutes === null &&
-        <Typography>Unspecified Preparation Time</Typography>}
+        <Typography>Unspecified{!useSmall &&<> Preparation Time</>}</Typography>}
       </PreparationTimeText>
     </FlexRow>
   );

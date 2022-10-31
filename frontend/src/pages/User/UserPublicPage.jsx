@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
 import {
@@ -17,13 +17,25 @@ import {
   UserAttribute
 } from '../../components/User/UserNodes';
 import { backendRequest, tokenToUserId } from '../../helpers';
+import { SingleAuthorRecipeItem } from '../../components/Recipe/RecipeItems';
+import { SubPageTitle } from '../../components/TextNodes';
 
 function UserPublicPage () {
   const { userId } = useParams();
   const globals = React.useContext(GlobalContext);
   const token = globals.token;
   const [userProfile, setUserProfile] = React.useState({});
+  const [recipesList, setRecipesList] = React.useState([]);
   const [responseError, setResponseError] = React.useState('');
+
+  const loadRecipes = () => {
+    const reqURL = `/recipes/user/published?user_id=${userId}`;
+    backendRequest(reqURL, null, 'GET', null, (data) => {
+      setRecipesList([...data.recipes]);
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
 
   const loadProfile = () => {
     const body = {
@@ -34,6 +46,8 @@ function UserPublicPage () {
       // way to get your account hacked (even if it's just what the backend
       // sends back)
       setUserProfile({...data});
+      console.log(data);
+      loadRecipes();
     }, (error) => {
       setResponseError(error);
     });
@@ -113,6 +127,17 @@ function UserPublicPage () {
       </FlexColumnNoGap>
       </>}
       </ProfileContainer>}
+      {userProfile.hasOwnProperty('visitor_efficiency') &&
+      recipesList.length > 0 && <>
+      <SubPageTitle>Recipes</SubPageTitle>
+      <Grid container spacing={2}>
+        {recipesList.map((recipe, index) => (
+        <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
+          <SingleAuthorRecipeItem recipe={recipe}
+            level={userProfile.visitor_efficiency} />
+        </Grid>))}
+      </Grid>
+    </>}
     </ExploreLayout>
   );
 }
