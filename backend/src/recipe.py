@@ -467,8 +467,8 @@ def recipe_update(data, token):
 
     if recipe_update_ingredients(recipe_id, ingredients):
         return {
-                'status_code': 200
-            }
+            'status_code': 200
+        }
     else:
         return {
             'status_code': 400,
@@ -731,22 +731,102 @@ def recipes_fetch_own(token):
                 'rating_avg': rating_avg,
                 'likes_cnt': likes_cnt
             })
-
-        # Close connection
-        return {
-            'status_code':200,
-            'body': recipes_list
-        }
-        
+        cur.close()
+        conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         cur.close()
         conn.close()
         return {
             'status_code':400,
-            'error': None
+            'error': 'could not fetch recipes'
         }
+    return {
+        'status_code':200,
+        'body': recipes_list
+    }
 
+def recipes_user_published(user_id):
+    """
+    Fetch own recipes
+    """
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    try:
+        query = "SELECT COUNT(*) FROM users WHERE id = %s"
+        cur.execute(query, (str(user_id),))
+        if cur.fetchone()[0] == 0:
+            raise Exception
+        
+        query = ("""
+            SELECT r.recipe_id, r.recipe_name, r.recipe_photo, r.created_on,
+            r.preparation_hours, r.preparation_minutes, r.cuisine, r.breakfast,
+            r.lunch, r.dinner, r.snack, r.vegetarian, r.vegan, r.kosher,
+            r.halal, r.dairy_free, r.gluten_free, r.nut_free, r.egg_free,
+            r.shellfish_free, r.soy_free, s.review_cnt, s.rating_avg,
+            v.likes_cnt
+            FROM recipes r LEFT OUTER JOIN (
+                SELECT COUNT(*) review_cnt, AVG(rating) rating_avg, recipe_id
+                FROM recipe_reviews GROUP BY recipe_id
+            ) s ON (r.recipe_id = s.recipe_id)
+            LEFT OUTER JOIN (
+				SELECT COUNT(*) likes_cnt, recipe_id
+				FROM recipe_user_likes GROUP BY recipe_id
+			) v ON (r.recipe_id = v.recipe_id)
+            WHERE r.owner_id = %s AND r.recipe_status = 'published'
+            """)
+        cur.execute(query, (user_id,))
+        output = cur.fetchall()
+        recipes_list = []
+        for recipe in output:
+            # need average but json in flask doesn't like decimal data
+            recipes_list.append({
+                'recipe_id': recipe[0],
+                'recipe_name': recipe[1],
+                'recipe_photo': recipe[2],
+                'created_on': str(recipe[3]),
+                'preparation_hours': recipe[4],
+                'preparation_minutes': recipe[5],
+                'cuisine': recipe[6],
+                'breakfast': recipe[7],
+                'lunch': recipe[8],
+                'dinner': recipe[9],
+                'snack': recipe[10],
+                'vegetarian': recipe[11],
+                'vegan': recipe[12],
+                'kosher': recipe[13],
+                'halal': recipe[14],
+                'dairy_free': recipe[15],
+                'gluten_free': recipe[16],
+                'nut_free': recipe[17],
+                'egg_free': recipe[18],
+                'shellfish_free': recipe[19],
+                'soy_free': recipe[20],
+                'review_cnt': 0 if recipe[21] is None else recipe[21],
+                'rating_avg': '0.0' if recipe[22] is None else f'{recipe[22]:.1f}',
+                'likes_cnt': 0 if recipe[23] is None else recipe[23]
+            })
+        cur.close()
+        conn.close()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code':400,
+            'error': 'could not fetch recipes'
+        }
+    return {
+        'status_code':200,
+        'recipes': recipes_list
+    }
 
 def recipe_fetch_user_likes(recipe_id, auth_user_id):
     """

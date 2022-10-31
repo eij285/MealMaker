@@ -834,18 +834,25 @@ def user_get_profile(token, id):
         cur.execute(sql_data_query, (id,))
         user = cur.fetchone()
         if token:
-            sql_subs_query = """
+            subs_query = """
                 SELECT COUNT(s.*) FROM subscriptions s
                 INNER JOIN users u ON (s.follower_id = u.id)
                 INNER JOIN users v ON (s.following_id = v.id)
                 WHERE u.token IS NOT NULL AND u.token = %s
                 AND v.id = %s
                 """
-            cur.execute(sql_subs_query, (token, id))
+            cur.execute(subs_query, (token, id))
             subscribed, = cur.fetchone()
             is_subscribed = True if subscribed > 0 else False
+            efficiency_query = """
+                SELECT efficiency FROM users
+                WHERE token IS NOT NULL AND token = %s
+                """
+            cur.execute(efficiency_query, (token,))
+            visitor_efficiency, = cur.fetchone()
         else:
             is_subscribed = False
+            visitor_efficiency = 'Intermediate'
 
         cur.close()
         conn.close()
@@ -861,7 +868,8 @@ def user_get_profile(token, id):
             'visibility': user[7],
             'base64_image': user[8],
             'id': id,
-            'is_subscribed': is_subscribed
+            'is_subscribed': is_subscribed,
+            'visitor_efficiency': visitor_efficiency
         }
     except:
         cur.close()

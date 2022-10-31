@@ -7,8 +7,16 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { FlexRow, FlexColumn, ImageContainer4by3, ResponsiveImage4by3, FlexColumnNoGap, FlexColumnSpaced } from '../StyledNodes';
+import {
+  FlexRow,
+  FlexColumn,
+  ImageContainer4by3,
+  ResponsiveImage4by3,
+  FlexColumnNoGap,
+  FlexColumnSpaced
+} from '../StyledNodes';
 import { MediumGreyText, SmallGreyText, TextVCentred } from '../TextNodes';
+import { RecipePrepartionTime } from './RecipeNodes';
 import { SmallDefaultButton } from '../Buttons';
 
 const RecipeItemActionPanel = styled.div`
@@ -36,6 +44,10 @@ const RecipeItemPaper = styled(Paper)`
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
+`;
+
+const RecipeItemPaperCursor = styled(RecipeItemPaper)`
+  cursor: pointer;
 `;
 
 const RecipeItemTextContainer = styled(FlexRow)`
@@ -141,5 +153,29 @@ export const OwnRecipeItem = ({data, index, cloneRecipe, setDeleteIndex,
         </FlexColumnSpaced>
       </RecipeItemTextContainer>
     </RecipeItemPaper>
+  )
+};
+
+export const SingleAuthorRecipeItem = ({recipe, level}) => {
+  const navigate = useNavigate();
+  return (
+    <RecipeItemPaperCursor
+      onClick={() => navigate(`/recipe/${recipe.recipe_id}`)}>
+      <Box sx={{position: 'relative'}}>
+        <RecipeItemActionPanel>
+          <RecipeItemTitle>{recipe.cuisine}</RecipeItemTitle>
+        </RecipeItemActionPanel>
+        <RecipeItemPhoto src={recipe.recipe_photo} alt={recipe.recipe_name} />
+      </Box>
+      <RecipeItemTextContainer>
+        <RatingSummary data={recipe} />
+        <FlexColumnSpaced>
+          <RecipePrepartionTime hours={recipe.preparation_hours}
+            minutes={recipe.preparation_minutes}
+            level={level} useSmall={true} />
+          <RecipeItemLikes likesCount={recipe.likes_cnt} />
+        </FlexColumnSpaced>
+      </RecipeItemTextContainer>
+    </RecipeItemPaperCursor>
   )
 };

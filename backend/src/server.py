@@ -10,7 +10,8 @@ from auth import auth_register, auth_login, auth_logout, \
 from backend_helper import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences, user_subscribe, user_unsubscribe, user_get_followers, user_get_following, user_get_profile
 from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
-                   recipe_delete, recipes_fetch_own, recipe_details, recipe_like
+                   recipe_delete, recipes_fetch_own, recipes_user_published, \
+                   recipe_details, recipe_like
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
 from backend_helper import database_reset
@@ -243,6 +244,14 @@ def fetch_own_recipes():
     data = request.get_json()
     token = data['token']
     return dumps(recipes_fetch_own(token))
+
+@APP.route('/recipes/user/published', methods=['GET'])
+def published_user_recipes():
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(recipes_user_published(user_id))
 
 @APP.route('/recipe/details', methods=['GET', 'POST'])
 def details_for_recipe():
