@@ -230,7 +230,58 @@ def feed_fetch_subscription(token):
     # Get the matching user id from token
     u_id, = sql_result[0]
 
-    pass
+    # Get list of users the user is following
+    sql_query = "SELECT following_id FROM subscriptions WHERE follower_id = %s;"
+    cur.execute(sql_query, (str(u_id),))
+
+    sql_result = cur.fetchall()
+
+    # If no following users, then subscription will return empty body
+    if not sql_result:
+        cur.close()
+        conn.close()
+
+        return {
+            'status_code': 200,
+            'body': {}
+        }
+    
+    # Get all recipes created by following users and order by last created
+    recipes_following = []
+
+    for user_id in sql_result:
+        sql_query = "SELECT recipe_id, created_on FROM recipes WHERE \
+                     owner_id = %s;"
+        cur.execute(sql_query, (user_id,))
+
+        sql_result = cur.fetchall()
+        recipes_following += sql_result
+
+    recipes_following.sort(key=take_second, reverse=True)
+
+    # For each recipe_id, add recipe details to body content
+    body_content = []
+    
+    for recipe in recipes_following:
+        r_id = recipe[0]
+        r_details = recipe_details(r_id, token)
+
+        # Check that fetching recipe details is successful
+        if r_details['status_code'] != 200:
+            cur.close()
+            conn.close()
+
+            return r_details
+        
+        # Otherwise add details to body_content
+        else:
+            body_content.append(r_details['body'])
+
+    return {
+        'status_code': 200,
+        'body': body_content
+    }
+
 
 def feed_fetch_trending():
     
@@ -287,11 +338,25 @@ def feed_fetch_trending():
         
         r_details = cur.fetchone()
         
+        # Should never occur, but sanity check for if the recipe_id was suddenly
+        # invalid
         if not r_details:
+            cur.close()
+            conn.close()
+
             return {
                 'status_code': 400,
                 'error': 'Database error: recipe has been removed unexpectedly'
             }
+
+        # TODO: Fetch ingredient list
+        ingredients_list = None
+
+        # TODO: Fetch reviews
+        reviews = None
+
+        # TODO: Fetch likes
+        likes = None
         
         body_content.append({
             'author_id': recipe[0],
@@ -334,7 +399,6 @@ def feed_fetch_trending():
             'user_is_author': False
         })
         
-
 
     return {
         'status_code': 200,
