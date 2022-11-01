@@ -38,6 +38,7 @@ const LogoutButton = () => {
 };
 
 const SearchInput = () => {
+  const navigate = useNavigate();
   const styles = {
     background: "#ffffff",
     borderRadius: '4px',
@@ -57,6 +58,7 @@ const SearchInput = () => {
       }
     }
   };
+
   return (
     <TextField type="text" size="small" sx={ styles } placeholder="search"
       InputProps={{
@@ -65,6 +67,10 @@ const SearchInput = () => {
             <SearchIcon />
           </InputAdornment>
         )
+      }} onKeyPress={(e) => {
+        if (e.key === 'Enter') {
+          navigate(`/search/${encodeURIComponent(e.target.value)}`);
+        }
       }} />
   );
 };
