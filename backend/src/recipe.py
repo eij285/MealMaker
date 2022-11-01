@@ -690,7 +690,7 @@ def recipe_clone(recipe_id, token):
         gluten_free, nut_free, egg_free, shellfish_free, soy_free
         FROM recipes WHERE recipe_id = %s RETURNING recipe_id
         """)
-        cur.execute(query, (str(recipe_id)))
+        cur.execute(query, (str(recipe_id),))
         conn.commit()
         new_recipe_id = cur.fetchone()[0]
     except:
@@ -1060,7 +1060,7 @@ def recipe_fetch_user_likes(recipe_id, auth_user_id):
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         query = "SELECT COUNT(*) FROM recipe_user_likes WHERE recipe_id = %s"
-        cur.execute(query, (recipe_id))
+        cur.execute(query, (recipe_id,))
         likes_count, = cur.fetchone()
         if auth_user_id:
             query = ("""
@@ -1371,7 +1371,7 @@ def recipe_like(recipe_id, token):
         count_query = ("""SELECT COUNT(*) FROM recipe_user_likes
             WHERE recipe_id = %s
             """)
-        cur.execute(count_query, (recipe_id))
+        cur.execute(count_query, (recipe_id,))
         likes_count, = cur.fetchone()
         cur.close()
         conn.close()
