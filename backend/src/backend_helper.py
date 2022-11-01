@@ -1,7 +1,7 @@
 import jwt
 import psycopg2
 from datetime import datetime, timezone, timedelta
-from config import DB_CONN_STRING
+from config import DB_CONN_STRING, SQL_SCHEMA
 
 def connect():
     """Connect to database
@@ -228,7 +228,7 @@ def database_reset():
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
-        cur.execute(open("schema.sql", "r").read())
+        cur.execute(open(SQL_SCHEMA, "r").read())
         conn.commit()
         success = True
     except psycopg2.Error as err:

@@ -2,8 +2,8 @@ POST http://127.0.0.1:5000/auth/register HTTP/1.1
 content-type: application/json
 
 {
-    "display-name": "elijah",
-    "email": "eij285@gmail.com",
+    "display-name": "PersonA",
+    "email": "persona@gmail.com",
     "password": "Aa@45678"
 }
 
@@ -13,7 +13,7 @@ POST http://127.0.0.1:5000/auth/login HTTP/1.1
 content-type: application/json
 
 {
-    "email": "e@gmail.com",
+    "email": "persona@gmail.com",
     "password": "Aa@45678"
 }
 
@@ -61,3 +61,66 @@ DELETE http://127.0.0.1:5000/reset HTTP/1.1
 
 ###
 
+# TESTS FOR DISCOVER FEED
+DELETE http://127.0.0.1:5000/reset HTTP/1.1
+
+###
+
+POST http://127.0.0.1:5000/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "display-name": "PersonL",
+    "email": "personl@gmail.com",
+    "password": "Aa@45678"
+}
+
+###
+
+POST http://127.0.0.1:5000/review/create HTTP/1.1
+content-type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxMiwiZXhwIjoxNjY3OTA2MDE4fQ.v9cREARALjt-Lj6AgyphTKRTCBJCQT393Ct1cozT9Ew",
+    "recipe_id": 3,
+    "rating": 2,
+    "comment": "rating 2"
+}
+
+###
+
+POST http://127.0.0.1:5000/review/create HTTP/1.1
+content-type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxMiwiZXhwIjoxNjY3OTA2MDE4fQ.v9cREARALjt-Lj6AgyphTKRTCBJCQT393Ct1cozT9Ew",
+    "recipe_id": 4,
+    "rating": 5,
+    "comment": "rating 5"
+}
+
+###
+
+POST http://127.0.0.1:5000/review/create HTTP/1.1
+content-type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxMiwiZXhwIjoxNjY3OTA2MDE4fQ.v9cREARALjt-Lj6AgyphTKRTCBJCQT393Ct1cozT9Ew",
+    "recipe_id": 5,
+    "rating": 4,
+    "comment": "rating 4"
+}
+
+###
+
+POST http://127.0.0.1:5000/review/create HTTP/1.1
+content-type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxMiwiZXhwIjoxNjY3OTA2MDE4fQ.v9cREARALjt-Lj6AgyphTKRTCBJCQT393Ct1cozT9Ew",
+    "recipe_id": 6,
+    "rating": 3,
+    "comment": "rating 3"
+}
+
+###

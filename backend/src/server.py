@@ -13,6 +13,8 @@ from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
                    recipe_delete, recipes_fetch_own, recipe_details, recipe_like
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
+from feed import feed_fetch_discover, feed_fetch_subscription, \
+                 feed_fetch_trending
 from backend_helper import database_reset
 
 APP = Flask(__name__)
@@ -316,6 +318,33 @@ def vote_for_review():
     review_id = data['review_id']
     is_upvote = data['is_upvote']
     return review_vote(review_id, is_upvote, token)
+
+# @APP.route('/search', GET)
+#     search_terms
+#     return # list of relevant recipes (with hard-limit)
+
+# @APP.route('/feed/subscription', POST)
+#     token
+#     return # list of recommended recipes (with hard-limit)
+
+
+# # THE NEXT TWO ROUTES USE THE SAME ALGORITHM
+@APP.route('/feed/discover', methods=['POST'])
+    data = request.get_json()
+    token = data['token']
+    return dumps(feed_fetch_discover(token))
+
+@APP.route('/feed/subscription', methods=['POST'])
+    data = request.get_json()
+    token = data['token']
+    return dumps(feed_fetch_subscription(token))
+
+@APP.route('/feed/trending', methods=['GET'])
+    return dumps(feed_fetch_trending())
+
+# @APP.route('/recipe/related', GET)
+#     recipe_id
+#     return # list of recommended recipes (with hard-limit) 
 
 
 # @APP.route('/recipe/publish', methods=['PUT'])
