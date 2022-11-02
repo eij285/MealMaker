@@ -19,11 +19,13 @@ import MyRecipesPage from './pages/Recipe/MyRecipesPage';
 import CreateRecipePage from './pages/Recipe/CreateRecipePage';
 import EditRecipePage from './pages/Recipe/EditRecipePage';
 import ViewRecipePage from './pages/Recipe/ViewRecipePage';
+import SearchPage from './pages/SearchPage';
 import SubscriptionsPage from './pages/User/SubscriptionsPage';
 import SubscribersPage from './pages/User/SubscribersPage';
 import Forbidden403Page from './pages/Error/Forbidden403Page';
 import NotFound404Page from './pages/Error/NotFound404Page';
 import './App.css';
+
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function App() {
           <Route exact path="/password-reset" element={<PasswordResetPage />} />
           <Route path="/user/:userId" element={<UserPublicPage />} />
           <Route path="/recipe/:recipeId" element={<ViewRecipePage />} />
+          <Route path="/search" order={0} element={<SearchPage />} />
+          <Route path="/search/:query" order={1} element={<SearchPage />} />
           <Route element={<AuthorisedRoute />}>
             <Route exact path="/user-profile" element={<UserProfilePage />} />
             <Route exact path="/update-password" element={<UpdatePasswordPage />} />
