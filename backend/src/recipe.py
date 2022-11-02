@@ -1,9 +1,8 @@
 from re import S
 import psycopg2
-from backend.src.feed import take_second
 from backend_helper import connect, verify_token
 from review import review_details
-from feed import calculate_similarity
+from algorithm import calculate_similarity, take_second
 from config import DB_CONN_STRING
    
 # def create_recipe_table(connection):
