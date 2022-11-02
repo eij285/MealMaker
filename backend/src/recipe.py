@@ -31,6 +31,22 @@ from config import DB_CONN_STRING
     
 
 def recipe_create(name, description, servings, recipe_status, token):
+    """Create a new recipe (token must be valid)
+    
+    Args:
+        name            (String): recipe name
+        description     (String): recipe description
+        servings        (Integer): number of servings
+        recipe_status   (String): 'draft' or 'published'
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 201 - recipe created successfully, returning body (dict)
+                     containing recipe_id (Integer)
+        Status 400 - failure to create recipe
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
     # error if no token
     if not token:
         return {
@@ -82,12 +98,6 @@ def recipe_create(name, description, servings, recipe_status, token):
         # Close connection
         cur.close()
         conn.close()
-        return {
-            'status_code': 201,
-            'body': {
-                'recipe_id': recipe_id
-            }
-        }
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         cur.close()
@@ -96,6 +106,12 @@ def recipe_create(name, description, servings, recipe_status, token):
             'status_code': 400,
             'error': "failed to create recipe"
         }
+    return {
+        'status_code': 201,
+        'body': {
+            'recipe_id': recipe_id
+        }
+    }
 
 
 def publish_recipe(recipe_id, publish):
@@ -117,22 +133,37 @@ def publish_recipe(recipe_id, publish):
         # Close connection
         connection.close()
         cur.close()
-        return {
-            'status_code': 200
-        }
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         connection.close()
         cur.close()
         return {
             'status_code': 400,
-            'error': None
+            'error': 'recipe could not be published'
         }
+    return {
+        'status_code': 200
+    }
 
 def recipe_fetch_ingredients(recipe_id):
     """
     Update ingredients for a given recipe (this function must only be used
-    withing this module)
+    within this module, only where recipe_id definitely exists)
+    
+    Args:
+        recipe_id   (Integer): the recipe id to fetch ingredient list for
+        
+    Returns:
+        ingredient_list     (list of dict)
+                            [{
+                                ingredient_id     (Integer)
+                                ingredient_name   (String)
+                                quantity          (Integer)
+                                unit              (String)
+                            }]
+    
+    Raises:
+        Exception: if fails to retrieve ingredients list
     """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
@@ -161,6 +192,52 @@ def recipe_fetch_ingredients(recipe_id):
 def recipe_edit(recipe_id, token):
     """
     Retrieves the information from the database for the recipe to edit
+
+    Args:
+        recipe_id   (Integer): the recipe id to fetch data for
+        token       (String): token of authenticated user
+        
+    Returns:
+        Status 200 - success
+            body    (dict of atomic values and lists)
+                recipe_name         (String)
+                recipe_description  (String)
+                recipe_photo        (String)
+                recipe_status       (String)
+                recipe_method       (String)
+                created_on          (String)
+                edited_on           (String)
+                preparation_hours   (String)
+                preparation_minutes (String)
+                servings            (Integer)
+                energy              (Integer)
+                protein             (Integer)
+                carbohydrates       (Integer)
+                fats                (Integer)
+                cuisine             (String)
+                breakfast           (Boolean)
+                lunch               (Boolean)
+                dinner              (Boolean)
+                snack               (Boolean)
+                vegetarian          (Boolean)
+                vegan               (Boolean)
+                kosher              (Boolean)
+                halal               (Boolean)
+                dairy_free          (Boolean)
+                gluten_free         (Boolean)
+                nut_free            (Boolean)
+                egg_free            (Boolean)
+                shellfish_free      (Boolean)
+                soy_free            (Boolean)
+                ingredients         (list of dict)
+                        ingredient_id     (Integer)
+                        ingredient_name   (String)
+                        quantity          (Integer)
+                        unit              (String)
+
+        Status 400 - failure to find recipe id or ingredients
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     # error if no token
     if not token:
@@ -269,8 +346,19 @@ def recipe_edit(recipe_id, token):
 
 def recipe_update_ingredients(recipe_id, ingredients):
     """
-    Update ingredients for a given recipe (this function must only be used
-    withing this module)
+    Update ingredients for a given recipe (internal use only - this function
+    must only be used withing this module, must never be called by server)
+
+    Args:
+        recipe_id   (Integer): the recipe id to fetch data for
+        ingredients (list of dict)
+                ingredient_id     (Integer)
+                ingredient_name   (String)
+                quantity          (Integer)
+                unit              (String)
+    
+    Returns:
+        success     True if ingredients updated successfully otherwise False
     """
     conn = None
     cur = None
@@ -348,6 +436,51 @@ def recipe_update_ingredients(recipe_id, ingredients):
 def recipe_update(data, token):
     """
     Update the given recipe
+
+    Args:
+        data    (dict of atomic values and collections): values to update
+                recipe_name         (String)
+                recipe_description  (String)
+                recipe_photo        (String)
+                recipe_status       (String)
+                recipe_method       (String)
+                created_on          (String)
+                edited_on           (String)
+                preparation_hours   (Integer)
+                preparation_minutes (Integer)
+                servings            (Integer)
+                energy              (Integer)
+                protein             (Integer)
+                carbohydrates       (Integer)
+                fats                (Integer)
+                cuisine             (String)
+                breakfast           (Boolean)
+                lunch               (Boolean)
+                dinner              (Boolean)
+                snack               (Boolean)
+                vegetarian          (Boolean)
+                vegan               (Boolean)
+                kosher              (Boolean)
+                halal               (Boolean)
+                dairy_free          (Boolean)
+                gluten_free         (Boolean)
+                nut_free            (Boolean)
+                egg_free            (Boolean)
+                shellfish_free      (Boolean)
+                soy_free            (Boolean)
+                ingredients         (list of dicts)
+                        ingredient_id     (Integer)
+                        ingredient_name   (String)
+                        quantity          (Integer)
+                        unit              (String)
+
+        token   (String): token of authenticated user
+        
+    Returns:
+        Status 200 - success
+        Status 400 - failure to update recipe or ingredients
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     # error if no token
     if not token:
@@ -467,8 +600,8 @@ def recipe_update(data, token):
 
     if recipe_update_ingredients(recipe_id, ingredients):
         return {
-                'status_code': 200
-            }
+            'status_code': 200
+        }
     else:
         return {
             'status_code': 400,
@@ -479,6 +612,18 @@ def recipe_update(data, token):
 def recipe_clone(recipe_id, token):
     """
     Clone recipe with given id (only recipe owner permitted to do that)
+
+    Args:
+        recipe_id       (Integer): the recipe to clone
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 200 - recipe and ingredients cloned successfully
+                body containing dictionary with cloned recipe_id (Integer)
+
+        Status 400 - failure to clone recipe or/and ingredients
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     # error if no token
     if not token:
@@ -545,7 +690,7 @@ def recipe_clone(recipe_id, token):
         gluten_free, nut_free, egg_free, shellfish_free, soy_free
         FROM recipes WHERE recipe_id = %s RETURNING recipe_id
         """)
-        cur.execute(query, (str(recipe_id)))
+        cur.execute(query, (str(recipe_id),))
         conn.commit()
         new_recipe_id = cur.fetchone()[0]
     except:
@@ -586,6 +731,18 @@ def recipe_clone(recipe_id, token):
 def recipe_delete(recipe_id, token):
     """
     Delete recipe with given id (only recipe owner permitted to do that)
+
+    Args:
+        recipe_id       (Integer): the recipe to delete
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 200 - recipe and ingredients deleted successfully
+                body containing dictionary with deleted recipe_id (Integer)
+
+        Status 400 - failure to delete recipe or/and ingredients
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     # error if no token
     if not token:
@@ -656,7 +813,26 @@ def recipe_delete(recipe_id, token):
     
 def recipes_fetch_own(token):
     """
-    Fetch own recipes
+    Fetch own recipes (private, accessible only by recipe owner)
+
+    Args:
+        token   (String): token of authenticated user
+        
+    Returns:
+        Status 200 - successful return of user's recipes
+                body    (list of dict)
+                        recipe_id       (Integer)
+                        recipe_name     (String)
+                        recipe_photo    (String)
+                        recipe_status   (String)
+                        cuisine         (String)
+                        review_cnt      (Integer)
+                        rating_avg      (String): JSON cannot contain decimal
+                        likes_cnt       (Integer)
+
+        Status 400 - failure to fetch recipe
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     # error if no token
     if not token:
@@ -731,32 +907,160 @@ def recipes_fetch_own(token):
                 'rating_avg': rating_avg,
                 'likes_cnt': likes_cnt
             })
-
-        # Close connection
-        return {
-            'status_code':200,
-            'body': recipes_list
-        }
-        
+        cur.close()
+        conn.close()
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
         cur.close()
         conn.close()
         return {
             'status_code':400,
-            'error': None
+            'error': 'could not fetch recipes'
         }
+    return {
+        'status_code':200,
+        'body': recipes_list
+    }
 
+def recipes_user_published(user_id):
+    """
+    Fetch recipes for user id (public, accessible to everyone)
+
+    Args:
+        user_id     (Integer): user id to fetch published recipes for
+        
+    Returns:
+        Status 200 - successful return of user's published recipes
+                recipes (list of dict)
+                        recipe_id           (Integer)
+                        recipe_name         (String)
+                        recipe_photo        (String)
+                        created_on          (String)
+                        preparation_hours   (Integer)
+                        preparation_minutes (Integer)
+                        cuisine             (String)
+                        breakfast           (Boolean)
+                        lunch               (Boolean)
+                        dinner              (Boolean)
+                        snack               (Boolean)
+                        vegetarian          (Boolean)
+                        vegan               (Boolean)
+                        kosher              (Boolean)
+                        halal               (Boolean)
+                        dairy_free          (Boolean)
+                        gluten_free         (Boolean)
+                        nut_free            (Boolean)
+                        egg_free            (Boolean)
+                        shellfish_free      (Boolean)
+                        soy_free            (Boolean)
+                        review_cnt      (Integer)
+                        rating_avg      (String): JSON cannot contain decimal
+                        likes_cnt       (Integer)
+
+        Status 400 - failure to fetch recipe
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    try:
+        query = "SELECT COUNT(*) FROM users WHERE id = %s"
+        cur.execute(query, (str(user_id),))
+        if cur.fetchone()[0] == 0:
+            raise Exception
+        
+        query = ("""
+            SELECT r.recipe_id, r.recipe_name, r.recipe_photo, r.created_on,
+            r.preparation_hours, r.preparation_minutes, r.cuisine, r.breakfast,
+            r.lunch, r.dinner, r.snack, r.vegetarian, r.vegan, r.kosher,
+            r.halal, r.dairy_free, r.gluten_free, r.nut_free, r.egg_free,
+            r.shellfish_free, r.soy_free, s.review_cnt, s.rating_avg,
+            v.likes_cnt
+            FROM recipes r LEFT OUTER JOIN (
+                SELECT COUNT(*) review_cnt, AVG(rating) rating_avg, recipe_id
+                FROM recipe_reviews GROUP BY recipe_id
+            ) s ON (r.recipe_id = s.recipe_id)
+            LEFT OUTER JOIN (
+				SELECT COUNT(*) likes_cnt, recipe_id
+				FROM recipe_user_likes GROUP BY recipe_id
+			) v ON (r.recipe_id = v.recipe_id)
+            WHERE r.owner_id = %s AND r.recipe_status = 'published'
+            """)
+        cur.execute(query, (user_id,))
+        output = cur.fetchall()
+        recipes_list = []
+        for recipe in output:
+            # need average but json in flask doesn't like decimal data
+            recipes_list.append({
+                'recipe_id': recipe[0],
+                'recipe_name': recipe[1],
+                'recipe_photo': recipe[2],
+                'created_on': str(recipe[3]),
+                'preparation_hours': recipe[4],
+                'preparation_minutes': recipe[5],
+                'cuisine': recipe[6],
+                'breakfast': recipe[7],
+                'lunch': recipe[8],
+                'dinner': recipe[9],
+                'snack': recipe[10],
+                'vegetarian': recipe[11],
+                'vegan': recipe[12],
+                'kosher': recipe[13],
+                'halal': recipe[14],
+                'dairy_free': recipe[15],
+                'gluten_free': recipe[16],
+                'nut_free': recipe[17],
+                'egg_free': recipe[18],
+                'shellfish_free': recipe[19],
+                'soy_free': recipe[20],
+                'review_cnt': 0 if recipe[21] is None else recipe[21],
+                'rating_avg': '0.0' if recipe[22] is None else f'{recipe[22]:.1f}',
+                'likes_cnt': 0 if recipe[23] is None else recipe[23]
+            })
+        cur.close()
+        conn.close()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code':400,
+            'error': 'could not fetch recipes'
+        }
+    return {
+        'status_code':200,
+        'recipes': recipes_list
+    }
 
 def recipe_fetch_user_likes(recipe_id, auth_user_id):
     """
-    Returns the review details
+    Returns the total number of likes for a recipe and whether an authenticated
+    user has liked the recipe (internal use only)
+
+    Args:
+        recipe_id       (Integer): the recipe to delete
+        auth_user_id    (Integer): authenticated user to find likes for
+        
+    Returns:
+        (dict)
+            likes_count (Integer): total likes for recipe
+            has_liked   (Boolean): True if user has liked otherwise False
+
+    Raises:
+        Exception: if fails to retrive likes count or user like status
     """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
         query = "SELECT COUNT(*) FROM recipe_user_likes WHERE recipe_id = %s"
-        cur.execute(query, (recipe_id))
+        cur.execute(query, (recipe_id,))
         likes_count, = cur.fetchone()
         if auth_user_id:
             query = ("""
@@ -781,6 +1085,75 @@ def recipe_fetch_user_likes(recipe_id, auth_user_id):
 def recipe_details(recipe_id, token):
     """
     Get details for one recipe
+
+    Args:
+        recipe_id       (Integer): the recipe to delete
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 200 - successful return of user's published recipes
+                body (dict of atomic values and lists)
+                        author_id           (Integer)
+                        author_display_name (String)
+                        author_image        (String)
+                        recipe_name         (String)
+                        recipe_description  (String)
+                        recipe_photo        (String)
+                        recipe_status       (String)
+                        recipe_method       (String)
+                        created_on          (String) - timestamp as string
+                        edited_on           (String) - timestamp as string
+                        preparation_hours   (Integer)
+                        preparation_minutes (Integer)
+                        servings            (Integer)
+                        energy              (Integer)
+                        protein             (Integer)
+                        carbohydrates       (Integer)
+                        fats                (Integer)
+                        cuisine             (String)
+                        breakfast           (Boolean)
+                        lunch               (Boolean)
+                        dinner              (Boolean)
+                        snack               (Boolean)
+                        vegetarian          (Boolean)
+                        vegan               (Boolean)
+                        kosher              (Boolean)
+                        halal               (Boolean)
+                        dairy_free          (Boolean)
+                        gluten_free         (Boolean)
+                        nut_free            (Boolean)
+                        egg_free            (Boolean)
+                        shellfish_free      (Boolean)
+                        soy_free            (Boolean)
+                        units               (String)
+                        efficiency          (String)
+                        ingredients     (list of dicts)
+                                ingredient_id     (Integer)
+                                ingredient_name   (String)
+                                quantity          (Integer)
+                                unit              (String)
+                        reviews     (list of dicts)
+                                user_id             (Integer)
+                                display_name        (String)
+                                user_image          (String)
+                                user_visibility     (String)
+                                review_id           (Integer)
+                                rating              (Integer)
+                                comment             (String)
+                                reply               (String)
+                                created_on          (String): from timestamp
+                                upvote_count        (Integer)
+                                downvote_count      (Integer)
+                                cur_user_vote       (String or Boolean)
+                        likes   (dict)
+                                likes_count (Integer)
+                                has_liked   (Boolean): for authenticated user
+                        user_is_author  (Boolean)
+                        is_subscribed   (Boolean): for authenticated user
+
+        Status 400 - failure to fetch recipe
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     if not recipe_id:
         return {
@@ -797,12 +1170,19 @@ def recipe_details(recipe_id, token):
             'error': 'Unable to connect to database'
         }
     try:
+        user_results = None
         if token:
-            query = "SELECT id, units, efficiency FROM users WHERE token = %s"
+            query = ("""
+                SELECT id, units, efficiency FROM users
+                WHERE token IS NOT NULL AND token = %s
+                """)
             cur.execute(query, (str(token),))
-            user_id, units, efficiency = cur.fetchone()
+            user_results = cur.fetchone()
+        if user_results is not None:
+            user_id, units, efficiency = user_results
         else:
-            user_id, units, efficiency = -1, 'Metric', 'Intermediate'
+            user_id, units, efficiency, = -1, 'Metric', 'Intermediate'
+
         query = ("""
             SELECT u.id, u.display_name, u.base64_image,
             r.recipe_name, r.recipe_description, r.recipe_photo,
@@ -820,6 +1200,19 @@ def recipe_details(recipe_id, token):
         recipe = cur.fetchone()
         if not recipe:
             raise Exception
+        owner_id = recipe[0]
+        if token and user_id != owner_id:
+            subs_query = ("""
+                SELECT COUNT(*) FROM subscriptions
+                WHERE following_id = %s AND follower_id = %s
+                """)
+            cur.execute(subs_query, (owner_id, user_id))
+            subs_count, = cur.fetchone()
+            is_subscribed = True if subs_count > 0 else False
+        else:
+            is_subscribed = False
+        cur.close()
+        conn.close()
     except:
         cur.close()
         conn.close()
@@ -878,7 +1271,8 @@ def recipe_details(recipe_id, token):
             'ingredients': ingredients_list,
             'reviews': reviews,
             'likes': likes,
-            'user_is_author': user_id == recipe[0]
+            'user_is_author': user_id == recipe[0],
+            'is_subscribed': is_subscribed
         }
     }
 
@@ -886,6 +1280,19 @@ def recipe_like(recipe_id, token):
     """
     Like toggle a given recipe (like => unlike, unlike => like). Recipe author
     cannot like/unlike their own recipe.
+
+    Args:
+        recipe_id       (Integer): the recipe to like or unlike
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 200 - successful like or unlike of recipe
+                likes_count (Integer): total number of likes for recipe
+                has_liked   (Boolean): whether the user has liked or unliked
+
+        Status 400 - failure to like or unlike recipe
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     # error if no token
     if not token or not verify_token(token):
@@ -964,9 +1371,10 @@ def recipe_like(recipe_id, token):
         count_query = ("""SELECT COUNT(*) FROM recipe_user_likes
             WHERE recipe_id = %s
             """)
-        cur.execute(count_query, (recipe_id))
+        cur.execute(count_query, (recipe_id,))
         likes_count, = cur.fetchone()
-        
+        cur.close()
+        conn.close()
     except:
         # Close connection
         cur.close()
@@ -975,9 +1383,6 @@ def recipe_like(recipe_id, token):
             'status_code':400,
             'error': "cannot like or unlike recipe"
         }
-
-    cur.close()
-    conn.close()
     
     return {
         'status_code': 200,

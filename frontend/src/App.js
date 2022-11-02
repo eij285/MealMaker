@@ -19,6 +19,8 @@ import MyRecipesPage from './pages/Recipe/MyRecipesPage';
 import CreateRecipePage from './pages/Recipe/CreateRecipePage';
 import EditRecipePage from './pages/Recipe/EditRecipePage';
 import ViewRecipePage from './pages/Recipe/ViewRecipePage';
+import SubscriptionsPage from './pages/User/SubscriptionsPage';
+import SubscribersPage from './pages/User/SubscribersPage';
 import Forbidden403Page from './pages/Error/Forbidden403Page';
 import NotFound404Page from './pages/Error/NotFound404Page';
 import './App.css';
@@ -42,6 +44,8 @@ function App() {
             <Route exact path="/my-recipes" element={<MyRecipesPage />} />
             <Route exact path="/create-recipe" element={<CreateRecipePage />} />
             <Route path="/edit-recipe/:recipeId" element={<EditRecipePage />} />
+            <Route path="/subscriptions" element={<SubscriptionsPage />} />
+            <Route path="/subscribers" element={<SubscribersPage />} />
           </Route>
           <Route exact path="/forbidden-403" element={<Forbidden403Page />} />
           <Route path="*" element={<NotFound404Page />} />

@@ -1,16 +1,9 @@
 import React from 'react';
 import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
-import {
-  Box,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-} from '@mui/material';
+import { Box } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
-import { CentredElementsForm } from '../../components/Forms';
+import NotFound404Page from '../Error/NotFound404Page';
 import { PageTitle, SubPageTitleNoMargins } from '../../components/TextNodes';
 import {
   ErrorAlert,
@@ -32,13 +25,14 @@ import {
   RecipeLikes,
   RecipeRating
 } from '../../components/Recipe/RecipeNodes';
-import { backendRequest, formatNumString } from '../../helpers';
+import { backendRequest } from '../../helpers';
 import RecipeReviews from '../../components/Recipe/RecipeReviews';
 
 function ViewRecipePage () {
   const { recipeId } = useParams();
   const globals = React.useContext(GlobalContext);
   const token = globals.token;
+  const [errorStatus, setErrorStatus] = React.useState(0);
   const [recipeData, setRecipeData] = React.useState({});
   const [currData, setCurrData] = React.useState({
     servings: '4',
@@ -111,7 +105,6 @@ function ViewRecipePage () {
     };
     const reqURL = '/recipe/details' + (token ? '' : `?recipe_id=${recipeId}`);
     const reqMethod = token ? 'POST' : 'GET';
-
     backendRequest(reqURL, body, reqMethod, token, (data) => {
       const body = data.body;
       setRecipeData({...body});
@@ -119,7 +112,7 @@ function ViewRecipePage () {
       initCurrData(body);
     }, (error) => {
       setResponseError(error);
-    });
+    }, setErrorStatus);
   };
 
   const likeRecipe = () => {
@@ -140,7 +133,19 @@ function ViewRecipePage () {
   };
 
   const subscribeToUser = () => {
-    console.log('subscribe');
+    const reqURL = `/user/${recipeData.is_subscribed?'unsubscribe':'subscribe'}`;
+    const reqMethod = recipeData.is_subscribed ? 'POST' : 'PUT';
+    const body = {
+      id: recipeData.author_id
+    };
+    backendRequest(reqURL, body, reqMethod, token, (data) => {
+      setRecipeData({
+        ...recipeData,
+        is_subscribed: !recipeData.is_subscribed
+      });
+    }, (error) => {
+      setResponseError(error);
+    });
   };
 
   React.useEffect(() => {
@@ -151,7 +156,9 @@ function ViewRecipePage () {
     loadRecipe();
   }, [recipeId, token]);
 
-  return (
+  return (<>
+    {errorStatus === 404 && <NotFound404Page />}
+    {errorStatus !== 404 &&
     <ExploreLayout>
       <FlexColumn>
         {responseError !== '' &&
@@ -180,9 +187,10 @@ function ViewRecipePage () {
               <UserImageNameLink src={recipeData.author_image}
                 name={recipeData.author_display_name}
                 to={`/user/${recipeData.author_id}`} />
-              {token && recipeData.user_is_author &&
+              {token && !recipeData.user_is_author &&
               <SmallAlternateButton onClick={subscribeToUser}>
-                Subscribe
+                {!recipeData.is_subscribed && <>Subscribe</>}
+                {recipeData.is_subscribed && <>Unubscribe</>}
               </SmallAlternateButton>}
             </FlexRow>
           </FlexRowWrapSpaced>
@@ -199,8 +207,8 @@ function ViewRecipePage () {
         <RecipeReviews recipeId={recipeId} recipeData={recipeData}
           setRecipeData={setRecipeData} /></>}
       </FlexColumn>
-    </ExploreLayout>
-  );
+    </ExploreLayout>}
+  </>);
 }
 
 export default ViewRecipePage;
