@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
+import { useParams, Link as RouterLink } from 'react-router-dom';
 import { Box } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
@@ -65,8 +65,9 @@ function ViewRecipePage () {
   };
 
   const calcPortion = (origServes, origValue, currServes) => {
-    if (isNaN(origServes) || isNaN(origValue) || isNaN(currServes) || 
-      parseInt(currServes) < 1 || parseInt(origValue) < 1) {
+    if (origValue === null || isNaN(origServes) || isNaN(origValue) ||
+      isNaN(currServes) ||  parseInt(currServes) < 1 ||
+      parseInt(origValue) < 1) {
       return -1;
     }
     return origValue * (currServes / origServes);
@@ -97,6 +98,15 @@ function ViewRecipePage () {
         hasLiked: recipeData.likes.has_liked
       }
     });
+  };
+
+  const loadRelated = () => {
+    const reqURL = `/recipe/related?recipe_id=${recipeId}`;
+    backendRequest(reqURL, null, 'GET', null, (data) => {
+      console.log(data);
+    }, (error) => {
+      setResponseError(error);
+    }, setErrorStatus);
   };
 
   const loadRecipe = () => {
@@ -154,6 +164,7 @@ function ViewRecipePage () {
 
   React.useEffect(() => {
     loadRecipe();
+    loadRelated();
   }, [recipeId, token]);
 
   return (<>
