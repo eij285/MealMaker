@@ -352,6 +352,11 @@ def feed_subscription():
 def feed_trending():
     return dumps(feed_fetch_trending())
 
+@APP.route('/recipe/related', methods=['GET'])
+def related_recipes():
+    recipe_id = request.args.get('recipe_id')
+    return dumps(recipe.recipe_related(recipe_id))
+
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
 #     data = request.get_json()
