@@ -14,6 +14,8 @@ from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
                    recipe_details, recipe_like
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
+from feed import feed_fetch_discover, feed_fetch_subscription, \
+                 feed_fetch_trending
 from backend_helper import database_reset
 
 APP = Flask(__name__)
@@ -327,6 +329,21 @@ def vote_for_review():
     is_upvote = data['is_upvote']
     return review_vote(review_id, is_upvote, token)
 
+@APP.route('/feed/discover', methods=['POST'])
+def feed_discover():
+    data = request.get_json()
+    token = data['token']
+    return dumps(feed_fetch_discover(token))
+
+@APP.route('/feed/subscription', methods=['POST'])
+def feed_subscription():
+    data = request.get_json()
+    token = data['token']
+    return dumps(feed_fetch_subscription(token))
+
+@APP.route('/feed/trending', methods=['GET'])
+def feed_trending():
+    return dumps(feed_fetch_trending())
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():

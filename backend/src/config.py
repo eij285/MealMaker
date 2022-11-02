@@ -1,5 +1,5 @@
-DB_CONN_STRING = "dbname=code_chefs_db"
-SQL_SCHEMA = "schema.sql"
+DB_CONN_STRING = "dbname=meal-maker-db"
+SQL_SCHEMA = "discover_schema.sql"
 SECRET_KEY = "SECRET"
 EMAIL_AUTH_ADDR = "code.chefs.authenticator@gmail.com"
 EMAIL_AUTH_PW = "verpqyhctvdnwinx"
