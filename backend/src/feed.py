@@ -1,5 +1,5 @@
 from config import DB_CONN_STRING
-from recipe import recipe_details, recipe_fetch_ingredients
+from recipe import recipe_details
 import psycopg2
 import math
 
@@ -349,10 +349,3 @@ def feed_fetch_trending():
         'status_code': 200,
         'body': body_content
     }
-
-
-
-if __name__ == "__main__":
-    pprint(feed_fetch_discover("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxMiwiZXhwIjoxNjY3OTA2MDE4fQ.v9cREARALjt-Lj6AgyphTKRTCBJCQT393Ct1cozT9Ew"))
-    pprint(feed_fetch_trending())
-

@@ -330,16 +330,19 @@ def vote_for_review():
 
 # # THE NEXT TWO ROUTES USE THE SAME ALGORITHM
 @APP.route('/feed/discover', methods=['POST'])
+def feed_discover():
     data = request.get_json()
     token = data['token']
     return dumps(feed_fetch_discover(token))
 
 @APP.route('/feed/subscription', methods=['POST'])
+def feed_subscription():
     data = request.get_json()
     token = data['token']
     return dumps(feed_fetch_subscription(token))
 
 @APP.route('/feed/trending', methods=['GET'])
+def feed_trending():
     return dumps(feed_fetch_trending())
 
 # @APP.route('/recipe/related', GET)

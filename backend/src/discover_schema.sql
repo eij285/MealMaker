@@ -152,14 +152,14 @@ VALUES
     -- (12, 'PersonL', 'personl@gmail.com', 12345);
 
 INSERT INTO
-    recipes(recipe_id, recipe_name, recipe_description, owner_id, servings, recipe_status)
+    recipes(recipe_id, recipe_name, recipe_description, owner_id, servings, recipe_status, created_on)
 VALUES
-    (1, 'RecipeA', 'A', 2, 4, 'published'),
-    (2, 'RecipeB', 'B', 8, 4, 'published'),
-    (3, 'RecipeC', 'C', 3, 4, 'published'),
-    (4, 'RecipeD', 'D', 4, 4, 'published'),
-    (5, 'RecipeE', 'E', 2, 4, 'published'),
-    (6, 'RecipeF', 'F', 2, 4, 'published');
+    (1, 'RecipeA', 'A', 2, 4, 'published', '2022-10-28 22:13:35.270770'),
+    (2, 'RecipeB', 'B', 8, 4, 'published', '2022-10-28 22:54:35.270770'),
+    (3, 'RecipeC', 'C', 3, 4, 'published', '2022-11-01 17:15:35.270770'),
+    (4, 'RecipeD', 'D', 4, 4, 'published', '2022-11-01 22:23:35.270770'),
+    (5, 'RecipeE', 'E', 2, 4, 'published', '2022-11-02 14:34:35.270770'),
+    (6, 'RecipeF', 'F', 2, 4, 'published', '2022-11-02 18:46:35.270770');
 
 INSERT INTO
     recipe_reviews(review_id, recipe_id, user_id, rating)
