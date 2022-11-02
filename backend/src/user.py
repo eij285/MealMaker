@@ -44,7 +44,7 @@ def user_info(token):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     cur.execute("SELECT pronoun, given_names, last_name, display_name, email, country, about, visibility, base64_image FROM users WHERE token = %s;", (token,))
     user = cur.fetchall()
@@ -73,7 +73,7 @@ def user_preferences(token):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     cur.execute("SELECT units, efficiency, breakfast, lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free, soy_free FROM users WHERE token = %s;", (token,))
     user = cur.fetchall()
@@ -109,7 +109,7 @@ def user_update_preferences_booleans(token, breakfast, lunch, dinner, snack, veg
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET 
                           breakfast = %s,
@@ -167,7 +167,7 @@ def user_update_units(token, unit):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET units = %s WHERE token = %s;"""
     input_data = (unit, token)
@@ -210,7 +210,7 @@ def user_update_efficiency(token, efficiency):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET efficiency = %s WHERE token = %s;"""
     input_data = (efficiency, token)
@@ -250,7 +250,7 @@ def user_update_name(token, given_names):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET given_names = %s WHERE token = %s;"""
     input_data = (given_names, token)
@@ -289,7 +289,7 @@ def user_update_surname(token, last_name):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET last_name = %s WHERE token = %s;"""
     input_data = (last_name, token)
@@ -326,7 +326,7 @@ def user_update_display_name(token, display_name):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET display_name = %s WHERE token = %s;"""
     input_data = (display_name, token)
@@ -359,7 +359,7 @@ def user_update_email(token, email):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
 
     # Check that the email is not already registered in database
@@ -371,7 +371,7 @@ def user_update_email(token, email):
             if email != emails[0]:
                 return {
                     'status_code': 400,
-                    'errors': ['Email has already been registered']
+                    'error': 'Email has already been registered'
                 }
 
     # TODO: Check that email is valid
@@ -379,7 +379,7 @@ def user_update_email(token, email):
     if not re.search(email_regex, email):
         return {
             'status_code': 400,
-            'errors': ['Email is in invalid format']
+            'error': 'Email is in invalid format'
         }
     sql_update_query = """UPDATE users SET email = %s WHERE token = %s;"""
     input_data = (email, token)
@@ -411,7 +411,7 @@ def user_update_about_me(token, about_me):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET about = %s WHERE token = %s;"""
     input_data = (about_me, token)
@@ -449,7 +449,7 @@ def user_update_country(token, country):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET country = %s WHERE token = %s;"""
     input_data = (country, token)
@@ -487,17 +487,21 @@ def user_update_visibility(token, visibility):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET visibility = %s WHERE token = %s;"""
     input_data = (visibility, token)
     cur.execute(sql_update_query, input_data)
-    if visibility is "private":
-        sql_search_query = """SELECT recipe_id from Recipes r join users u on r.owner_id = u.id WHERE recipe_status = %s AND u.token = %s;"""
+    if visibility == "private":
+        sql_search_query = """
+            SELECT recipe_id FROM recipes r JOIN users u ON (r.owner_id = u.id)
+            WHERE recipe_status = %s AND u.token = %s;
+            """
         input_data = ("published", token)
         cur.execute(sql_search_query, input_data)
         public_recipes = cur.fetchall()
         # changes all public recipes to drafts
+        #print(public_recipes)
         for recipe in public_recipes:
             sql_update_query = """UPDATE recipes SET recipe_status = %s WHERE recipe_id = %s;"""
             input_data = ("draft", recipe[0])
@@ -536,7 +540,7 @@ def user_update_pronoun(token, pronoun):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET pronoun = %s WHERE token = %s;"""
     input_data = (pronoun, token)
@@ -564,7 +568,7 @@ def user_update_profile_picture(token, picture):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
     sql_update_query = """UPDATE users SET base64_image = %s WHERE token = %s;"""
     input_data = (picture, token)
@@ -580,42 +584,64 @@ def user_subscribe(token, subscribe_to):
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
-        print(conn)
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
-    sql_search_query = """select visibility FROM users where id = %s;"""
-    input_data = subscribe_to
-    cur.execute(sql_search_query, input_data)
-    visibility = cur.fetchall()
-    if visibility is "private":
-                return {
-            'status_code': 400,
-            'errors': ['Cannot subscribe to a private user']
-        }
-    sql_search_query = """select follower_id FROM subcriptions join users on users.id = follower_id where users_token = %s;"""
-    input_data = token
-    cur.execute(sql_search_query, input_data)
-    subscribed = cur.fetchall()
-    for s in subscribed:
-        if s[0] is subscribe_to:
+    try:
+        sql_search_query = """SELECT visibility FROM users WHERE id = %s"""
+        cur.execute(sql_search_query, (subscribe_to,))
+        visibility, = cur.fetchone()
+        if visibility is "private":
+            cur.close()
+            conn.close()
             return {
-                'status_code': 200,
-                'errors': ['already subscribed']
+                'status_code': 400,
+                'error': 'Cannot subscribe to a private user'
             }
-    sql_search_query = """SELECT id from users where token = %s"""
-    input_data = token
-    cur.execute(sql_search_query, input_data)
-    u = cur.fetchall()
-    u_id = u[0]
-    sql_insert_query = """INSERT INTO subscriptions (following_id, follower_id) VALUES (%s, %s);"""
-    input_data = (subscribe_to, u_id)
-    cur.execute(sql_insert_query, input_data)
-    conn.commit()
-    cur.close()
-    conn.close()
+        sql_search_query = """
+            SELECT id FROM users WHERE token IS NOT NULL AND token = %s
+            """
+        cur.execute(sql_search_query, (str(token),))
+        follower_result = cur.fetchone()
+        if follower_result is None:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'Subscription requires login'
+            }
+        u_id, = follower_result
+        sql_search_query = """
+            SELECT COUNT(*) FROM subscriptions s
+            WHERE following_id = %s AND follower_id = %s 
+            """
+        cur.execute(sql_search_query, (subscribe_to, u_id))
+        subscribed, = cur.fetchone()
+        if subscribed > 0:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'already subscribed'
+            }
+        sql_insert_query = """
+            INSERT INTO subscriptions (following_id, follower_id)
+            VALUES (%s, %s)
+            """
+        input_data = (subscribe_to, u_id)
+        cur.execute(sql_insert_query, input_data)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 500,
+            'error': 'Problem subscribing to user'
+        }
     return {
         'status_code': 200
     }
@@ -624,28 +650,71 @@ def user_unsubscribe(token, unsubscribe_to):
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
-        print(conn)
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
-    sql_search_query = """SELECT id from users where token = %s"""
-    input_data = token
-    cur.execute(sql_search_query, input_data)
-    u = cur.fetchall()
-    u_id = u[0]
-    sql_delete_query = """DELETE FROM subscriptions WHERE following_id = %s and follower_id = %s"""
-    input_data = (unsubscribe_to, u_id)
-    cur.execute(sql_delete_query, input_data)
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        sql_search_query = """
+            SELECT id FROM users WHERE token IS NOT NULL AND token = %s
+            """
+        cur.execute(sql_search_query, (str(token),))
+        follower_result = cur.fetchone()
+        if follower_result is None:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'Unsubscription requires login'
+            }
+        u_id, = follower_result
+        sql_search_query = """
+            SELECT COUNT(*) FROM subscriptions s
+            WHERE following_id = %s AND follower_id = %s 
+            """
+        cur.execute(sql_search_query, (unsubscribe_to, u_id))
+        subscribed, = cur.fetchone()
+        if subscribed == 0:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'not currently subscribed to user'
+            }
+        sql_delete_query = """
+            DELETE FROM subscriptions
+            WHERE following_id = %s and follower_id = %s
+            """
+        input_data = (unsubscribe_to, u_id)
+        cur.execute(sql_delete_query, input_data)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 500,
+            'error': 'Problem unsubscribing from user'
+        }
     return {
         'status_code': 200
     }
 
-def user_get_followers(token):
+def user_get_subs(token, query, error_msg, dict_key):
+    """
+    Get followers or following list, depending on query. Query must select three
+    columns (id, display_name, base64_image) from users table.
+
+    Args:
+        token       (String): token of authenticated user
+        query       (String): select query to execute
+
+    Returns:
+        subs        (list): list of following or followers (id, name, image)
+
+    """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
@@ -653,77 +722,83 @@ def user_get_followers(token):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
-    sql_search_query = """SELECT id from users where token = %s"""
-    input_data = token
-    cur.execute(sql_search_query, input_data)
-    u = cur.fetchall()
-    u_id = u[0]
-    sql_search_query = """select follower_id FROM subscriptions WHERE following_id = %s"""
-    input_data = (u_id)
-    cur.execute(input_data)
-    followers = cur.fetchall()
-    followers_array = []
-    for follower in followers:
-        sql_search_query = """select display_name, base64_image FROM users WHERE id = %s"""
-        input_data = (follower[0])
-        cur.execute(sql_search_query, input_data)
-        follower_details = cur.fetchall()
-        sub = {
-            'display_name': follower_details[0],
-            'base64_image': follower_details[1],
-            'id': follower[0]
+    try:
+        # subscriptions is a graph of outbound links (following) and inbound
+        # links (following), thus use same logic for both
+        cur.execute(query, (str(token),))
+        subs_array = []
+        subs = cur.fetchall()
+        for id, display_name, base64_image in subs:
+            subs_array.append({
+                'id': id,
+                'display_name': display_name,
+                'base64_image': base64_image
+            })
+        cur.close()
+        conn.close()
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': error_msg
         }
-        followers_array.append(sub)
-    conn.commit()
-    cur.close()
-    conn.close()
     return {
         'status_code': 200,
-        'followers': followers_array
+        dict_key: subs_array
     }
+
+def user_get_followers(token):
+    query = """
+        SELECT u.id, u.display_name, u.base64_image FROM users u
+        INNER JOIN subscriptions s ON (u.id = s.follower_id)
+        INNER JOIN users v ON (s.following_id = v.id)
+        WHERE v.token IS NOT NULL AND v.token = %s AND v.visibility = 'public'
+        """
+    error_msg = 'Unable to get followers list (subscribers)'
+    dict_key = 'followers'
+    followers_list = user_get_subs(token, query, error_msg, dict_key)
+
+    if 'error' in followers_list:
+        return followers_list
+    # determine if reason user has no followers is because they are private
+    if not followers_list[dict_key]:
+        try:
+            conn = psycopg2.connect(DB_CONN_STRING)
+            cur = conn.cursor()
+            visibility_query = """
+                SELECT visibility FROM users
+                WHERE token IS NOT NULL AND token = %s
+                """
+            cur.execute(visibility_query, (token,))
+            followers_list['visibility'] = cur.fetchone()[0]
+            cur.close()
+            conn.close()
+        except:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': error_msg
+            }
+    else:
+        followers_list['visibility'] = 'public'
+    return followers_list
 
 def user_get_following(token):
-    try:
-        conn = psycopg2.connect(DB_CONN_STRING)
-        cur = conn.cursor()
-        print(conn)
-    except:
-        return {
-            'status_code': 500,
-            'errors': ['Unable to connect to database']
-        }
-    sql_search_query = """SELECT id from users where token = %s"""
-    input_data = token
-    cur.execute(sql_search_query, input_data)
-    u = cur.fetchall()
-    u_id = u[0]
-    sql_search_query = """select following_id FROM subscriptions WHERE follower_id = %s"""
-    input_data = (u_id)
-    cur.execute(sql_search_query, input_data)
-    following = cur.fetchall()
-    following_array = []
-    for follow in following:
-        sql_search_query = """select display_name, base64_image FROM users WHERE id = %s"""
-        input_data = (follow[0])
-        cur.execute(sql_search_query, input_data)
-        follow_details = cur.fetchall()
-        sub_to = {
-            'display_name': follow_details[0],
-            'base64_image': follow_details[1],
-            'id': follow[0]
-        }
-        following_array.append(sub_to)
-    conn.commit()
-    cur.close()
-    conn.close()
-    return {
-        'status_code': 200,
-        'folling': following_array
-    }
+    query = """
+        SELECT u.id, u.display_name, u.base64_image FROM users u
+        INNER JOIN subscriptions s ON (u.id = s.following_id)
+        INNER JOIN users v ON (s.follower_id = v.id)
+        WHERE v.token IS NOT NULL AND v.token = %s
+        """
+    error_msg = 'Unable to get following list (subscriptions)'
+    dict_key = 'followings'
+    return user_get_subs(token, query, error_msg, dict_key)
 
-def user_get_profile(id):
+def user_get_profile(token, id):
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
@@ -731,37 +806,75 @@ def user_get_profile(id):
     except:
         return {
             'status_code': 500,
-            'errors': ['Unable to connect to database']
+            'error': 'Unable to connect to database'
         }
-    sql_search_query = """select visibility FROM users WHERE id = %s"""
-    input_data = (id)
-    cur.execute(sql_search_query, input_data)
-    status = cur.fetchall()
-    if status[0] is "private":
-        sql_search_query = """select display_name, base64_image FROM users WHERE id = %s"""
-        input_data = (id)
-        cur.execute(sql_search_query, input_data)
-        user_details = cur.fetchall()
+    try:
+        sql_search_query = """SELECT visibility FROM users WHERE id = %s"""
+        cur.execute(sql_search_query, (id,))
+        status, = cur.fetchone()
+        if status is "private":
+            sql_search_query = """
+                SELECT display_name, base64_image FROM users WHERE id = %s
+                """
+            cur.execute(sql_search_query, (id,))
+            user_details = cur.fetchone()
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 200,
+                'display_name': user_details[0],
+                'base64_image': user_details[1],
+                'id': id
+            }
+        sql_data_query = """
+            SELECT pronoun, given_names, last_name, display_name, email,
+            country, about, visibility, base64_image FROM users
+            WHERE id = %s
+            """
+        cur.execute(sql_data_query, (id,))
+        user = cur.fetchone()
+        if token:
+            subs_query = """
+                SELECT COUNT(s.*) FROM subscriptions s
+                INNER JOIN users u ON (s.follower_id = u.id)
+                INNER JOIN users v ON (s.following_id = v.id)
+                WHERE u.token IS NOT NULL AND u.token = %s
+                AND v.id = %s
+                """
+            cur.execute(subs_query, (token, id))
+            subscribed, = cur.fetchone()
+            is_subscribed = True if subscribed > 0 else False
+            efficiency_query = """
+                SELECT efficiency FROM users
+                WHERE token IS NOT NULL AND token = %s
+                """
+            cur.execute(efficiency_query, (token,))
+            visitor_efficiency, = cur.fetchone()
+        else:
+            is_subscribed = False
+            visitor_efficiency = 'Intermediate'
+
+        cur.close()
+        conn.close()
         return {
             'status_code': 200,
-            'display_name': user_details[0],
-            'base64_image': user_details[1],
-            'id': id
+            'pronoun': user[0],
+            'given_names': user[1],
+            'last_name': user[2],
+            'display_name': user[3],
+            'email': user[4],
+            'country': user[5],
+            'about': user[6],
+            'visibility': user[7],
+            'base64_image': user[8],
+            'id': id,
+            'is_subscribed': is_subscribed,
+            'visitor_efficiency': visitor_efficiency
         }
-    cur.execute("SELECT pronoun, given_names, last_name, display_name, email, country, about, visibility, base64_image FROM users WHERE id = %s;", (id,))
-    user = cur.fetchall()
-    cur.close()
-    conn.close()
-    return {
-        'status_code': 200,
-        'pronoun': user[0][0],
-        'given_names': user[0][1],
-        'last_name': user[0][2],
-        'display_name': user[0][3],
-        'email': user[0][4],
-        'country': user[0][5],
-        'about': user[0][6],
-        'visibility': user[0][7],
-        'base64_image': user[0][8],
-        'id': id
-    }
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 500,
+            'error': 'Problem retrieving user profile'
+        }

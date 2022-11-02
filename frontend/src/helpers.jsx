@@ -13,7 +13,8 @@ const config = require('./config.json');
  * onSuccess: how to handle success (200) response
  * onFail: how to handle failed or non-200 response
  */
-export const backendRequest = async (path, body, method, token, onSuccess, onFail = null) => {
+export const backendRequest = async (path, body, method, token, onSuccess,
+  onFail = null, setStatus = null) => {
   const requestUrl = `${config.BACKEND_SERVER}${path}`;
   console.log(requestUrl);
 
@@ -29,32 +30,15 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
   if ((method === 'POST' || method === 'PUT') && body !== null) {
     requestObject.body = JSON.stringify(body);
   }
-  /*try {
-    const request = await fetch(requestUrl, requestObject);
-    const status = await request.status;
-    if (status === 200 || status === 201) {
-      const data = await request.json();
-      onSuccess(data);
-      return data;
-    } else if (status === 400 || status === 401 || status === 403) {
-      const data = await request.json();
-      throw new Error(data.error);
-    } else {
-      throw new Error('Something went wrong');
-    }
-  } catch (error) {
-    if (onFail !== null) {
-      onFail(error.message);
-    } else {
-      console.log(error.message);
-    }
-  }*/
   try {
     const request = await fetch(requestUrl, requestObject);
     const status = await request.status;
     if (status === 200) {
       const data = await request.json();
       const innerStatus = data.status_code;
+      if (setStatus !== null) {
+        setStatus(innerStatus);
+      }
       if (innerStatus >= 200 && innerStatus < 300) {
         onSuccess(data);
       } else if (innerStatus >= 400 && innerStatus <= 500) {
@@ -66,6 +50,9 @@ export const backendRequest = async (path, body, method, token, onSuccess, onFai
       return data;
     } else if (status >= 400 && status < 500) {
       const data = await request.json();
+      if (setStatus !== null) {
+        setStatus(status);
+      }
       throw new Error(data.error);
     } else {
       throw new Error('Something went wrong');

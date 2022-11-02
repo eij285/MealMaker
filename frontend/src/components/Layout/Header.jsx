@@ -20,11 +20,14 @@ const LogoutButton = () => {
     e.preventDefault();
     if (token) {
       // send to backend
-      const body = { token: token };
-      backendRequest('/auth/logout', body, 'POST', null, (data) => {});
-      logout();
+      backendRequest('/auth/logout', {}, 'POST', token, (data) => {
+        logout();
+        navigate('/');
+      }, (error) => {
+        logout();
+        navigate('/');
+      });
     }
-    navigate('/');
   };
 
   return (

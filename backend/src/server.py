@@ -10,8 +10,11 @@ from auth import auth_register, auth_login, auth_logout, \
 from backend_helper import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences, user_subscribe, user_unsubscribe, user_get_followers, user_get_following, user_get_profile
 import recipe
+
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
+from feed import feed_fetch_discover, feed_fetch_subscription, \
+                 feed_fetch_trending
 from backend_helper import database_reset
 from search import search
 
@@ -155,7 +158,7 @@ def subscribe():
     
     return dumps(user_subscribe(token, subscribe_to))
 
-@APP.route('/user/unsubscribe', methods=['DELETE'])
+@APP.route('/user/unsubscribe', methods=['POST'])
 def unsubscribe():
     payload = request.get_json()
     # Verify token
@@ -190,11 +193,12 @@ def get_subscriptions():
 def get_profile():
     payload = request.get_json()
     # Verify token
+    token = payload['token']
     id = payload['id']
     #if not verify_token(token):
     #   return dumps({'status_code': 401, 'error': None})
     
-    return dumps(user_get_profile(id))
+    return dumps(user_get_profile(token, id))
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
@@ -242,6 +246,14 @@ def fetch_own_recipes():
     data = request.get_json()
     token = data['token']
     return dumps(recipe.recipes_fetch_own(token))
+
+@APP.route('/recipes/user/published', methods=['GET'])
+def published_user_recipes():
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(recipes_user_published(user_id))
 
 @APP.route('/recipe/details', methods=['GET', 'POST'])
 def details_for_recipe():
@@ -323,6 +335,46 @@ def search_recipe():
     token = data['token']
     search_term = data['search_term']
     return search(search_term, token)
+
+@APP.route('/feed/discover', methods=['POST'])
+def feed_discover():
+    data = request.get_json()
+    token = data['token']
+    return dumps(feed_fetch_discover(token))
+
+@APP.route('/feed/subscription', methods=['POST'])
+def feed_subscription():
+    data = request.get_json()
+    token = data['token']
+    return dumps(feed_fetch_subscription(token))
+
+@APP.route('/feed/trending', methods=['GET'])
+def feed_trending():
+    return dumps(feed_fetch_trending())
+
+# @APP.route('/recipe/publish', methods=['PUT'])
+# def publish_recipe():
+#     data = request.get_json()
+#     # Verify token
+#     token = data['token']
+#     if not verify_token(token):
+#         return dumps({'status_code': 401, 'error': None})
+
+    
+#     recipe_id = data['recipe_id']
+#     return dumps(publish_recipe(recipe_id, "t"))
+
+# @APP.route('/recipe/unpublish', methods=['PUT'])
+# def unpublish_recipe():
+#     data = request.get_json()
+#     # Verify token
+#     token = data['token']
+#     if not verify_token(token):
+#         return dumps({'status_code': 401, 'error': None})
+    
+#     recipe_id = data['recipe_id']
+#     return dumps(publish_recipe(recipe_id, "f"))
+
 
 @APP.route('/reset', methods=['DELETE', 'GET'])
 def reset():
