@@ -1,5 +1,5 @@
 from config import DB_CONN_STRING
-from recipe import recipe_details
+from recipe import recipe_details, recipe_fetch_ingredients
 import psycopg2
 import math
 
@@ -35,7 +35,12 @@ def estimate_rating(recipe_id, user_id, all_ratings):
         a += sim * rating
         b += sim
 
-    return a / b
+    # TODO: Identify scenarios where division by 0 occurs and return appropriate
+    # value
+    if b == 0:
+        return 0
+    else:
+        return a / b
 
 def calculate_similarity(orig_vals, new_vals):
     """Calculates Pearson-correlation similarity for two sets of values
@@ -82,7 +87,12 @@ def calculate_similarity(orig_vals, new_vals):
     b = math.sqrt(b)
     c = math.sqrt(c)
 
-    return a / (b * c)
+    # TODO: Identify scenarios where division by 0 occurs and return appropriate
+    # value
+    if b * c == 0:
+        return 0
+    else:
+        return a / (b * c)
 
 def feed_fetch_discover(token):
 
@@ -321,83 +331,18 @@ def feed_fetch_trending():
     
     for recipe in sql_result:
         r_id = recipe[0]
-        user_id, units, efficiency = -1, 'Metric', 'Intermediate'
-        
-        sql_query = "SELECT u.id, u.display_name, u.base64_image, \
-                     r.recipe_name, r.recipe_description, r.recipe_photo, \
-                     r.recipe_status, r.recipe_method, r.created_on, \
-                     r.edited_on, r.preparation_hours, r.preparation_minutes, \
-                     r.servings, r.energy, r.protein, r.carbohydrates, r.fats \
-                     r.cuisine, r.breakfast, r.lunch, r.dinner, r.snack, \
-                     r.vegetarian, r.vegan, r.kosher, r.halal, r.dairy_free \
-                     r.gluten_free, r.nut_free, r.egg_free, r.shellfish_free \
-                     r.soy_free \
-                     FROM users u JOIN recipes r ON (u.id = r.owner_id) \
-                     WHERE r.recipe_id = %s"
-        cur.execute(sql_query, (r_id,))
-        
-        r_details = cur.fetchone()
-        
-        # Should never occur, but sanity check for if the recipe_id was suddenly
-        # invalid
-        if not r_details:
+        r_details = recipe_details(r_id, None)
+
+        # Check that fetching recipe details is successful
+        if r_details['status_code'] != 200:
             cur.close()
             conn.close()
 
-            return {
-                'status_code': 400,
-                'error': 'Database error: recipe has been removed unexpectedly'
-            }
-
-        # TODO: Fetch ingredient list
-        ingredients_list = None
-
-        # TODO: Fetch reviews
-        reviews = None
-
-        # TODO: Fetch likes
-        likes = None
+            return r_details
         
-        body_content.append({
-            'author_id': recipe[0],
-            'author_display_name': recipe[1],
-            'author_image': recipe[2],
-            'recipe_name': recipe[3],
-            'recipe_description': recipe[4],
-            'recipe_photo': recipe[5],
-            'recipe_status': recipe[6],
-            'recipe_method': recipe[7],
-            'created_on': str(recipe[8]),
-            'edited_on': str(recipe[9]),
-            'preparation_hours': recipe[10],
-            'preparation_minutes': recipe[11],
-            'servings': recipe[12],
-            'energy': recipe[13],
-            'protein': recipe[14],
-            'carbohydrates': recipe[15],
-            'fats': recipe[16],
-            'cuisine': recipe[17],
-            'breakfast': recipe[18],
-            'lunch': recipe[19],
-            'dinner': recipe[20],
-            'snack': recipe[21],
-            'vegetarian': recipe[22],
-            'vegan': recipe[23],
-            'kosher': recipe[24],
-            'halal': recipe[25],
-            'dairy_free': recipe[26],
-            'gluten_free': recipe[27],
-            'nut_free': recipe[28],
-            'egg_free': recipe[29],
-            'shellfish_free': recipe[30],
-            'soy_free': recipe[31],
-            'units': str(units),
-            'efficiency': str(efficiency),
-            'ingredients': ingredients_list,
-            'reviews': reviews,
-            'likes': likes,
-            'user_is_author': False
-        })
+        # Otherwise add details to body_content
+        else:
+            body_content.append(r_details['body'])
         
 
     return {
