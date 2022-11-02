@@ -3,8 +3,6 @@ from recipe import recipe_details
 import psycopg2
 import math
 
-from pprint import pprint
-
 def take_second(elem):
     return (elem[1])
 
@@ -187,7 +185,6 @@ def feed_fetch_discover(token):
 
     # Sort by highest estimate to lowest estimate
     estimates.sort(key=take_second, reverse=True)
-    print(estimates)
 
     # For each recipe_id, add recipe details to body content
     body_content = []
