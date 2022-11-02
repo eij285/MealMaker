@@ -1,34 +1,8 @@
-from re import S
 import psycopg2
 from backend_helper import connect, verify_token
 from review import review_details
 from algorithm import calculate_similarity, take_second
 from config import DB_CONN_STRING
-   
-# def create_recipe_table(connection):
-#     cur = connection.cursor()
-#     command = ("""
-#         CREATE TABLE recipes(
-#             recipe_id SERIAL PRIMARY KEY,
-#             owner_id INTEGER,
-#             recipe_name VARCHAR(255) NOT NULL,
-#             recipe_description VARCHAR(255) NOT NULL,
-#             methods VARCHAR(255) NOT NULL,
-#             is_public BOOLEAN NOT NULL DEFAULT FALSE,
-#             recipe_method INTEGER
-#         )"""
-#     )
-#     try:
-#         cur.execute(command)
-#         connection.commit()
-#         return {
-#             'status_code': 200
-#         }
-#     except (Exception, psycopg2.DatabaseError) as error:
-#         print(error)
-#         return {
-#             'status_code': 400
-#         }
     
 
 def recipe_create(name, description, servings, recipe_status, token):

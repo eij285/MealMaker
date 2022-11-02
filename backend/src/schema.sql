@@ -1,4 +1,6 @@
 -- Meal Maker database schema
+-- Please make database schema changes directly to this file then run
+-- http://localhost:5000/reset
 
 DROP TABLE IF EXISTS subscriptions;
 DROP TABLE IF EXISTS recipe_user_likes;
@@ -134,8 +136,3 @@ CREATE TABLE subscriptions (
     FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
-INSERT INTO
-    users(id, display_name, email, password)
-VALUES
-    (123, 'PersonA', 'persona@gmail.com', 12345);
