@@ -157,7 +157,9 @@ def search(search_term, token):
                 """)
             cur.execute(query, (id,))
             review_count = cur.fetchone()
-            
+            if review_count == None:
+                review_count = 0
+                
             # fetch ratings
             query = ("""
                 SELECT rating FROM recipe_reviews
@@ -165,7 +167,10 @@ def search(search_term, token):
                 """)
             cur.execute(query, (id,))
             rating_all = cur.fetchall()
-            rating_avg = sum(rating_all) / review_count
+            if rating_all == None:
+                rating_avg = 0
+            else:
+                rating_avg = sum(rating_all) / review_count
             
             # fetch likes
             query = ("""
@@ -174,6 +179,8 @@ def search(search_term, token):
                 """)
             cur.execute(query, (id,))
             like_count = cur.fetchone()
+            if like_count == None:
+                like_count = 0
             
             # fetch user
             query = ("""
