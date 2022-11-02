@@ -1386,6 +1386,9 @@ def recipe_related(recipe_id):
             'status_code': 500,
             'error': 'Unable to connect to database'
         }
+
+    # Convert recipe_id to int
+    recipe_id = int(recipe_id)
     
     # Get largest user_id
     max_uid = 0

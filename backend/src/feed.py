@@ -68,7 +68,7 @@ def feed_fetch_discover(token):
     # Get largest user_id
     max_uid = 0
 
-    cur.execute("SELECT MAX(user_id) FROM recipe_reviews;")
+    cur.execute("SELECT MAX(id) FROM users;")
     sql_result = cur.fetchall()
 
     if sql_result:
@@ -77,7 +77,7 @@ def feed_fetch_discover(token):
     # Get largest recipe_id
     max_rid = 0
     
-    cur.execute("SELECT MAX(recipe_id) FROM recipe_reviews;")
+    cur.execute("SELECT MAX(recipe_id) FROM recipes;")
     sql_result = cur.fetchall()
 
     if sql_result:
