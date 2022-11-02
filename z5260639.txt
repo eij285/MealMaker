@@ -280,3 +280,12 @@ the database schema (SQL file) to allow for the addition of this data. Most of
 the time was spent working on the frontend to get recipe, ingredients, serving
 size adjustment, units, likes, reviews, review replies, review votes to work
 correctly.
+
+################################################################################
+
+Week 8
+=======
+I worked on implementing a sizable portion of the backend including remaining
+recipes and review functionality, as well as fixing some bugs with user backend.
+Also worked on implementation of the frontend for the remaining user, recipe,
+reviews, search and feed functionality.
