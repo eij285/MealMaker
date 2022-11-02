@@ -319,16 +319,6 @@ def vote_for_review():
     is_upvote = data['is_upvote']
     return review_vote(review_id, is_upvote, token)
 
-# @APP.route('/search', GET)
-#     search_terms
-#     return # list of relevant recipes (with hard-limit)
-
-# @APP.route('/feed/subscription', POST)
-#     token
-#     return # list of recommended recipes (with hard-limit)
-
-
-# # THE NEXT TWO ROUTES USE THE SAME ALGORITHM
 @APP.route('/feed/discover', methods=['POST'])
 def feed_discover():
     data = request.get_json()
@@ -344,11 +334,6 @@ def feed_subscription():
 @APP.route('/feed/trending', methods=['GET'])
 def feed_trending():
     return dumps(feed_fetch_trending())
-
-# @APP.route('/recipe/related', GET)
-#     recipe_id
-#     return # list of recommended recipes (with hard-limit) 
-
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
