@@ -13,12 +13,14 @@ import {
   ImageContainer4by3,
   ResponsiveImage4by3,
   FlexColumnNoGap,
-  FlexColumnSpaced
+  FlexColumnSpaced,
+  UserImageName
 } from '../StyledNodes';
 import { MediumGreyText, SmallGreyText, TextVCentred } from '../TextNodes';
 import { RecipePrepartionTime } from './RecipeNodes';
 import { SmallDefaultButton } from '../Buttons';
-
+import { getAverageRating } from '../../helpers';
+ 
 const RecipeItemActionPanel = styled.div`
   box-shadow: -10px 40px 5px -10px rgba(0,0,0,0.75) inset;
   height: 35px;
@@ -178,4 +180,51 @@ export const SingleAuthorRecipeItem = ({recipe, level}) => {
       </RecipeItemTextContainer>
     </RecipeItemPaperCursor>
   )
+};
+
+
+const HomePageRatingNameAuthor = ({data}) => {
+  const ratingAvg = getAverageRating(data.reviews);
+  const nReviews = data.reviews.length;
+  return (
+    <FlexColumn>
+      <RatingStarsColumn>
+        {nReviews > 0 && <>
+        <Rating value={ratingAvg} precision={0.1} readOnly />
+        {nReviews === 1 &&
+        <SmallGreyText>{ratingAvg} (1 review)</SmallGreyText>}
+        {nReviews > 1 &&
+        <SmallGreyText>
+          {ratingAvg.toFixed(1)} ({nReviews} reviews)
+        </SmallGreyText>}
+        </>}
+        {nReviews < 1 &&
+        <MediumGreyText>No Reviews</MediumGreyText>}
+      </RatingStarsColumn>
+      <Typography>{data.recipe_name}</Typography>
+      <UserImageName src={data.author_image} name={data.author_display_name} />
+    </FlexColumn>
+  )
+};
+
+export const HomePageRecipeItem = ({recipe, level}) => {
+  return (
+    <RecipeItemPaperCursor>
+      <Box sx={{position: 'relative'}}>
+        <RecipeItemActionPanel>
+          <RecipeItemTitle>{recipe.cuisine}</RecipeItemTitle>
+        </RecipeItemActionPanel>
+        <RecipeItemPhoto src={recipe.recipe_photo} alt={recipe.recipe_name} />
+      </Box>
+      <RecipeItemTextContainer>
+        <HomePageRatingNameAuthor data={recipe} />
+        <FlexColumnSpaced>
+          <RecipePrepartionTime hours={recipe.preparation_hours}
+            minutes={recipe.preparation_minutes}
+            level={level} useSmall={true} />
+          <RecipeItemLikes likesCount={recipe.likes.likes_count} />
+        </FlexColumnSpaced>
+      </RecipeItemTextContainer>
+    </RecipeItemPaperCursor>
+  );
 };
