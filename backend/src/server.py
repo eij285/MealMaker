@@ -9,9 +9,8 @@ from auth import auth_register, auth_login, auth_logout, \
                  auth_reset_pw
 from backend_helper import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences, user_subscribe, user_unsubscribe, user_get_followers, user_get_following, user_get_profile
-from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
-                   recipe_delete, recipes_fetch_own, recipes_user_published, \
-                   recipe_details, recipe_like, recipe_related
+import recipe
+
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
 from feed import feed_fetch_discover, feed_fetch_subscription, \
@@ -348,7 +347,7 @@ def feed_trending():
 @APP.route('/recipe/related', methods=['GET'])
 def related_recipes():
     recipe_id = request.args.get('recipe_id')
-    return dumps(recipe_related(recipe_id))
+    return dumps(recipe.recipe_related(recipe_id))
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
