@@ -1,7 +1,9 @@
 from re import S
 import psycopg2
+from backend.src.feed import take_second
 from backend_helper import connect, verify_token
 from review import review_details
+from feed import calculate_similarity
 from config import DB_CONN_STRING
    
 # def create_recipe_table(connection):
@@ -1390,4 +1392,110 @@ def recipe_like(recipe_id, token):
             'likes_count': likes_count,
             'has_liked': has_liked
         }
+    }
+
+def recipe_related(recipe_id):
+    """
+    Return list of recipes most similar to current recipe based on user ratings
+
+    Args:
+
+    Returns:
+    
+    """
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    
+    # Get largest user_id
+    max_uid = 0
+
+    cur.execute("SELECT MAX(user_id) FROM recipe_reviews;")
+    sql_result = cur.fetchall()
+
+    if sql_result:
+        max_uid, = sql_result[0]
+    
+    # Get largest recipe_id
+    max_rid = 0
+    
+    cur.execute("SELECT MAX(recipe_id) FROM recipe_reviews;")
+    sql_result = cur.fetchall()
+
+    if sql_result:
+        max_rid, = sql_result[0]
+
+    # Collect all ratings info from database
+    cur.execute("SELECT recipe_id, user_id, rating FROM recipe_reviews;")
+
+    sql_result = cur.fetchall()
+
+    # If empty results, then return empty body
+    if not sql_result:
+        cur.close()
+        conn.close()
+
+        return {
+            'status_code': 200,
+            'body': {}
+        }
+    
+    # Otherwise, initialise 2d array with recipes as rows and users as columns
+    ratings = [[0 for x in range(max_uid)] for y in range(max_rid)]
+
+    for rating_info in sql_result:
+        rid, uid, rating = rating_info
+        ratings[rid - 1][uid - 1] = rating
+
+    # Calculate similarity of all recipes and add them to recommendations
+    recommendations = []
+
+    for idx, recipe_ratings in enumerate(ratings):
+        # Skip the targeted recipe itself as not to recommend itself
+        if idx + 1 == recipe_id:
+            continue
+
+        # Skip the recipe if it is a draft
+        sql_query = "SELECT * FROM recipes WHERE recipe_id = %s \
+                     AND recipe_status = 'published'"
+        cur.execute(sql_query, (idx + 1,))
+
+        sql_result = cur.fetchall()
+        if not sql_result:
+            continue
+
+        sim = calculate_similarity(ratings[recipe_id - 1], recipe_ratings)
+        recommendations.append((idx + 1, sim))
+
+    # Sort recommendations by largest similarity
+    recommendations.sort(key=take_second, reverse=True)
+
+    # For each recipe_id, add recipe details to body content
+    body_content = []
+    
+    for recommendation in recommendations:
+        r_id = recommendation[0]
+        r_details = recipe_details(r_id, None)
+
+        # Check that fetching recipe details is successful
+        if r_details['status_code'] != 200:
+            cur.close()
+            conn.close()
+
+            return r_details
+        
+        # Otherwise add details to body_content
+        else:
+            body_content.append(r_details['body'])
+
+    return {
+        'status_code': 200,
+        'body': body_content
     }
