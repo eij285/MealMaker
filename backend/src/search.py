@@ -110,30 +110,27 @@ def search(search_term, token):
         all_ingredients = []
         all_cuisine = []
         all_id = []
+        
         for recipe in recipes_db:
             all_cuisine.append(recipe['cuisine'])
             all_id.append(recipe['recipe_id'])
             all_titles.append(recipe['recipe_name'])
             ingredients = recipe_fetch_ingredients(recipe['recipe_id'])
-            print(ingredients)
             temp=None
             for ingredient in ingredients:
                 temp = []
                 temp.append(ingredient['ingredient_name'])
             all_ingredients.append(temp)
-            
+           
         # Fetch ingredient not working
         title_similarity = check_similarity(search_term, all_titles)
-        ingredient_match = check_similarity_exact(search_term, all_ingredients)
+        ingredient_match = check_similarity_exact(search_term, all_ingredients[0])
         cuisine_similarity = check_similarity(search_term, all_cuisine)
         output = []
-        
-        fetch_recipe_by_id(all_id[0])
-        
         for i in range(0, len(title_similarity)):
-            similarity = {}
+            similarity = {}            
             similarity["similarity"] = (title_similarity[i] + ingredient_match[i] + cuisine_similarity[i])
-            similarity["id"] = (all_id[i])
+            similarity["id"] = (all_id[i])            
             if similarity["similarity"] > 0.2:
                 output.append(similarity)
         
@@ -146,20 +143,18 @@ def search(search_term, token):
             id = i["id"]
             
             # fetch recipe
-            query = ("""SELECT * FROM recipes WHERE id = %s""")
+            query = ("""SELECT * FROM recipes WHERE recipe_id = %s""")
             cur.execute(query, (id,))
             out_recipe = cur.fetchone()
-            
+                        
             # fetch review count
             query = ("""
                 SELECT COUNT(*) FROM recipe_reviews
                 WHERE recipe_id = %s
                 """)
             cur.execute(query, (id,))
-            review_count = cur.fetchone()
-            if review_count == None:
-                review_count = 0
-                
+            review_count = cur.fetchone()[0]  
+            
             # fetch ratings
             query = ("""
                 SELECT rating FROM recipe_reviews
@@ -167,10 +162,12 @@ def search(search_term, token):
                 """)
             cur.execute(query, (id,))
             rating_all = cur.fetchall()
-            if rating_all == None:
+            if rating_all == []:
                 rating_avg = 0
             else:
                 rating_avg = sum(rating_all) / review_count
+            
+            
             
             # fetch likes
             query = ("""
@@ -178,7 +175,7 @@ def search(search_term, token):
                 WHERE recipe_id = %s
                 """)
             cur.execute(query, (id,))
-            like_count = cur.fetchone()
+            like_count = cur.fetchone()[0]
             if like_count == None:
                 like_count = 0
             
@@ -191,7 +188,6 @@ def search(search_term, token):
             out = cur.fetchone()
             owner_name = out[0]
             owner_image = out[1]
-            
             out = {
                 'recipe_id': id,
                 'recipe_name': out_recipe[2],
@@ -229,7 +225,7 @@ def search(search_term, token):
     except:
         return {
             'status_code': 400,
-            'error': "cannot find ingredients"
+            'error': "cannot find any results"
         }
 
         
