@@ -9,11 +9,11 @@ from auth import auth_register, auth_login, auth_logout, \
                  auth_reset_pw
 from backend_helper import database_reset, files_reset
 from user import user_preferences, user_update, user_info, user_update_preferences, user_subscribe, user_unsubscribe, user_get_followers, user_get_following, user_get_profile
-from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
-                   recipe_delete, recipes_fetch_own, recipe_details, recipe_like
+import recipe
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
 from backend_helper import database_reset
+from search import search
 
 APP = Flask(__name__)
 CORS(APP)
@@ -208,40 +208,40 @@ def create_recipe():
     servings = data['servings']
     recipe_status = data['recipe_status']
 
-    return dumps(recipe_create(name, description, servings, recipe_status, token))
+    return dumps(create_recipe(name, description, servings, recipe_status, token))
 
 @APP.route('/recipe/edit', methods=['POST'])
 def edit_recipe():
     data = request.get_json()
     token = data['token']
     recipe_id = data['recipe_id']
-    return dumps(recipe_edit(recipe_id, token))
+    return dumps(recipe.edit_recipe(recipe_id, token))
 
 @APP.route('/recipe/update', methods=['POST'])
 def update_recipe():
     data = request.get_json()
     token = data['token']
-    return dumps(recipe_update(data, token))
+    return dumps(recipe.recipe_update(data, token))
 
 @APP.route('/recipe/clone', methods=['POST'])
 def copy_recipe():
     data = request.get_json()
     token = data['token']
     recipe_id = data['recipe_id']
-    return dumps(recipe_clone(recipe_id, token))
+    return dumps(recipe.recipe_clone(recipe_id, token))
 
 @APP.route('/recipe/delete', methods=['POST'])
 def delete_recipe():
     data = request.get_json()
     token = data['token']
     recipe_id = data['recipe_id']
-    return dumps(recipe_delete(recipe_id, token))
+    return dumps(recipe.recipe_delete(recipe_id, token))
 
 @APP.route('/recipes/fetch-own', methods=['POST'])
 def fetch_own_recipes():
     data = request.get_json()
     token = data['token']
-    return dumps(recipes_fetch_own(token))
+    return dumps(recipe.recipes_fetch_own(token))
 
 @APP.route('/recipe/details', methods=['GET', 'POST'])
 def details_for_recipe():
@@ -255,14 +255,14 @@ def details_for_recipe():
         else:
             recipe_id = None
         token = None
-    return dumps(recipe_details(recipe_id, token))
+    return dumps(recipe.recipe_details(recipe_id, token))
 
 @APP.route('/recipe/like', methods=['POST'])
 def like_recipe():
     data = request.get_json()
     token = data['token']
     recipe_id = data['recipe_id']
-    return recipe_like(recipe_id, token)
+    return recipe.recipe_like(recipe_id, token)
 
 @APP.route('/reviews/all-for-recipe', methods=['GET', 'POST'])
 def all_reviews_for_recipe():
@@ -317,29 +317,12 @@ def vote_for_review():
     is_upvote = data['is_upvote']
     return review_vote(review_id, is_upvote, token)
 
-
-# @APP.route('/recipe/publish', methods=['PUT'])
-# def publish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "t"))
-
-# @APP.route('/recipe/unpublish', methods=['PUT'])
-# def unpublish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "f"))
+@APP.route('/search', methods=['POST'])
+def search_recipe():
+    data = request.get_json()
+    token = data['token']
+    search_term = data['search_term']
+    return search(search_term, token)
 
 @APP.route('/reset', methods=['DELETE', 'GET'])
 def reset():
