@@ -3,7 +3,8 @@ import {
   BrowserRouter as Router,
   Routes,
   Route
- } from 'react-router-dom';
+} from 'react-router-dom';
+import { ThemeProvider } from '@emotion/react';
 import { GlobalProvider } from './utils/GlobalContext';
 import theme from './theme.js';
 import AuthorisedRoute from './utils/AuthorisedRoute';
@@ -23,10 +24,12 @@ import ViewRecipePage from './pages/Recipe/ViewRecipePage';
 import SearchPage from './pages/SearchPage';
 import SubscriptionsPage from './pages/User/SubscriptionsPage';
 import SubscribersPage from './pages/User/SubscribersPage';
+import MyCookbooksPage from './pages/Cookbook/MyCookbooksPage';
 import Forbidden403Page from './pages/Error/Forbidden403Page';
 import NotFound404Page from './pages/Error/NotFound404Page';
 import './App.css';
-import { ThemeProvider } from '@emotion/react';
+
+
 
 
 function App() {
@@ -53,6 +56,7 @@ function App() {
               <Route path="/edit-recipe/:recipeId" element={<EditRecipePage />} />
               <Route path="/subscriptions" element={<SubscriptionsPage />} />
               <Route path="/subscribers" element={<SubscribersPage />} />
+              <Route exact path="/my-cookbooks" element={<MyCookbooksPage/>} />
             </Route>
             <Route exact path="/forbidden-403" element={<Forbidden403Page />} />
             <Route path="*" element={<NotFound404Page />} />

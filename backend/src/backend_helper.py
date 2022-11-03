@@ -14,8 +14,8 @@ def connect():
     connection = None
     try:
         print('Conencting to the database...')
-        connection = psycopg2.connect(database="meal_maker",host="localhost",user="postgres",password="000000",port="5432")
-        #connection =  psycopg2.connect(database="codechefs-db")
+        # connecting to different database config? change in config.py
+        connection = psycopg2.connect(DB_CONN_STRING)
         cur = connection.cursor()
         print('PostgreSQL database version: ')
         cur.execute('SELECT version()')
