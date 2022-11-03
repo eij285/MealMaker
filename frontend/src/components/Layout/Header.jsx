@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { AppBar, Box, InputAdornment, Link, TextField, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, IconButton, InputAdornment, Link, TextField, Toolbar, Typography } from '@mui/material';
 import { HeaderButton } from '../../components/Buttons';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -9,6 +9,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SearchIcon from '@mui/icons-material/Search';
 import GlobalContext from '../../utils/GlobalContext';
 import { backendRequest } from '../../helpers';
+import Logo from '../../assets/chef-hat.png'
 
 const LogoutButton = () => {
   const globals = React.useContext(GlobalContext);
@@ -80,8 +81,7 @@ function Header ({ incSearch, incButtons }) {
   const token = globals.token;
 
   const brandStyles = {
-    fontWeight: '600',
-    textShadow: '2px 1px 2px #000000',
+    fontWeight: '300',
     marginRight: '4px',
     '@media screen and (max-width: 40em)': {
       fontSize: '14pt',
@@ -102,25 +102,22 @@ function Header ({ incSearch, incButtons }) {
       columnGap: '4px'
     }
   };
+
+  function LogoIcon() {
+    return (
+      <img src={Logo} alt="Meal Maker logo" height={'40px'} width={'40px'}/>
+    );
+  };
+
+
   return (
-    <AppBar position="fixed" color="primary">
+    <AppBar position="fixed" color="default">
       <Toolbar variant="dense" sx={ toolbarStyles }>
-        <Link
-          component={RouterLink}
-          to="/"
-          underline="none"
-        >
-          <Typography
-            component="h1"
-            variant="h4"
-            color="white"
-            sx={ brandStyles }
-          >
-            MealMaker
-          </Typography>
-        </Link>
+        <IconButton component={RouterLink} to="/">
+          <LogoIcon />&nbsp;Meal Maker
+        </IconButton>
+        {incSearch && <SearchInput />}
         <Box sx={ boxStyles }>
-          {incSearch && <SearchInput />}
           {incButtons && !token && <>
           <HeaderButton component={RouterLink} to="/login">
             <LoginIcon />&nbsp;Log in

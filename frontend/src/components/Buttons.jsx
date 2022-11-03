@@ -102,10 +102,9 @@ export const HeaderButton = (props) => {
     }
   };
   return (
-    <Button {...props} variant="contained" size="small" color="secondary" sx={ styles } />
+    <Button {...props} variant="contained" size="small" color="primary" sx={ styles } />
   );
 };
-
 
 /**
  * submit button using default button styling
