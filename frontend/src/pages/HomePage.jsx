@@ -79,7 +79,8 @@ function HomePage () {
         {responseError !== '' &&
         <ErrorAlert message={responseError} setMessage={setResponseError} />}
         <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-          <Tabs value={tabValue} onChange={handleTabChange} centered>
+          <Tabs value={tabValue} onChange={handleTabChange}
+            textColor="secondary" indicatorColor="secondary" centered>
             {tabLabels.map((value, index) => (
               <Tab key={index} label={value} />
             ))}

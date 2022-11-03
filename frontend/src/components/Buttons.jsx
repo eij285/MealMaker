@@ -93,11 +93,10 @@ export const HeaderButton = (props) => {
     borderRadius: '20px',
     whiteSpace: 'nowrap',
     '@media screen and (max-width: 40em)': {
-      fontSize: '6pt',
       padding: '4px 6px',
       minWidth: 0,
       '& svg': {
-        maxWidth: '10px'
+        maxWidth: '24px'
       }
     }
   };
