@@ -64,3 +64,32 @@ to follow in case they needed it. Then started working on auth_register.
 In order to complete my work, I looked into bcrypt, JWT tokens, and query strings in urls to satisfy demands given
 by George online. By the end of Week 4 I had mostly finished auth_register with some brief adjustments needed by early
 next week.
+
+Week 5
+
+Completed all of auth before progressive demo A and tested heavily using REST API tests. Worked heavily with George to
+get it tested on the frontend, particularly in regards to things like query strings. Another significant section I
+worked on this week involved sending emails. Also added a token handling function in the helper file.
+
+Week 6
+
+Mainly revised algorithms from UNSW's Big Data course to find inspiration for our own algorithms (specifically for feed
+user stories). Other than that mostly took a break this week.
+
+Week 7
+
+Started coding the feed recommendation algorithms after discussing pros and cons with fellow group members. Acknowledged
+the performance costs and was specifically asked to utilise the speed of SQL queries where possible. Assumed arguments
+would take the form of lists of integers. Also came up with stub functions for server routes for feed-related functions
+
+We were also asked to write a retrospective A document, however my contribution was very small. I only added the
+disjointed expectation from both the frontend and backend teams in regards to errors.
+
+Week 8
+
+
+
+Week 9
+
+
+Week 10
