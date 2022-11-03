@@ -76,20 +76,34 @@ const SearchInput = () => {
   );
 };
 
-function Header ({ incSearch, incButtons }) {
-  const globals = React.useContext(GlobalContext);
-  const token = globals.token;
-
+function BrandingComponent() {
   const brandStyles = {
     fontWeight: '300',
     marginRight: '4px',
+    padding: 0,
     '@media screen and (max-width: 40em)': {
       fontSize: '14pt',
     },
     '@media screen and (max-width: 36em)': {
       fontSize: '10pt',
+    },
+    '&:hover .MuiTypography-span': {
+      color: '#000000',
     }
   };
+
+  return (
+    <IconButton component={RouterLink} to="/" sx={brandStyles} disableRipple={true}>
+      <img src={Logo} alt="Meal Maker logo" height={'40px'} width={'40px'}/>
+      <Typography variant="span" component="span">Meal Maker</Typography>
+    </IconButton>
+  );
+};
+
+function Header ({ incSearch, incButtons }) {
+  const globals = React.useContext(GlobalContext);
+  const token = globals.token;
+
   const toolbarStyles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -103,19 +117,10 @@ function Header ({ incSearch, incButtons }) {
     }
   };
 
-  function LogoIcon() {
-    return (
-      <img src={Logo} alt="Meal Maker logo" height={'40px'} width={'40px'}/>
-    );
-  };
-
-
   return (
     <AppBar position="fixed" color="default">
       <Toolbar variant="dense" sx={ toolbarStyles }>
-        <IconButton component={RouterLink} to="/">
-          <LogoIcon />&nbsp;Meal Maker
-        </IconButton>
+        <BrandingComponent />
         {incSearch && <SearchInput />}
         <Box sx={ boxStyles }>
           {incButtons && !token && <>
