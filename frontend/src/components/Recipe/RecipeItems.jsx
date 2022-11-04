@@ -183,7 +183,7 @@ export const SingleAuthorRecipeItem = ({recipe, level}) => {
 };
 
 
-const HomePageRatingNameAuthor = ({data}) => {
+const RecipeRatingNameAuthor = ({data}) => {
   const ratingAvg = getAverageRating(data.reviews);
   const nReviews = data.reviews.length;
   return (
@@ -207,9 +207,11 @@ const HomePageRatingNameAuthor = ({data}) => {
   )
 };
 
-export const HomePageRecipeItem = ({recipe, level}) => {
+export const RecipeItem = ({recipe}) => {
+  const navigate = useNavigate();
   return (
-    <RecipeItemPaperCursor>
+    <RecipeItemPaperCursor
+      onClick={() => navigate(`/recipe/${recipe.recipe_id}`)}>
       <Box sx={{position: 'relative'}}>
         <RecipeItemActionPanel>
           <RecipeItemTitle>{recipe.cuisine}</RecipeItemTitle>
@@ -217,11 +219,11 @@ export const HomePageRecipeItem = ({recipe, level}) => {
         <RecipeItemPhoto src={recipe.recipe_photo} alt={recipe.recipe_name} />
       </Box>
       <RecipeItemTextContainer>
-        <HomePageRatingNameAuthor data={recipe} />
+        <RecipeRatingNameAuthor data={recipe} />
         <FlexColumnSpaced>
           <RecipePrepartionTime hours={recipe.preparation_hours}
             minutes={recipe.preparation_minutes}
-            level={level} useSmall={true} />
+            level={recipe.efficiency} useSmall={true} />
           <RecipeItemLikes likesCount={recipe.likes.likes_count} />
         </FlexColumnSpaced>
       </RecipeItemTextContainer>

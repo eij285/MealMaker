@@ -5,11 +5,17 @@ import {
   Alert,
   Box,
   Button,
+  Checkbox,
+  Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Drawer,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
   IconButton,
   Link,
   Paper,
@@ -19,8 +25,12 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import GlobalContext from '../utils/GlobalContext';
 import { MediumDefaultButton, MediumAlternateButton } from './Buttons';
-import { SmallBlackText } from './TextNodes';
+import { SmallBlackText, SubPageTitle } from './TextNodes';
+import { CentredElementsForm } from '../components/Forms';
 
 const CustomAlert = ({props, status, message, setMessage}) => {
   return (
@@ -205,6 +215,110 @@ export const ConfirmationDialog = ({ title, description, acceptContent,
         </MediumAlternateButton>
       </DialogActions>
     </Dialog>
+  );
+};
+
+export const UserPreferencesComponent = () => {
+  const globals = React.useContext(GlobalContext);
+  const userPreferences = globals.userPreferences;
+  const setUserPreferences = globals.setUserPreferences;
+
+  const boxStyles = {
+    position: 'fixed',
+    width: '100%',
+    left: 0,
+    zIndex: 2,
+  };
+  const btnStyles = {
+    alignSelf: 'flex-start',
+    marginLeft: '14px',
+    padding: 0,
+    '& svg': {
+      width: '48px',
+      height: '48px',
+    }
+  };
+
+  const openBtnStyles = {
+    ...btnStyles,
+    top: '-10px',
+    position: 'absolute'
+  };
+
+  const closeBtnStyles = {
+    ...btnStyles,
+    position: 'relative'
+  };
+
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleChange = (e) => {
+    const objKey = e.target.name;
+    const objValue = e.target.checked;
+    setUserPreferences({...userPreferences, [objKey]: objValue});
+  };
+
+  return (
+    <Box sx={ boxStyles }>
+      <Drawer
+        variant="persistent"
+        anchor="top"
+        open={open}
+      >
+        <Container maxWidth={false} sx={{pt: 8}}>
+        <CentredElementsForm noValidate onChange={handleChange}>
+          <FormGroup>
+            <SubPageTitle>Meals</SubPageTitle>
+            <FlexRowWrap>
+              <FormControlLabel label="Breakfast" control={
+                <Checkbox name="breakfast" checked={userPreferences.breakfast} />} />
+              <FormControlLabel label="Lunch" control={
+                <Checkbox name="lunch" checked={userPreferences.lunch} />} />
+              <FormControlLabel label="Dinner" control={
+                <Checkbox name="dinner" checked={userPreferences.dinner} />} />
+              <FormControlLabel label="Snack" control={
+                <Checkbox name="snack" checked={userPreferences.snack} />} />
+            </FlexRowWrap>
+          </FormGroup>
+          <FormGroup>
+            <SubPageTitle>Dietary Needs</SubPageTitle>
+            <FlexRowWrap>
+              <FormControlLabel label="Vegetarian" control={
+                <Checkbox name="vegetarian" checked={userPreferences.vegetarian} />} />
+              <FormControlLabel label="Vegan" control={
+                <Checkbox name="vegan" checked={userPreferences.vegan} />} />
+              <FormControlLabel label="Kosher" control={
+                <Checkbox name="kosher" checked={userPreferences.kosher} />} />
+              <FormControlLabel label="Halal" control={
+                <Checkbox name="halal" checked={userPreferences.halal} />} />
+              <FormControlLabel label="Dairy Free" control={
+                <Checkbox name="dairyFree" checked={userPreferences.dairyFree} />} />
+              <FormControlLabel label="Gluten Free" control={
+                <Checkbox name="glutenFree" checked={userPreferences.glutenFree} />} />
+              <FormControlLabel label="Nut Free" control={
+                <Checkbox name="nutFree" checked={userPreferences.nutFree} />} />
+              <FormControlLabel label="Egg Free" control={
+                <Checkbox name="eggFree" checked={userPreferences.eggFree} />} />
+              <FormControlLabel label="Shellfish Free" control={
+                <Checkbox name="shellfishFree" checked={userPreferences.shellfishFree} />} />
+              <FormControlLabel label="Soy Free" control={
+                <Checkbox name="soyFree" checked={userPreferences.soyFree} />} />
+            </FlexRowWrap>
+          </FormGroup>
+          </CentredElementsForm>
+        </Container>
+        <IconButton sx={ closeBtnStyles } size="large" disableRipple={true}
+          onClick={() => setOpen(false)}>
+          <ExpandLessIcon />
+        </IconButton>
+      </Drawer>
+      {!open &&
+      <IconButton sx={ openBtnStyles } size="large" disableRipple={true}
+        onClick={() => setOpen(true)}>
+        <ExpandMoreIcon />
+      </IconButton>}
+    </Box>
   );
 };
 

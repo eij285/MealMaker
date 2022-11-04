@@ -27,7 +27,8 @@ const SmallButton = (props) => {
   const styles = {
     borderRadius: '20px',
     minWidth: '50px',
-    maxHeight: '30px'
+    maxHeight: '30px',
+    lineHeight: 1
   };
   return (
     <Button {...props} variant="contained" size="small" sx={ styles } />
