@@ -1071,6 +1071,7 @@ def recipe_details(recipe_id, token):
                         author_id           (Integer)
                         author_display_name (String)
                         author_image        (String)
+                        recipe_name         (Integer)
                         recipe_name         (String)
                         recipe_description  (String)
                         recipe_photo        (String)
@@ -1212,6 +1213,7 @@ def recipe_details(recipe_id, token):
             'author_id': recipe[0],
             'author_display_name': recipe[1],
             'author_image': recipe[2],
+            'recipe_id': int(recipe_id),
             'recipe_name': recipe[3],
             'recipe_description': recipe[4],
             'recipe_photo': recipe[5],

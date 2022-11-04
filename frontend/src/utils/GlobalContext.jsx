@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { backendRequest } from '../helpers';
 
 const GlobalContext = React.createContext(null);
 
@@ -14,6 +15,22 @@ export const GlobalProvider = ({ children }) => {
   };
 
   const [token, setToken] = React.useState(getToken('token'));
+  const [userPreferences, setUserPreferences] = React.useState({
+    breakfast: true,
+    lunch: true,
+    dinner: true,
+    snack: true,
+    vegetarian: true,
+    vegan: true,
+    kosher: true,
+    halal: true,
+    dairyFree: true,
+    glutenFree: true,
+    nutFree: true,
+    eggFree: true,
+    shellfishFree: true,
+    soyFree: true,
+  });
 
   const login = (userToken) => {
     window.localStorage.setItem('token', userToken);
@@ -25,10 +42,35 @@ export const GlobalProvider = ({ children }) => {
     setToken('');
   };
 
+  React.useEffect(() => {
+    if (token) {
+      backendRequest('/user/preferences', {}, 'POST', token, (data) => {
+        setUserPreferences({
+          breakfast: data.breakfast,
+          lunch: data.lunch,
+          dinner: data.dinner,
+          snack: data.snack,
+          vegetarian: data.vegetarian,
+          vegan: data.vegan,
+          kosher: data.kosher,
+          halal: data.halal,
+          dairyFree: data.dairy_free,
+          glutenFree: data.gluten_free,
+          nutFree: data.nut_free,
+          eggFree: data.egg_free,
+          shellfishFree: data.shellfish_free,
+          soyFree: data.soy_free,
+        });
+      });
+    }
+  }, [token]);
+
   const globals = {
     token: token,
     login: login,
-    logout: logout
+    logout: logout,
+    userPreferences: userPreferences,
+    setUserPreferences: setUserPreferences
   };
 
   return (

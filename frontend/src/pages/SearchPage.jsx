@@ -3,6 +3,12 @@ import { useParams } from 'react-router-dom';
 import GlobalContext from '../utils/GlobalContext';
 import ExploreLayout from '../components/Layout/ExploreLayout';
 import { backendRequest } from '../helpers';
+import {
+  ErrorAlert,
+  FlexColumn,
+  UserPreferencesComponent
+} from '../components/StyledNodes';
+import { PageTitle } from '../components/TextNodes';
 
 function SearchPage () {
   const { query } = useParams();
@@ -20,6 +26,7 @@ function SearchPage () {
     // FIX BACKEND: why do you need to be authenticated to search???
     backendRequest('/search', body, 'POST', token, (data) => {
       setRecipes([...data.body]);
+      console.log(data.body);
     }, (error) => {
       setResponseError(error);
     });
@@ -27,11 +34,16 @@ function SearchPage () {
 
   React.useEffect(() => {
     loadResults();
-  }, [searchQuery]);
+  });
 
   return (
     <ExploreLayout>
-      Search Page {searchQuery}
+      <UserPreferencesComponent />
+      <PageTitle>Search: {searchQuery}</PageTitle>
+      <FlexColumn>
+        {responseError !== '' &&
+        <ErrorAlert message={responseError} setMessage={setResponseError} />} 
+      </FlexColumn>
     </ExploreLayout>
   );
 }
