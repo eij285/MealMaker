@@ -1,7 +1,7 @@
 import jwt
 import psycopg2
 from datetime import datetime, timezone, timedelta
-from config import DB_CONN_STRING, SECRET_KEY, EMAIL_AUTH_ADDR, EMAIL_AUTH_PW
+from config import DB_CONN_STRING, SQL_SCHEMA, SQL_DATA
 
 
 def connect():
@@ -14,8 +14,8 @@ def connect():
     connection = None
     try:
         print('Conencting to the database...')
-        connection = psycopg2.connect(database="meal_maker",host="localhost",user="postgres",password="000000",port="5432")
-        #connection =  psycopg2.connect(database="codechefs-db")
+        # connecting to different database config? change in config.py
+        connection = psycopg2.connect(DB_CONN_STRING)
         cur = connection.cursor()
         print('PostgreSQL database version: ')
         cur.execute('SELECT version()')
@@ -309,15 +309,15 @@ def fetch_database(database):
     return out_list
 
 
-def database_reset():
-    """Resets the database
+def database_file_ops(filename):
+    """Import filename into database (schema, data or both)
     
-    Drops all tables, stored procedures, triggers, etc and recreates entire
-    schema from an sql file
+    Args:
+        SQL filename: should contain DDL or/and DML statements
 
     Returns:
-        True if database reset succeeded
-        False if database reset failed (requires manual intervention)
+        True if database operation executed successfully
+        False if database operation failed (requires manual intervention)
     """
     conn = None
     cur = None
@@ -325,7 +325,7 @@ def database_reset():
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
-        cur.execute(open(SQL_SCHEMA, "r").read())
+        cur.execute(open(filename, "r").read())
         conn.commit()
         success = True
     except psycopg2.Error as err:
@@ -341,17 +341,28 @@ def database_reset():
             conn.close()
     return success
 
-def files_reset():
-    """Files reset
+def database_reset():
+    """Resets the database
     
-    Deletes any files created by the application to reset file content
-    back to initial state
+    Drops all tables, stored procedures, triggers, etc and recreates entire
+    schema from an sql file
 
     Returns:
-        True if file deleted successfully
-        False if file deletion failed (requires manual intervention)
+        True if database reset succeeded
+        False if database reset failed (requires manual intervention)
     """
-    pass
+    return database_file_ops(SQL_SCHEMA)
+
+
+def database_populate():
+    """Populates the database with sample (demo) data
+
+    Returns:
+        True if database reset succeeded
+        False if database reset failed (requires manual intervention)
+    """
+    return database_file_ops(SQL_DATA)
+
 
 def create_recipe_ingredient_database():
     """

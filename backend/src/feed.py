@@ -1,12 +1,7 @@
 from config import DB_CONN_STRING
 from recipe import recipe_details
+from algorithm import take_second, calculate_similarity
 import psycopg2
-import math
-
-from pprint import pprint
-
-def take_second(elem):
-    return (elem[1])
 
 def estimate_rating(recipe_id, user_id, all_ratings):
     target_recipe_ratings = all_ratings[recipe_id - 1]
@@ -42,58 +37,6 @@ def estimate_rating(recipe_id, user_id, all_ratings):
     else:
         return a / b
 
-def calculate_similarity(orig_vals, new_vals):
-    """Calculates Pearson-correlation similarity for two sets of values
-    
-    Args:
-
-
-    Returns:
-
-
-    """
-    # Assert that both are of equal lengths
-
-    # Get mean for both lists (discarding 0's)
-    filtered_ov = [x for x in orig_vals if x != 0]
-    filtered_nv = [x for x in new_vals if x != 0]
-
-    ov_mean = sum(filtered_ov)/len(filtered_ov)
-    nv_mean = sum(filtered_nv)/len(filtered_nv)
-
-    # Compute cosine similarity
-    a = 0
-    b = 0
-    c = 0
-
-    for orig_val, new_val in zip(orig_vals, new_vals):
-        ov_vm = 0
-        nv_vm = 0
-
-        # Subtracts mean from orig if rating exists
-        if orig_val != 0:
-            ov_vm = orig_val - ov_mean
-        
-        # Subtracts mean from new if rating exists
-        if new_val != 0:
-            nv_vm = new_val - nv_mean
-
-        # Add results to values a, b and c
-        a += ov_vm * nv_vm
-        b += ov_vm ** 2
-        c += nv_vm ** 2
-
-    # Square root b and c, and comute cosine similarity
-    b = math.sqrt(b)
-    c = math.sqrt(c)
-
-    # TODO: Identify scenarios where division by 0 occurs and return appropriate
-    # value
-    if b * c == 0:
-        return 0
-    else:
-        return a / (b * c)
-
 def feed_fetch_discover(token):
 
     # Connect to database
@@ -125,7 +68,7 @@ def feed_fetch_discover(token):
     # Get largest user_id
     max_uid = 0
 
-    cur.execute("SELECT MAX(user_id) FROM recipe_reviews;")
+    cur.execute("SELECT MAX(id) FROM users;")
     sql_result = cur.fetchall()
 
     if sql_result:
@@ -134,7 +77,7 @@ def feed_fetch_discover(token):
     # Get largest recipe_id
     max_rid = 0
     
-    cur.execute("SELECT MAX(recipe_id) FROM recipe_reviews;")
+    cur.execute("SELECT MAX(recipe_id) FROM recipes;")
     sql_result = cur.fetchall()
 
     if sql_result:
@@ -187,7 +130,6 @@ def feed_fetch_discover(token):
 
     # Sort by highest estimate to lowest estimate
     estimates.sort(key=take_second, reverse=True)
-    print(estimates)
 
     # For each recipe_id, add recipe details to body content
     body_content = []

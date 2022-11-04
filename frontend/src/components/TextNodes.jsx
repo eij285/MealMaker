@@ -42,7 +42,8 @@ export const CustomLink = (props) => {
     font-weight: 500;
   `;
   return (
-    <LinkBase {...props} component={RouterLink} underline="always" />
+    <LinkBase color="primary.dark" {...props} component={RouterLink}
+      underline="always" />
   );
 };
 

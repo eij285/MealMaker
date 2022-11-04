@@ -1,21 +1,23 @@
-from crypt import methods
 from flask import Flask, request
 from flask_cors import CORS
+from config import SQL_SCHEMA, SQL_DATA
 from json import dumps
-import psycopg2
 
 from auth import auth_register, auth_login, auth_logout, \
                  auth_logout_everywhere, auth_update_pw, auth_reset_link, \
                  auth_reset_pw
-from backend_helper import database_reset, files_reset
-from user import user_preferences, user_update, user_info, user_update_preferences, user_subscribe, user_unsubscribe, user_get_followers, user_get_following, user_get_profile
-import recipe
-
+from backend_helper import database_reset, database_populate
+from user import user_preferences, user_update, user_info, \
+                 user_update_preferences, user_subscribe, user_unsubscribe, \
+                 user_get_followers, user_get_following, user_get_profile
+from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
+                   recipe_delete, recipes_fetch_own, recipes_user_published, \
+                   recipe_details, recipe_like, \
+                   recipe_related
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
 from feed import feed_fetch_discover, feed_fetch_subscription, \
                  feed_fetch_trending
-from backend_helper import database_reset
 from search import search
 
 APP = Flask(__name__)
@@ -23,9 +25,7 @@ CORS(APP)
 
 @APP.route('/', methods=['GET'])
 def index():
-    conn = psycopg2.connect("dbname=meal-maker-db")
-    cur = conn.cursor()
-    print(conn)
+    return "COMP3900 Meal Maker by Code Chefs. This route doesn't return data."
 
 @APP.route('/auth/register', methods=['POST'])
 def register():
@@ -87,10 +87,7 @@ def reset_password():
 @APP.route('/user/update', methods=['PUT'])
 def update_user_details():
     payload = request.get_json()
-    # Verify token
     token = payload['token']
-    #if not verify_token(token):
-    #    return dumps({'status_code': 401, 'error': None})
     display_name = payload['display-name']
     name = payload['given-names']
     surname = payload['last-name']
@@ -105,10 +102,7 @@ def update_user_details():
 @APP.route('/user/preferences/update', methods=['PUT'])
 def update_user_preferences():
     payload = request.get_json()
-    # Verify token
     token = payload['token']
-    #if not verify_token(token):
-    #    return dumps({'status_code': 401, 'error': None})
     units = payload['units']
     efficiency = payload['efficiency']
     breakfast = payload['breakfast']
@@ -130,122 +124,98 @@ def update_user_preferences():
 @APP.route('/user/info', methods=['POST'])
 def get_user_details():
     payload = request.get_json()
-    # Verify token
     token = payload['token']
-    #if not verify_token(token):
-    #    return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_info(token))
 
 @APP.route('/user/preferences', methods=['POST'])
 def get_user_preferences():
     payload = request.get_json()
-    # Verify token
     token = payload['token']
-    #if not verify_token(token):
-    #   return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_preferences(token))
 
 @APP.route('/user/subscribe', methods=['PUT'])
 def subscribe():
     payload = request.get_json()
-    # Verify token
     token = payload['token']
     subscribe_to = payload['id']
-    #if not verify_token(token):
-    #   return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_subscribe(token, subscribe_to))
 
 @APP.route('/user/unsubscribe', methods=['POST'])
 def unsubscribe():
     payload = request.get_json()
-    # Verify token
     token = payload['token']
     unsubscribe_to = payload['id']
-    #if not verify_token(token):
-    #   return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_unsubscribe(token, unsubscribe_to))
 
 @APP.route('/user/get/subscribers', methods=['POST'])
 def get_subscribers():
     payload = request.get_json()
-    # Verify token
     token = payload['token']
-    #if not verify_token(token):
-    #   return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_get_followers(token))
 
 @APP.route('/user/get/subscriptions', methods=['POST'])
 def get_subscriptions():
     payload = request.get_json()
-    # Verify token
     token = payload['token']
-    #if not verify_token(token):
-    #   return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_get_following(token))
 
 @APP.route('/user/get/profile', methods=['POST'])
 def get_profile():
     payload = request.get_json()
-    # Verify token
     token = payload['token']
     id = payload['id']
-    #if not verify_token(token):
-    #   return dumps({'status_code': 401, 'error': None})
     
     return dumps(user_get_profile(token, id))
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
     data = request.get_json()
-    # Verify token
     token = data['token']
-    #if not verify_token(token):
-    #    return dumps({'status_code': 401, 'error': None})
     name = data['name']
     description = data['description']
     servings = data['servings']
     recipe_status = data['recipe_status']
 
-    return dumps(create_recipe(name, description, servings, recipe_status, token))
+    return dumps(recipe_create(name, description, servings, recipe_status, token))
 
 @APP.route('/recipe/edit', methods=['POST'])
 def edit_recipe():
     data = request.get_json()
     token = data['token']
     recipe_id = data['recipe_id']
-    return dumps(recipe.edit_recipe(recipe_id, token))
+    return dumps(recipe_edit(recipe_id, token))
 
 @APP.route('/recipe/update', methods=['POST'])
 def update_recipe():
     data = request.get_json()
     token = data['token']
-    return dumps(recipe.recipe_update(data, token))
+    return dumps(recipe_update(data, token))
 
 @APP.route('/recipe/clone', methods=['POST'])
 def copy_recipe():
     data = request.get_json()
     token = data['token']
     recipe_id = data['recipe_id']
-    return dumps(recipe.recipe_clone(recipe_id, token))
+    return dumps(recipe_clone(recipe_id, token))
 
 @APP.route('/recipe/delete', methods=['POST'])
 def delete_recipe():
     data = request.get_json()
     token = data['token']
     recipe_id = data['recipe_id']
-    return dumps(recipe.recipe_delete(recipe_id, token))
+    return dumps(recipe_delete(recipe_id, token))
 
 @APP.route('/recipes/fetch-own', methods=['POST'])
 def fetch_own_recipes():
     data = request.get_json()
     token = data['token']
-    return dumps(recipe.recipes_fetch_own(token))
+    return dumps(recipes_fetch_own(token))
 
 @APP.route('/recipes/user/published', methods=['GET'])
 def published_user_recipes():
@@ -267,14 +237,19 @@ def details_for_recipe():
         else:
             recipe_id = None
         token = None
-    return dumps(recipe.recipe_details(recipe_id, token))
+    return dumps(recipe_details(recipe_id, token))
 
 @APP.route('/recipe/like', methods=['POST'])
 def like_recipe():
     data = request.get_json()
     token = data['token']
     recipe_id = data['recipe_id']
-    return recipe.recipe_like(recipe_id, token)
+    return dumps(recipe_like(recipe_id, token))
+
+@APP.route('/recipe/related', methods=['GET'])
+def related_recipes():
+    recipe_id = request.args.get('recipe_id')
+    return dumps(recipe_related(recipe_id))
 
 @APP.route('/reviews/all-for-recipe', methods=['GET', 'POST'])
 def all_reviews_for_recipe():
@@ -297,14 +272,14 @@ def create_review():
     recipe_id = data['recipe_id']
     rating = data['rating']
     comment = data['comment']
-    return review_create(recipe_id, rating, comment, token)
+    return dumps(review_create(recipe_id, rating, comment, token))
 
 @APP.route('/review/delete', methods=['POST'])
 def delete_review():
     data = request.get_json()
     token = data['token']
     review_id = data['review_id']
-    return review_delete(review_id, token)
+    return dumps(review_delete(review_id, token))
 
 @APP.route('/review/reply', methods=['POST'])
 def reply_to_review():
@@ -312,14 +287,14 @@ def reply_to_review():
     token = data['token']
     review_id = data['review_id']
     reply = data['reply']
-    return review_reply(review_id, reply, token)
+    return dumps(review_reply(review_id, reply, token))
 
 @APP.route('/review/reply/delete', methods=['POST'])
 def delete_reply_to_review():
     data = request.get_json()
     token = data['token']
     review_id = data['review_id']
-    return review_reply_delete(review_id, token)
+    return dumps(review_reply_delete(review_id, token))
 
 @APP.route('/review/vote', methods=['POST'])
 def vote_for_review():
@@ -327,14 +302,14 @@ def vote_for_review():
     token = data['token']
     review_id = data['review_id']
     is_upvote = data['is_upvote']
-    return review_vote(review_id, is_upvote, token)
+    return dumps(review_vote(review_id, is_upvote, token))
 
 @APP.route('/search', methods=['POST'])
 def search_recipe():
     data = request.get_json()
     token = data['token']
     search_term = data['search_term']
-    return search(search_term, token)
+    return dumps(search(search_term, token))
 
 @APP.route('/feed/discover', methods=['POST'])
 def feed_discover():
@@ -376,12 +351,27 @@ def feed_trending():
 #     return dumps(publish_recipe(recipe_id, "f"))
 
 
-@APP.route('/reset', methods=['DELETE', 'GET'])
+@APP.route('/reset', methods=['GET'])
 def reset():
-    status = database_reset()
-    if status:
-        files_reset()
-    return {}
+    if database_reset():
+        message = f'Database {SQL_SCHEMA} successfully reset'
+    else:
+        message = f'Database {SQL_SCHEMA} failed to reset'
+        
+    return {
+        'message': message
+    }
+
+@APP.route('/populatedb', methods=['GET'])
+def populatedb():
+    if database_populate():
+        message = f'Database {SQL_SCHEMA} successfully populated with {SQL_DATA}'
+    else:
+        message = f'Database {SQL_SCHEMA} failed to populate with {SQL_DATA}'
+        
+    return {
+        'message': message
+    }
 
 if __name__ == "__main__":
     APP.run(debug=True)

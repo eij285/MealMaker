@@ -27,7 +27,8 @@ const SmallButton = (props) => {
   const styles = {
     borderRadius: '20px',
     minWidth: '50px',
-    maxHeight: '30px'
+    maxHeight: '30px',
+    lineHeight: 1
   };
   return (
     <Button {...props} variant="contained" size="small" sx={ styles } />
@@ -93,19 +94,17 @@ export const HeaderButton = (props) => {
     borderRadius: '20px',
     whiteSpace: 'nowrap',
     '@media screen and (max-width: 40em)': {
-      fontSize: '6pt',
       padding: '4px 6px',
       minWidth: 0,
       '& svg': {
-        maxWidth: '10px'
+        maxWidth: '24px'
       }
     }
   };
   return (
-    <Button {...props} variant="contained" size="small" color="secondary" sx={ styles } />
+    <Button {...props} variant="contained" size="small" color="primary" sx={ styles } />
   );
 };
-
 
 /**
  * submit button using default button styling

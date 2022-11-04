@@ -14,11 +14,11 @@ import { styled } from '@mui/material/styles';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import SettingsIcon from '@mui/icons-material/Settings';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import LoyaltyIcon from '@mui/icons-material/Loyalty';
-import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import MessageIcon from '@mui/icons-material/Message';
 import StoreIcon from '@mui/icons-material/Store';
 
@@ -72,10 +72,20 @@ const Sidebar = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open'
   }),
 );
 
-const SidebarItemContainer = styled(ListItem)(() => ({
+const SidebarItemContainer = styled(ListItem, {
+  shouldForwardProp: (prop) => prop !== 'active' })(({ active }) => ({
     display: 'block',
     padding: 0,
-    borderBottom: '1px solid #cccccc',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: active ? '#000000' : '#cccccc',
+    '& .MuiListItemIcon-root svg': {
+      color: active ? '#000000' : '#888888'
+    },
+    '& .MuiTypography-root': {
+      color: active ? '#000000' : '#888888',
+      fontWeight: 600
+    }
 }));
 
 const SidebarItemButton = styled(ListItemButton, {
@@ -98,13 +108,20 @@ const SidebarItemIcon = styled(ListItemIcon, {
 const SidebarItemText = styled(ListItemText, {
   shouldForwardProp: (prop) => prop !== 'open' })(({ open }) => ({
     display: open ? 'block' : 'none',
-    color: '#333333'
   }),
 );
 
 const SidebarItem = ({to, text, open, icon}) => {
+  let activeItem = false;
+  const urlPath = window.location.pathname;
+  if (to === urlPath) {
+    activeItem = true;
+  } else if (to === '/user-profile' && urlPath === '/update-password') {
+    activeItem = true;
+  }
+
   return (
-    <SidebarItemContainer component={RouterLink} to={to}>
+    <SidebarItemContainer component={RouterLink} to={to} active={activeItem}>
       <SidebarItemButton open={open}>
         <SidebarItemIcon open={open}>
           {icon}
@@ -127,14 +144,14 @@ export default function ManageSidebar() {
       </SidebarToggle>
       <Divider />
       <List sx={{ paddingTop: 0 }}>
-        <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />
         <SidebarItem to="/my-recipes" text="My Recipes" open={open} icon={<FoodBankIcon />} />
-        <SidebarItem to="#" text="Cook Books" open={open} icon={<MenuBookIcon />} />
+        <SidebarItem to="/my-cookbooks" text="Cook Books" open={open} icon={<MenuBookIcon />} />
         <SidebarItem to="/subscriptions" text="Subscriptions" open={open} icon={<SubscriptionsIcon />} />
         <SidebarItem to="/subscribers" text="Subscribers" open={open} icon={<LoyaltyIcon />} />
-        <SidebarItem to="/user-preferences" text="Preferences" open={open} icon={<SettingsApplicationsIcon />} />
         <SidebarItem to="#" text="Messages" open={open} icon={<MessageIcon />} />
         <SidebarItem to="#" text="Shopping" open={open} icon={<StoreIcon />} />
+        <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />
+        <SidebarItem to="/user-preferences" text="Preferences" open={open} icon={<SettingsIcon />} />
       </List>
     </Sidebar>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { useParams, Link as RouterLink } from 'react-router-dom';
+import { Box, Grid } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
 import NotFound404Page from '../Error/NotFound404Page';
@@ -27,6 +27,7 @@ import {
 } from '../../components/Recipe/RecipeNodes';
 import { backendRequest } from '../../helpers';
 import RecipeReviews from '../../components/Recipe/RecipeReviews';
+import { RecipeItem } from '../../components/Recipe/RecipeItems';
 
 function ViewRecipePage () {
   const { recipeId } = useParams();
@@ -47,6 +48,8 @@ function ViewRecipePage () {
     }
   });
   const [servings, setServings] = React.useState('4');
+  const [gridSize, setGridSize] = React.useState({xl: 12, lg: 12, md: 12});
+  const [related, setRelated] = React.useState([]);
   const [responseError, setResponseError] = React.useState('');
 
   const initCurrData = (data) => {
@@ -65,8 +68,9 @@ function ViewRecipePage () {
   };
 
   const calcPortion = (origServes, origValue, currServes) => {
-    if (isNaN(origServes) || isNaN(origValue) || isNaN(currServes) || 
-      parseInt(currServes) < 1 || parseInt(origValue) < 1) {
+    if (origValue === null || isNaN(origServes) || isNaN(origValue) ||
+      isNaN(currServes) ||  parseInt(currServes) < 1 ||
+      parseInt(origValue) < 1) {
       return -1;
     }
     return origValue * (currServes / origServes);
@@ -96,6 +100,18 @@ function ViewRecipePage () {
         likesCount: recipeData.likes.likes_count,
         hasLiked: recipeData.likes.has_liked
       }
+    });
+  };
+
+  const loadRelated = () => {
+    const reqURL = `/recipe/related?recipe_id=${recipeId}`;
+    backendRequest(reqURL, null, 'GET', null, (data) => {
+      if (data.body.length > 0) {
+        setGridSize({xl: 10, lg: 9, md: 8});
+        setRelated([...data.body]);
+      }
+    }, (error) => {
+      setResponseError(error);
     });
   };
 
@@ -154,59 +170,73 @@ function ViewRecipePage () {
 
   React.useEffect(() => {
     loadRecipe();
+    loadRelated();
   }, [recipeId, token]);
 
   return (<>
     {errorStatus === 404 && <NotFound404Page />}
     {errorStatus !== 404 &&
     <ExploreLayout>
-      <FlexColumn>
-        {responseError !== '' &&
-        <Box mt={2}>
-          <ErrorAlert message={responseError} setMessage={setResponseError} />
-        </Box>}
-        {Object.keys(recipeData).length > 0 &&<>
-        <Box>
-          <FlexRowWrapSpaced>
-            <PageTitle>{recipeData.recipe_name}</PageTitle>
-            {recipeData.user_is_author &&
-            <RightAlignMedButton component={RouterLink}
-              to={`/edit-recipe/${recipeId}`}>
-              Edit Recipe
-            </RightAlignMedButton>}
-          </FlexRowWrapSpaced>
-          {recipeData.cuisine &&
-          <SubPageTitleNoMargins>{recipeData.cuisine}</SubPageTitleNoMargins>}
-          <RecipeImg src={recipeData.recipe_photo} alt={recipeData.recipe_name} />
-          <FlexRowWrapSpaced>
-            <FlexRow>
-              <RecipeRating reviews={recipeData.reviews} />
-              <RecipeLikes likesObject={currData.likes} likeRecipe={likeRecipe} />
-            </FlexRow>
-            <FlexRow>
-              <UserImageNameLink src={recipeData.author_image}
-                name={recipeData.author_display_name}
-                to={`/user/${recipeData.author_id}`} />
-              {token && !recipeData.user_is_author &&
-              <SmallAlternateButton onClick={subscribeToUser}>
-                {!recipeData.is_subscribed && <>Subscribe</>}
-                {recipeData.is_subscribed && <>Unubscribe</>}
-              </SmallAlternateButton>}
-            </FlexRow>
-          </FlexRowWrapSpaced>
-          <RecipeInfoPanel data={recipeData} currData={currData} 
-            setServings={setServings} />
-        </Box>
-        <MealSuitabilityTags data={recipeData} />
-        <IngredientsListing data={currData}
-          reqImperial={recipeData.units === 'Imperial'} />
-        <Box>
-          <SubPageTitleNoMargins>Method</SubPageTitleNoMargins>
-          <WYSIWYGOutput>{recipeData.recipe_method}</WYSIWYGOutput>
-        </Box>
-        <RecipeReviews recipeId={recipeId} recipeData={recipeData}
-          setRecipeData={setRecipeData} /></>}
-      </FlexColumn>
+      <Grid container spacing={2}>
+        <Grid item xl={gridSize.xl} lg={gridSize.lg} md={gridSize.md}
+          sm={12} xs={12}>
+          <FlexColumn>
+            {responseError !== '' &&
+            <Box mt={2}>
+              <ErrorAlert message={responseError} setMessage={setResponseError} />
+            </Box>}
+            {Object.keys(recipeData).length > 0 &&<>
+            <Box>
+              <FlexRowWrapSpaced>
+                <PageTitle>{recipeData.recipe_name}</PageTitle>
+                {recipeData.user_is_author &&
+                <RightAlignMedButton component={RouterLink}
+                  to={`/edit-recipe/${recipeId}`}>
+                  Edit Recipe
+                </RightAlignMedButton>}
+              </FlexRowWrapSpaced>
+              {recipeData.cuisine &&
+              <SubPageTitleNoMargins>{recipeData.cuisine}</SubPageTitleNoMargins>}
+              <RecipeImg src={recipeData.recipe_photo} alt={recipeData.recipe_name} />
+              <FlexRowWrapSpaced>
+                <FlexRow>
+                  <RecipeRating reviews={recipeData.reviews} />
+                  <RecipeLikes likesObject={currData.likes} likeRecipe={likeRecipe} />
+                </FlexRow>
+                <FlexRow>
+                  <UserImageNameLink src={recipeData.author_image}
+                    name={recipeData.author_display_name}
+                    to={`/user/${recipeData.author_id}`} />
+                  {token && !recipeData.user_is_author &&
+                  <SmallAlternateButton onClick={subscribeToUser}>
+                    {!recipeData.is_subscribed && <>Subscribe</>}
+                    {recipeData.is_subscribed && <>Unubscribe</>}
+                  </SmallAlternateButton>}
+                </FlexRow>
+              </FlexRowWrapSpaced>
+              <RecipeInfoPanel data={recipeData} currData={currData} 
+                setServings={setServings} />
+            </Box>
+            <MealSuitabilityTags data={recipeData} />
+            <IngredientsListing data={currData}
+              reqImperial={recipeData.units === 'Imperial'} />
+            <Box>
+              <SubPageTitleNoMargins>Method</SubPageTitleNoMargins>
+              <WYSIWYGOutput>{recipeData.recipe_method}</WYSIWYGOutput>
+            </Box>
+            <RecipeReviews recipeId={recipeId} recipeData={recipeData}
+              setRecipeData={setRecipeData} /></>}
+          </FlexColumn>
+        </Grid>
+        {related.length > 0 &&
+        <Grid container spacing={2} item xl={12 - gridSize.xl}
+          lg={12 - gridSize.lg} md={12 - gridSize.md} sm={12} xs={12}>
+          {related.map((recipe, index) => (
+          <Grid item xl={12} lg={12} md={12} sm={6} xs={12} key={index}>
+            <RecipeItem recipe={recipe} />
+          </Grid>))}
+        </Grid>}
+      </Grid>
     </ExploreLayout>}
   </>);
 }
