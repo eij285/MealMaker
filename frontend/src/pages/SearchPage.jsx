@@ -1,32 +1,35 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { Grid } from '@mui/material';
 import GlobalContext from '../utils/GlobalContext';
 import ExploreLayout from '../components/Layout/ExploreLayout';
-import { backendRequest } from '../helpers';
+import { backendRequest, filterRecipes } from '../helpers';
 import {
   ErrorAlert,
   FlexColumn,
   UserPreferencesComponent
 } from '../components/StyledNodes';
 import { PageTitle } from '../components/TextNodes';
+import { RecipeItem } from '../components/Recipe/RecipeItems';
+
 
 function SearchPage () {
   const { query } = useParams();
-  const searchQuery = typeof query !== 'undefined' ? query : '';
+  const searchTerm = typeof query !== 'undefined' ? query : '';
 
-  const token = React.useContext(GlobalContext).token;
-
+  const userPreferences = React.useContext(GlobalContext).userPreferences;
+  const [allRecipes, setAllRecipes] = React.useState([]);
   const [recipes, setRecipes] = React.useState([]);
   const [responseError, setResponseError] = React.useState('');
 
   const loadResults = () => {
-    const body = {
-      search_term: searchQuery
-    };
-    // FIX BACKEND: why do you need to be authenticated to search???
-    backendRequest('/search', body, 'POST', token, (data) => {
-      setRecipes([...data.body]);
-      console.log(data.body);
+    const reqURL = `/search?search_term=${searchTerm}`;
+    backendRequest(reqURL, null, 'GET', null, (data) => {
+      const body = data.body;
+      if (Array.isArray(body) && body.length > 0) {
+        setAllRecipes([...body]);
+        filterRecipes(userPreferences, [...body], setRecipes);
+      }
     }, (error) => {
       setResponseError(error);
     });
@@ -34,15 +37,27 @@ function SearchPage () {
 
   React.useEffect(() => {
     loadResults();
-  });
+  }, [searchTerm]);
+
+  React.useEffect(() => {
+    filterRecipes(userPreferences, allRecipes, setRecipes);
+  }, [userPreferences]);
 
   return (
     <ExploreLayout>
       <UserPreferencesComponent />
-      <PageTitle>Search: {searchQuery}</PageTitle>
+      <PageTitle>Search: {searchTerm}</PageTitle>
       <FlexColumn>
         {responseError !== '' &&
-        <ErrorAlert message={responseError} setMessage={setResponseError} />} 
+        <ErrorAlert message={responseError} setMessage={setResponseError} />}
+        <Grid>
+          <Grid container spacing={2}>
+            {recipes.map((recipe, index) => (
+            <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
+              <RecipeItem recipe={recipe} level={userPreferences.efficiency} />
+            </Grid>))}
+          </Grid>
+        </Grid>
       </FlexColumn>
     </ExploreLayout>
   );

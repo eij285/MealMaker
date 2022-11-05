@@ -14,14 +14,12 @@ import {
   DialogTitle,
   Divider,
   Drawer,
-  FormControl,
   FormControlLabel,
   FormGroup,
   Grid,
   IconButton,
   Link,
   Paper,
-  Rating,
   Slider,
   Tooltip,
   Typography
@@ -32,7 +30,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import GlobalContext from '../utils/GlobalContext';
 import { MediumDefaultButton, MediumAlternateButton } from './Buttons';
-import { SmallBlackText, SubPageTitle } from './TextNodes';
+import { SubPageTitle } from './TextNodes';
 import { CentredElementsForm } from '../components/Forms';
 
 const CustomAlert = ({props, status, message, setMessage}) => {
@@ -236,21 +234,33 @@ export const UserPreferencesComponent = () => {
     alignSelf: 'flex-start',
     marginLeft: '14px',
     padding: 0,
-    '& svg': {
-      width: '48px',
-      height: '48px',
+    '&:hover svg': {
+      opacity: 0.9
     }
   };
 
   const openBtnStyles = {
     ...btnStyles,
-    top: '-10px',
-    position: 'absolute'
+    top: '-26px',
+    position: 'absolute',
+    '& svg': {
+      width: '48px',
+      height: '48px',
+      opacity: 0.6,
+      marginBottom: '-10px'
+    },
   };
 
   const closeBtnStyles = {
     ...btnStyles,
-    position: 'relative'
+    position: 'relative',
+    height: '32px',
+    marginTop: '20px',
+    '& svg': {
+      width: '48px',
+      height: '48px',
+      opacity: 0.6,
+    },
   };
 
   const [open, setOpen] = React.useState(false);
@@ -392,16 +402,16 @@ export const UserPreferencesComponent = () => {
             </Grid>
           </FlexColumn>
         </Container>
-        <IconButton sx={ closeBtnStyles } size="large" disableRipple={true}
-          onClick={() => setOpen(false)}>
+        <Paper component={IconButton} disableRipple={true} sx={ closeBtnStyles }
+          onClick={() => setOpen(false)} elevation={3}>
           <ExpandLessIcon />
-        </IconButton>
+        </Paper>
       </Drawer>
       {!open &&
-      <IconButton sx={ openBtnStyles } size="large" disableRipple={true}
-        onClick={() => setOpen(true)}>
+      <Paper component={IconButton} disableRipple={true} sx={ openBtnStyles }
+        onClick={() => setOpen(true)} elevation={3}>
         <ExpandMoreIcon />
-      </IconButton>}
+      </Paper>}
     </Box>
   );
 };
