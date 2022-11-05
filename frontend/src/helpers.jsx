@@ -296,24 +296,71 @@ export const formatIngredient = (ingredient, reqImperial) => {
   return `${formatNumString(quantity)} ${formatIngredientUnit(quantity, unit)}`;
 };
 
+export const customPrepTime = (hours, minutes, level) => {
+  let totalMinutes = 0;
+  if (hours !== null) {
+    totalMinutes = hours * 60;
+  }
+  if (minutes !== null) {
+    totalMinutes += minutes;
+  }
+  if (level === config.EFFICIENCY[2]) {
+    totalMinutes *= config.EFFICIENCY_CONV;
+  } else if (level === config.EFFICIENCY[0]) {
+    totalMinutes /= config.EFFICIENCY_CONV;
+  }
+  return Math.round(totalMinutes);
+}
+
 /**
  * set filtered recipes from all recipes based on user preferences
  */
 export const filterRecipes = (userPreferences, allRecipes, setFiltered) => {
   setFiltered([...allRecipes.filter((recipe) => {
-    return !((!recipe.breakfast && userPreferences.breakfast) ||
-           (!recipe.lunch && userPreferences.lunch) ||
-           (!recipe.dinner && userPreferences.dinner) ||
-           (!recipe.snack && userPreferences.snack) ||
-           (!recipe.vegetarian && userPreferences.vegetarian) ||
-           (!recipe.vegan && userPreferences.vegan) ||
-           (!recipe.kosher && userPreferences.kosher) ||
-           (!recipe.halal && userPreferences.halal) ||
-           (!recipe.dairy_free && userPreferences.dairyFree) ||
-           (!recipe.gluten_free && userPreferences.glutenFree) ||
-           (!recipe.nut_free && userPreferences.nutFree) ||
-           (!recipe.egg_free && userPreferences.eggFree) ||
-           (!recipe.shellfish_free && userPreferences.shellfishFree) ||
-           (!recipe.soy_free && userPreferences.soyFree));
+    // meal must meet all dietary needs
+    if ((!recipe.vegetarian && userPreferences.vegetarian) ||
+      (!recipe.vegan && userPreferences.vegan) ||
+      (!recipe.kosher && userPreferences.kosher) ||
+      (!recipe.halal && userPreferences.halal) ||
+      (!recipe.dairy_free && userPreferences.dairyFree) ||
+      (!recipe.gluten_free && userPreferences.glutenFree) ||
+      (!recipe.nut_free && userPreferences.nutFree) ||
+      (!recipe.egg_free && userPreferences.eggFree) ||
+      (!recipe.shellfish_free && userPreferences.shellfishFree) ||
+      (!recipe.soy_free && userPreferences.soyFree)) {
+      return false;
+    }
+    // don't filter by meal where meal suitability unticked, where one or more
+    // options ticked must satisfy at least one meal option
+    if ((userPreferences.breakfast || userPreferences.lunch ||
+      userPreferences.dinner || userPreferences.snack) &&
+      ((!recipe.breakfast && userPreferences.breakfast) ||
+      (!recipe.lunch && userPreferences.lunch) ||
+      (!recipe.dinner && userPreferences.dinner) ||
+      (!recipe.snack && userPreferences.snack))) {
+      return false;
+    }
+    // exclude cuisine unspecified, but cuisine type required
+    if (recipe.cuisine === null && !userPreferences.showUnspecifiedCuisines) {
+      return false;
+    } else if (recipe.cuisine !== null) {
+      // filter out not null cuisine
+      if (!userPreferences.cuisines.hasOwnProperty(recipe.cuisine)) {
+        return false;
+      }
+      if (!userPreferences.cuisines[recipe.cuisine]) {
+        return false;
+      }
+    }
+    // include if allowing unspecified preparation time, otherwise exclude
+    if (recipe.preparation_hours === null &&
+      recipe.preparation_minutes === null) {
+      return userPreferences.showUnspecifiedTime;
+    }
+    // calculation based on user efficiency based time
+    const userPrepTime = customPrepTime(recipe.preparation_hours,
+      recipe.preparation_minutes, userPreferences.efficiency);
+    return userPrepTime >= userPreferences.minMinutes &&
+      userPreferences.maxMinutes >= userPrepTime;
   })]);
 };

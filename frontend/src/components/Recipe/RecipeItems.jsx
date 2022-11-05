@@ -207,7 +207,7 @@ const RecipeRatingNameAuthor = ({data}) => {
   )
 };
 
-export const RecipeItem = ({recipe}) => {
+export const RecipeItem = ({recipe, level}) => {
   const navigate = useNavigate();
   return (
     <RecipeItemPaperCursor
@@ -223,7 +223,7 @@ export const RecipeItem = ({recipe}) => {
         <FlexColumnSpaced>
           <RecipePrepartionTime hours={recipe.preparation_hours}
             minutes={recipe.preparation_minutes}
-            level={recipe.efficiency} useSmall={true} />
+            level={level} useSmall={true} />
           <RecipeItemLikes likesCount={recipe.likes.likes_count} />
         </FlexColumnSpaced>
       </RecipeItemTextContainer>

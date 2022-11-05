@@ -107,7 +107,7 @@ function ViewRecipePage () {
     const reqURL = `/recipe/related?recipe_id=${recipeId}`;
     backendRequest(reqURL, null, 'GET', null, (data) => {
       if (data.body.length > 0) {
-        setGridSize({xl: 10, lg: 9, md: 8});
+        setGridSize({xl: 9, lg: 9, md: 8});
         setRelated([...data.body]);
       }
     }, (error) => {
