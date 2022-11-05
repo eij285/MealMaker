@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { backendRequest } from '../helpers';
+const config = require('../config.json');
 
 const GlobalContext = React.createContext(null);
 
@@ -30,6 +31,12 @@ export const GlobalProvider = ({ children }) => {
     eggFree: false,
     shellfishFree: false,
     soyFree: false,
+    cuisines: config.CUISINES.reduce((c, v) => ({ ...c, [v]: true}), {}),
+    showUnspecifiedCuisines: false,
+    efficiency: 'Intermediate',
+    minMinutes: 30,
+    maxMinutes: 180,
+    showUnspecifiedTime: true,
   });
 
   const login = (userToken) => {
@@ -46,6 +53,7 @@ export const GlobalProvider = ({ children }) => {
     if (token) {
       backendRequest('/user/preferences', {}, 'POST', token, (data) => {
         setUserPreferences({
+          ...userPreferences,
           breakfast: data.breakfast,
           lunch: data.lunch,
           dinner: data.dinner,
@@ -60,6 +68,7 @@ export const GlobalProvider = ({ children }) => {
           eggFree: data.egg_free,
           shellfishFree: data.shellfish_free,
           soyFree: data.soy_free,
+          efficiency: data.efficiency,
         });
       });
     }

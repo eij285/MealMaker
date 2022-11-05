@@ -25,7 +25,10 @@ import { backendRequest } from '../../helpers';
 const config = require('../../config.json');
 
 function UserPreferencesPage () {
-  const token = React.useContext(GlobalContext).token;
+  const globals = React.useContext(GlobalContext);
+  const token = globals.token;
+  const globalUserPreferences = globals.userPreferences;
+  const setGlobalUserPreferences = globals.setUserPreferences;
 
   const [breakfast, setBreakfast] = React.useState(true);
   const [lunch, setLunch] = React.useState(true);
@@ -70,16 +73,38 @@ function UserPreferencesPage () {
   };
 
   React.useEffect(() => {
-    backendRequest('/user/preferences', {}, 'POST', token, (data) => {
-      loadPreferences(data);
-    }, (error) => {
-      setResponseError(error);
-    });
+    if (token) {
+      backendRequest('/user/preferences', {}, 'POST', token, (data) => {
+        loadPreferences(data);
+      }, (error) => {
+        setResponseError(error);
+      });
+    }
   }, [token]);
+
+  const updateGlobalPreferences = (data) => {
+    setGlobalUserPreferences({
+      ...globalUserPreferences,
+      breakfast: data.breakfast,
+      lunch: data.lunch,
+      dinner: data.dinner,
+      snack: data.snack,
+      vegetarian: data.vegetarian,
+      vegan: data.vegan,
+      kosher: data.kosher,
+      halal: data.halal,
+      dairyFree: data.dairy_free,
+      glutenFree: data.gluten_free,
+      nutFree: data.nut_free,
+      eggFree: data.egg_free,
+      shellfishFree: data.shellfish_free,
+      soyFree: data.soy_free,
+      efficiency: data.efficiency,
+    });
+  };
 
   const updatePreferences = (e) => {
     e.preventDefault();
-
     const body = {
       breakfast: breakfast,
       lunch: lunch,
@@ -100,6 +125,7 @@ function UserPreferencesPage () {
     };
     backendRequest('/user/preferences/update', body, 'PUT', token, (data) => {
       setResponseSuccess('Details Updated Successfully');
+      updateGlobalPreferences(body);
     }, (error) => {
       setResponseError(error);
     });
