@@ -95,7 +95,7 @@ def feed_fetch_discover(token):
 
         return {
             'status_code': 200,
-            'body': {}
+            'body': []
         }
 
     # Otherwise, initialise 2d array with recipes as rows and users as columns
@@ -195,7 +195,7 @@ def feed_fetch_subscription(token):
 
         return {
             'status_code': 200,
-            'body': {}
+            'body': []
         }
     
     # Get all recipes created by following users and order by last created
@@ -265,7 +265,7 @@ def feed_fetch_trending():
 
         return {
             'status_code': 200,
-            'body': {}
+            'body': []
         }
 
     # For each recipe_id, add recipe details to body content

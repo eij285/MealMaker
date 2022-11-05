@@ -1422,7 +1422,7 @@ def recipe_related(recipe_id):
 
         return {
             'status_code': 200,
-            'body': {}
+            'body': []
         }
     
     # Otherwise, initialise 2d array with recipes as rows and users as columns
