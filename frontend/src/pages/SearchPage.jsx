@@ -22,7 +22,7 @@ function SearchPage () {
   const loadResults = () => {
     const body = {
       search_term: searchQuery
-    }
+    };
     // FIX BACKEND: why do you need to be authenticated to search???
     backendRequest('/search', body, 'POST', token, (data) => {
       setRecipes([...data.body]);

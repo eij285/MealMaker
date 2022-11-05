@@ -250,7 +250,6 @@ export const UserPreferencesComponent = () => {
     position: 'relative'
   };
 
-
   const [open, setOpen] = React.useState(false);
 
   const handleChange = (e) => {
