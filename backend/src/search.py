@@ -1,7 +1,7 @@
 from backend_helper import *
 from difflib import SequenceMatcher
 from operator import itemgetter
-from recipe import recipe_fetch_ingredients
+from recipe import recipe_fetch_ingredients, recipe_details
 
 def breakdown_string_to_array(search_term):
     word = []
@@ -15,6 +15,15 @@ def breakdown_string_to_array(search_term):
     return word
 
 def check_similarity_exact(search_term, target):
+    """check the number of exact terms matching between search_term and target
+
+    Args:
+        search_term (string): search term from user
+        target (list): a list of ingredients in string
+
+    Returns:
+        similarity (list): a list of ratio
+    """
 
     search_term_array = breakdown_string_to_array(search_term)
     similarity = []
@@ -22,13 +31,13 @@ def check_similarity_exact(search_term, target):
         if elem is not None:
             for elem2 in elem:
                 # target_array = word array of first item of target
-                target_array = breakdown_string_to_array(elem)
+                target_array = breakdown_string_to_array(elem2)
                 ratio = 0.0
                 for target_word in target_array:
                     if target_word in search_term_array:
                         ratio += 1
-                ratio /= (len(target_array) * len(search_term_array))
-                similarity.append(ratio)
+            ratio /= (len(target_array) * len(search_term_array))
+            similarity.append(ratio)
         else:
             similarity.append(0)
     return similarity
@@ -51,7 +60,7 @@ def check_similarity(search_term, target):
             similarity.append(0)
     return similarity
 
-def search(search_term, token):
+def search(search_term):
     """search for recipes based on search_term, with a cutoff of anything with less than 20% similarity not returned
 
     Args:
@@ -91,17 +100,10 @@ def search(search_term, token):
         for datatype, refer to schema.sql
     """
     
-    
-    if not verify_token(token):
-        return {
-            'status_code': 401,
-            'error': "Invalid token"
-        }
-    
-    if not token:
-        return {
-            'status_code': 401,
-            'error': "No token"
+    if search_term == "":
+        return{
+            'status_code': 200,
+            'body': []
         }
     
     try:        
@@ -116,15 +118,14 @@ def search(search_term, token):
             all_id.append(recipe['recipe_id'])
             all_titles.append(recipe['recipe_name'])
             ingredients = recipe_fetch_ingredients(recipe['recipe_id'])
-            temp=None
+
+            temp=[]
             for ingredient in ingredients:
-                temp = []
                 temp.append(ingredient['ingredient_name'])
             all_ingredients.append(temp)
-           
         # Fetch ingredient not working
         title_similarity = check_similarity(search_term, all_titles)
-        ingredient_match = check_similarity_exact(search_term, all_ingredients[0])
+        ingredient_match = check_similarity_exact(search_term, all_ingredients)
         cuisine_similarity = check_similarity(search_term, all_cuisine)
         output = []
         for i in range(0, len(title_similarity)):
@@ -135,89 +136,12 @@ def search(search_term, token):
                 output.append(similarity)
         
         sorted_dict = sorted(output, key=itemgetter('similarity'), reverse=True) 
-        out_recipe = []
-        conn = connect()
-        cur = conn.cursor()
         output = []
         for i in sorted_dict:
             id = i["id"]
-            
-            # fetch recipe
-            query = ("""SELECT * FROM recipes WHERE recipe_id = %s""")
-            cur.execute(query, (id,))
-            out_recipe = cur.fetchone()
-                        
-            # fetch review count
-            query = ("""
-                SELECT COUNT(*) FROM recipe_reviews
-                WHERE recipe_id = %s
-                """)
-            cur.execute(query, (id,))
-            review_count = cur.fetchone()[0]  
-            
-            # fetch ratings
-            query = ("""
-                SELECT rating FROM recipe_reviews
-                WHERE recipe_id = %s
-                """)
-            cur.execute(query, (id,))
-            rating_all = cur.fetchall()
-            if rating_all == []:
-                rating_avg = 0
-            else:
-                rating_avg = sum(rating_all) / review_count
-            
-            
-            
-            # fetch likes
-            query = ("""
-                SELECT COUNT(*) FROM recipe_user_likes
-                WHERE recipe_id = %s
-                """)
-            cur.execute(query, (id,))
-            like_count = cur.fetchone()[0]
-            if like_count == None:
-                like_count = 0
-            
-            # fetch user
-            query = ("""
-                SELECT display_name, base64_image FROM users
-                WHERE id = %s
-                """)
-            cur.execute(query, (out_recipe[1],))
-            out = cur.fetchone()
-            owner_name = out[0]
-            owner_image = out[1]
-            out = {
-                'recipe_id': id,
-                'recipe_name': out_recipe[2],
-                'recipe_photo': out_recipe[4],
-                'created_on': str(out_recipe[7]),
-                'preparation_hours': out_recipe[9],
-                'preparation_minutes':out_recipe[10],
-                'cuisine': out_recipe[16],
-                'breakfast': out_recipe[17],
-                'lunch': out_recipe[18],
-                'dinner': out_recipe[19],
-                'snack': out_recipe[20],
-                'vegetarian': out_recipe[21],
-                'vegan': out_recipe[22],
-                'kosher': out_recipe[23],
-                'halal': out_recipe[24],
-                'dairy_free': out_recipe[25],
-                'gluten_free': out_recipe[26],
-                'nut_free': out_recipe[27],
-                'egg_free': out_recipe[28],
-                'shellfish_free': out_recipe[29],
-                'soy_free': out_recipe[30],
-                'review_cnt': review_count,
-                'rating_avg': rating_avg,
-                'likes_cnt': like_count,
-                'owner_display_name': owner_name,
-                'owner_image': owner_image
-            }
+            out = recipe_details(id, None)['body']
             output.append(out)
-    
+        
         return{
             'status_code': 200,
             'body': output

@@ -23,7 +23,7 @@ from search import search
 APP = Flask(__name__)
 CORS(APP)
 
-@APP.route('/', methods=['GET'])
+@APP.route('/')
 def index():
     return "COMP3900 Meal Maker by Code Chefs. This route doesn't return data."
 
@@ -304,12 +304,13 @@ def vote_for_review():
     is_upvote = data['is_upvote']
     return dumps(review_vote(review_id, is_upvote, token))
 
-@APP.route('/search', methods=['POST'])
+@APP.route('/search', methods=['GET'])
 def search_recipe():
-    data = request.get_json()
-    token = data['token']
-    search_term = data['search_term']
-    return dumps(search(search_term, token))
+    if 'search_term' in request.args:
+        search_term = request.args.get('search_term')
+    else:
+        search_term = ""
+    return dumps(search(search_term))
 
 @APP.route('/feed/discover', methods=['POST'])
 def feed_discover():
