@@ -301,19 +301,19 @@ export const formatIngredient = (ingredient, reqImperial) => {
  */
 export const filterRecipes = (userPreferences, allRecipes, setFiltered) => {
   setFiltered([...allRecipes.filter((recipe) => {
-    return recipe.breakfast === userPreferences.breakfast &&
-           recipe.lunch === userPreferences.lunch &&
-           recipe.dinner === userPreferences.dinner &&
-           recipe.snack === userPreferences.snack &&
-           recipe.vegetarian === userPreferences.vegetarian &&
-           recipe.vegan === userPreferences.vegan &&
-           recipe.kosher === userPreferences.kosher &&
-           recipe.halal === userPreferences.halal &&
-           recipe.dairy_free === userPreferences.dairyFree &&
-           recipe.gluten_free === userPreferences.glutenFree &&
-           recipe.nut_free === userPreferences.nutFree &&
-           recipe.egg_free === userPreferences.eggFree &&
-           recipe.shellfish_free === userPreferences.shellfishFree &&
-           recipe.soy_free === userPreferences.soyFree;
+    return !((!recipe.breakfast && userPreferences.breakfast) ||
+           (!recipe.lunch && userPreferences.lunch) ||
+           (!recipe.dinner && userPreferences.dinner) ||
+           (!recipe.snack && userPreferences.snack) ||
+           (!recipe.vegetarian && userPreferences.vegetarian) ||
+           (!recipe.vegan && userPreferences.vegan) ||
+           (!recipe.kosher && userPreferences.kosher) ||
+           (!recipe.halal && userPreferences.halal) ||
+           (!recipe.dairy_free && userPreferences.dairyFree) ||
+           (!recipe.gluten_free && userPreferences.glutenFree) ||
+           (!recipe.nut_free && userPreferences.nutFree) ||
+           (!recipe.egg_free && userPreferences.eggFree) ||
+           (!recipe.shellfish_free && userPreferences.shellfishFree) ||
+           (!recipe.soy_free && userPreferences.soyFree));
   })]);
 };

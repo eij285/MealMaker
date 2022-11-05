@@ -44,9 +44,11 @@ function HomePage () {
 
   const loadTrending = () => {
     backendRequest('/feed/trending', null, 'GET', null, (data) => {
-      setAllTrending([...data.body]);
-      filterRecipes(userPreferences, [...data.body], setFilteredTrending);
-      console.log(data.body);
+      const body = data.body;
+      if (Array.isArray(body) && body.length > 0) {
+        setAllTrending([...body]);
+        filterRecipes(userPreferences, [...body], setFilteredTrending);
+      }
     }, (error) => {
       setResponseError(error);
     });
@@ -54,8 +56,11 @@ function HomePage () {
 
   const loadSubsFeed = () => {
     backendRequest('/feed/subscription', {}, 'POST', token, (data) => {
-      setAllSubsFeed([...data.body]);
-      filterRecipes(userPreferences, [...data.body], setFilteredSubsFeed);
+      const body = data.body;
+      if (Array.isArray(body) && body.length > 0) {
+        setAllSubsFeed([...body]);
+        filterRecipes(userPreferences, [...body], setFilteredSubsFeed);
+      }
     }, (error) => {
       setResponseError(error);
     });
@@ -63,8 +68,11 @@ function HomePage () {
 
   const loadDiscover = () => {
     backendRequest('/feed/discover', {}, 'POST', token, (data) => {
-      setAllDiscover([...data.body]);
-      filterRecipes(userPreferences, [...data.body], setFilteredDiscover);
+      const body = data.body;
+      if (Array.isArray(body) && body.length > 0) {
+        setAllDiscover([...body]);
+        filterRecipes(userPreferences, [...body], setFilteredDiscover);
+      }
     }, (error) => {
       setResponseError(error);
     });
