@@ -19,8 +19,12 @@ def calculate_similarity(orig_vals, new_vals):
     filtered_ov = [x for x in orig_vals if x != 0]
     filtered_nv = [x for x in new_vals if x != 0]
 
-    ov_mean = sum(filtered_ov)/len(filtered_ov)
-    nv_mean = sum(filtered_nv)/len(filtered_nv)
+    try:
+        ov_mean = sum(filtered_ov)/len(filtered_ov)
+        nv_mean = sum(filtered_nv)/len(filtered_nv)
+    except ZeroDivisionError:
+        ov_mean = 0
+        nv_mean = 0
 
     # Compute cosine similarity
     a, b, c = 0, 0, 0
