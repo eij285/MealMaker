@@ -28,7 +28,7 @@ def check_similarity_exact(search_term, target):
     search_term_array = breakdown_string_to_array(search_term)
     similarity = []
     for elem in target:
-        if elem is not None:
+        if elem is not None and len(elem) != 0:
             for elem2 in elem:
                 # target_array = word array of first item of target
                 target_array = breakdown_string_to_array(elem2)
@@ -59,6 +59,13 @@ def check_similarity(search_term, target):
         else:
             similarity.append(0)
     return similarity
+
+def list_omit_na(list):
+    print(list)
+    for e in list:
+        if e != None:
+            return 1
+    return 0
 
 def search(search_term):
     """search for recipes based on search_term, with a cutoff of anything with less than 20% similarity not returned
@@ -123,10 +130,11 @@ def search(search_term):
             for ingredient in ingredients:
                 temp.append(ingredient['ingredient_name'])
             all_ingredients.append(temp)
-        # Fetch ingredient not working
+            
         title_similarity = check_similarity(search_term, all_titles)
         ingredient_match = check_similarity_exact(search_term, all_ingredients)
         cuisine_similarity = check_similarity(search_term, all_cuisine)
+               
         output = []
         for i in range(0, len(title_similarity)):
             similarity = {}            
