@@ -1,4 +1,3 @@
-from decimal import DivisionByZero
 import math
 
 def take_second(elem):
@@ -23,7 +22,7 @@ def calculate_similarity(orig_vals, new_vals):
     try:
         ov_mean = sum(filtered_ov)/len(filtered_ov)
         nv_mean = sum(filtered_nv)/len(filtered_nv)
-    except DivisionByZero:
+    except ZeroDivisionError:
         ov_mean = 0
         nv_mean = 0
 
