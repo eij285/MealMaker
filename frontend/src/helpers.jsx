@@ -364,3 +364,13 @@ export const filterRecipes = (userPreferences, allRecipes, setFiltered) => {
       userPreferences.maxMinutes >= userPrepTime;
   })]);
 };
+
+export const initialCookbookData = () => {
+  return {
+    cookbookId: -1,
+    name: '',
+    photo: '',
+    description: '',
+    cookbook_status: 'draft',
+  };
+};

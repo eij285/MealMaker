@@ -110,7 +110,6 @@ const SingleReview = ({review, recipeData, setRecipeData, index, token,
     }, (error) => {
       setResponseError(error);
       setShowDialog(false);
-      console.log(error);
     });
   };
 

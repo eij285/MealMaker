@@ -286,7 +286,6 @@ export const UserPreferencesComponent = () => {
       ...userPreferences,
       showUnspecifiedTime: !userPreferences.showUnspecifiedTime
     });
-    //console.log(userPreferences.cuisines['Asian Fusion']);
   };
 
   const handleCuisineChange = (e) => {

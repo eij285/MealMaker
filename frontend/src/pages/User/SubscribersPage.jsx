@@ -30,7 +30,6 @@ function SubscribersPage () {
           'Your profile is private. A private profile cannot have followers.');
       }
     }, (error) => {
-      console.log(error);
       setResponseError(error);
     });
   };

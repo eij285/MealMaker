@@ -140,7 +140,6 @@ function EditRecipePage () {
     setIngredients((ingredients) => 
     [...ingredients.slice(0, index),
       newIngredient, ...ingredients.slice(index + 1)]);
-    console.log(ingredients);
   };
 
   const removeIngredient = (index) => {

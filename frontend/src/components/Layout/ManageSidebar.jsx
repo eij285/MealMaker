@@ -114,10 +114,14 @@ const SidebarItemText = styled(ListItemText, {
 const SidebarItem = ({to, text, open, icon}) => {
   let activeItem = false;
   const wholeUrlPath = window.location.pathname;
-  const urlPath = wholeUrlPath.slice(0, wholeUrlPath.indexOf('/', 1));
+  const urlParts = wholeUrlPath.split('/');
+  const urlPath = '/' + (urlParts.length >= 2 ? urlParts[1] : '');
   const pageChildren = {
+    '/my-recipes': ['/create-recipe', '/edit-recipe'],
     '/user-profile': ['/update-password'],
     '/message-rooms': ['/message-room'],
+    '/my-cookbooks': ['/create-cookbook', '/edit-cookbook'],
+    '/manage-shopping': ['/add-payment-method', '/edit-payment-method'],
   };
   if (to === wholeUrlPath) {
     activeItem = true;

@@ -94,6 +94,7 @@ export const RecipeLikes = ({likesObject, likeRecipe}) => {
 
 const RecipeInfoPanelContainer = styled(FlexRowWrapSpaced)`
   border: 1px solid #333333;
+  border-radius: 5px;
   padding: 8px;
   row-gap: 20px;
   align-items: center;

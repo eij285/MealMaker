@@ -2,6 +2,7 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
+  Divider,
   Grid,
   Typography,
 } from '@mui/material';
@@ -19,6 +20,7 @@ import { LeftAlignedButton } from '../../components/Buttons';
 import { backendRequest } from '../../helpers';
 
 function MyCookbooksPage () {
+  // TODO: complete this page
   const token = React.useContext(GlobalContext).token;
   const [cookbooks, setCookbooks] = React.useState(0);
 
@@ -49,6 +51,18 @@ function MyCookbooksPage () {
           <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
           {responseError !== '' &&
           <ErrorAlert message={responseError} setMessage={setResponseError} />}
+          <Box>
+            <Typography>Published: {1}</Typography>
+            <Typography>Total: {2}</Typography>
+            <Typography>Followed: {1}</Typography>
+          </Box>
+          <FlexRow>
+            <LeftAlignedButton component={RouterLink} to="/create-cookbook">
+              Create New Cook Book
+            </LeftAlignedButton>
+          </FlexRow>
+          <Divider />
+          <PageTitle>Followed Cook Books</PageTitle>
         </FlexColumn>
       </Grid>
     </ManageLayout>

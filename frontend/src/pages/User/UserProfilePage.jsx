@@ -60,7 +60,6 @@ function UserProfilePage () {
   React.useEffect(() => {
     backendRequest('/user/info', {}, 'POST', token, (data) => {
       loadUserData(data);
-      console.log(data);
     }, (error) => {
       setResponseError(error);
     });
