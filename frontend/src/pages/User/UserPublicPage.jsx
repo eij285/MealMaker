@@ -46,7 +46,6 @@ function UserPublicPage () {
       // way to get your account hacked (even if it's just what the backend
       // sends back)
       setUserProfile({...data});
-      console.log(data);
       loadRecipes();
     }, (error) => {
       setResponseError(error);
