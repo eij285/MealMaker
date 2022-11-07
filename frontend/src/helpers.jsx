@@ -310,7 +310,35 @@ export const customPrepTime = (hours, minutes, level) => {
     totalMinutes /= config.EFFICIENCY_CONV;
   }
   return Math.round(totalMinutes);
-}
+};
+
+/**
+ * default options for recipe filter (feeds, search)
+ */
+export const defaultFilterOptions = () => {
+  return {
+    breakfast: true,
+    lunch: true,
+    dinner: true,
+    snack: true,
+    vegetarian: false,
+    vegan: false,
+    kosher: false,
+    halal: false,
+    dairyFree: false,
+    glutenFree: false,
+    nutFree: false,
+    eggFree: false,
+    shellfishFree: false,
+    soyFree: false,
+    cuisines: config.CUISINES.reduce((c, v) => ({ ...c, [v]: true}), {}),
+    showUnspecifiedCuisines: false,
+    efficiency: 'Intermediate',
+    minMinutes: 30,
+    maxMinutes: 180,
+    showUnspecifiedTime: true,
+  }
+};
 
 /**
  * set filtered recipes from all recipes based on user preferences

@@ -455,10 +455,12 @@ const WYSIWYGOutputContainer = styled.section`
 export const WYSIWYGOutput = ({children}) => {
   // this approach should only be used temporarily until a html parser is added
   // else the website become vulnerable to client-side attacks (e.g. XSS, HTML
-  // injection, etc)
-  return (
+  // injection, etc). children must be a string else page containing component
+  // results in critical error
+  return (<>
+    {children && typeof variable === 'string' &&
     <WYSIWYGOutputContainer>
       {parse(children)}
-    </WYSIWYGOutputContainer>
-  );
+    </WYSIWYGOutputContainer>}
+    </>);
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { backendRequest } from '../helpers';
+import { backendRequest, defaultFilterOptions } from '../helpers';
 const config = require('../config.json');
 
 const GlobalContext = React.createContext(null);
@@ -17,26 +17,7 @@ export const GlobalProvider = ({ children }) => {
 
   const [token, setToken] = React.useState(getToken('token'));
   const [userPreferences, setUserPreferences] = React.useState({
-    breakfast: true,
-    lunch: true,
-    dinner: true,
-    snack: true,
-    vegetarian: false,
-    vegan: false,
-    kosher: false,
-    halal: false,
-    dairyFree: false,
-    glutenFree: false,
-    nutFree: false,
-    eggFree: false,
-    shellfishFree: false,
-    soyFree: false,
-    cuisines: config.CUISINES.reduce((c, v) => ({ ...c, [v]: true}), {}),
-    showUnspecifiedCuisines: false,
-    efficiency: 'Intermediate',
-    minMinutes: 30,
-    maxMinutes: 180,
-    showUnspecifiedTime: true,
+    ...defaultFilterOptions()
   });
 
   const login = (userToken) => {
@@ -51,6 +32,7 @@ export const GlobalProvider = ({ children }) => {
 
   React.useEffect(() => {
     if (token) {
+      // load user preferences into filter on login
       backendRequest('/user/preferences', {}, 'POST', token, (data) => {
         setUserPreferences({
           ...userPreferences,
@@ -71,6 +53,9 @@ export const GlobalProvider = ({ children }) => {
           efficiency: data.efficiency,
         });
       });
+    } else {
+      // reset filter on logout
+      setUserPreferences({...defaultFilterOptions()});
     }
   }, [token]);
 

@@ -121,8 +121,8 @@ function HomePage () {
           </FlexRowHCentred>
         </>}
         </Box>
-        {!token ||
-        (token && tabValue === 'Subscribed' && dropdown === 'Trending') &&
+        {(!token ||
+        (token && tabValue === 'Subscribed' && dropdown === 'Trending')) &&
         <SingleFeed recipes={filteredTrending}
           level={userPreferences.efficiency} />}
         {token && tabValue === 'Subscribed' && dropdown === 'For You' &&

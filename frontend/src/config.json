@@ -6,8 +6,8 @@
   "EFFICIENCY_CONV": 0.7,
   "UNITS": ["Metric", "Imperial"],
   "METRIC_UNITS": ["litres", "ml", "grams", "kg", "cups", "tbsp", "tsp", "pieces"],
-  "CUISINES": ["Asian Fusion", "Chinese", "French", "Greek", "Indian",
-               "Japanese", "Korean", "Lebanese", "Malaysian",
+  "CUISINES": ["Asian Fusion", "Chinese", "French", "Greek", "Indian", "Italian",
+               "Japanese", "Korean", "Lebanese", "Malaysian", "Mexican",
                "Modern Australian", "Other", "Seafood", "Sushi", "Thai",
                "Vietnamese"]
 }
