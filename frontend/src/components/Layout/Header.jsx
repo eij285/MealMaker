@@ -9,7 +9,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SearchIcon from '@mui/icons-material/Search';
 import GlobalContext from '../../utils/GlobalContext';
-import { backendRequest } from '../../helpers';
+import { backendRequest, tokenToUserId } from '../../helpers';
 import Logo from '../../assets/chef-hat.png'
 
 const HeaderButtonTypo = ({children}) => {
@@ -171,7 +171,8 @@ function Header ({ incSearch, incButtons }) {
           </HeaderButton>
           </>}
           {incButtons && token && <>
-          <HeaderButton component={RouterLink} to="/user/:userId">
+          <HeaderButton component={RouterLink}
+                to={`/user/${tokenToUserId(token)}`}>
             <AccountCircleIcon />
             <HeaderButtonTypo>My Profile</HeaderButtonTypo>
           </HeaderButton>

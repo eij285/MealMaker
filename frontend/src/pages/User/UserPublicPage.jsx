@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Grid, IconButton, Typography } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
 import {
@@ -19,6 +19,12 @@ import {
 import { backendRequest, tokenToUserId } from '../../helpers';
 import { SingleAuthorRecipeItem } from '../../components/Recipe/RecipeItems';
 import { SubPageTitle } from '../../components/TextNodes';
+
+
+import { Avatar, Badge } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 function UserPublicPage () {
   const { userId } = useParams();
@@ -87,46 +93,90 @@ function UserPublicPage () {
           Edit Profile
         </MediumAlternateButton>
       </Box>}
-      {userProfile.hasOwnProperty('base64_image') &&
-      userProfile.hasOwnProperty('display_name') && <>
-      <UserImg src={userProfile.base64_image} alt={userProfile.display_name} />
-      <Typography component="h2" variant="h4" fontWeight={600}>
-        {userProfile.display_name}
-      </Typography>
-      </>}
-      {userProfile.hasOwnProperty('visibility') &&
-      userProfile.visibility === 'public' && <>
-      {token && userProfile.hasOwnProperty('is_subscribed') &&
-      <MediumAlternateButton onClick={subscribeToUser}>
-        {userProfile.is_subscribed && <>Unsubscribe</>}
-        {!userProfile.is_subscribed && <>Subscribe</>}
-      </MediumAlternateButton>}
-      <FlexColumnNoGap>
-        {(userProfile.hasOwnProperty('given_names') || 
-        userProfile.hasOwnProperty('last_name')) &&
-        (userProfile.given_names || userProfile.last_name) &&
-        <UserAttribute title="Name" content={
-          <>
-          {userProfile.hasOwnProperty('pronoun') && userProfile.pronoun &&
-          <>{userProfile.pronoun}&nbsp;</>}
-          {userProfile.given_names && <>{userProfile.given_names}&nbsp;</>}
-          {userProfile.last_name && <>{userProfile.last_name}</>}
-          </>
-        } />}
-        {userProfile.hasOwnProperty('email') && userProfile.email &&
-        <UserAttribute title="Email" content={userProfile.email} />}
-        {userProfile.hasOwnProperty('country') && userProfile.country &&
-        <UserAttribute title="Country" content={userProfile.country} />}
-        {userProfile.hasOwnProperty('about') && userProfile.about &&
-        <>
-          <Typography component="strong" variant="strong" sx={{mt: 2, mb: -1}}>
-            About:
-          </Typography>
-          <WYSIWYGOutput>{userProfile.about}</WYSIWYGOutput>
+      <Grid container spacing={30} alignItems="baseline">
+        <Grid item key="UserImg">
+        {userProfile.hasOwnProperty('base64_image') &&
+        userProfile.hasOwnProperty('display_name') && <>
+        <Badge 
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          badgeContent={
+            <IconButton onClick={subscribeToUser}>
+              {userProfile.is_subscribed
+                ? <RemoveIcon />
+                : <AddIcon />
+              }
+            </IconButton>
+          }
+          color="primary"
+          overlap='circular'
+          sx={{
+            "& .MuiBadge-badge": {
+              height: 25,
+              width: 25,
+
+            }
+          }}>
+          <Avatar src={userProfile.base64_image} alt={userProfile.display_name} sx={{ width: 176, height: 176}}/>
+        </Badge>
         </>}
-      </FlexColumnNoGap>
-      </>}
-      </ProfileContainer>}
+        {userProfile.hasOwnProperty('visibility') &&
+        userProfile.visibility === 'public' && <>
+        <FlexColumnNoGap>
+          {(userProfile.hasOwnProperty('given_names') || 
+          userProfile.hasOwnProperty('last_name')) &&
+          (userProfile.given_names || userProfile.last_name) &&
+          <Typography component="h2" variant="h5" fontWeight={600}>
+            {userProfile.given_names && <>{userProfile.given_names}&nbsp;</>}
+            {userProfile.last_name && <>{userProfile.last_name}</>}
+          </Typography>}
+
+          <Typography component="h2" variant="h6" fontWeight={400}>
+            @{userProfile.display_name}
+          </Typography>
+
+          {userProfile.hasOwnProperty('country') && userProfile.country &&
+          <><Typography> <LocationOnIcon /> {userProfile.country} </Typography> </> }
+          
+          {userProfile.hasOwnProperty('about') && userProfile.about &&
+          <>
+            <Typography component="strong" variant="strong" sx={{mt: 2, mb: -1}}>
+              About:
+            </Typography>
+            <WYSIWYGOutput>{userProfile.about}</WYSIWYGOutput>
+          </>}
+        
+        </FlexColumnNoGap>
+        </>}
+        </Grid>
+        <Grid item key="Recipes">
+          <Typography align="center" component="h2" variant="h5" fontWeight={600}>
+            4
+          </Typography>
+          <Typography align="center" component="h2" variant="h5" fontWeight={300}>
+            Recipes
+          </Typography>
+        </Grid>
+        <Grid item key="Followers">
+          <Typography align="center" component="h2" variant="h5" fontWeight={600}>
+            0
+          </Typography>
+          <Typography component="h2" variant="h5" fontWeight={300}>
+            Followers
+          </Typography>
+        </Grid>
+        <Grid item key="Following">
+          <Typography align="center" component="h2" variant="h5" fontWeight={600}>
+            0
+          </Typography>
+          <Typography component="h2" variant="h5" fontWeight={300}>
+            Following
+          </Typography>
+        </Grid>
+      </Grid>
+      </ProfileContainer>}      
       {userProfile.hasOwnProperty('visitor_efficiency') &&
       recipesList.length > 0 && <>
       <SubPageTitle>Recipes</SubPageTitle>

@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Typography } from '@mui/material';
+import { Avatar, Badge, IconButton, Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { height } from '@mui/system';
 
 const UserImgContainer = styled.div`
   display: flex;
@@ -22,9 +24,13 @@ const UserImgContainer = styled.div`
 export const UserImg = ({src, alt}) => {
   return (
     <UserImgContainer>
-      {src && <img src={src} alt={alt} />}
-      {!src && <AccountCircleIcon />}
+        <Avatar alt={alt} src={src} sx={{ width: 176, height: 176}}/>
     </UserImgContainer>
+
+    //<UserImgContainer>
+    //  {src && <img src={src} alt={alt} />}
+    //  {!src && <AccountCircleIcon />}
+    //</UserImgContainer>
   );
 };
 
