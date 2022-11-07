@@ -133,6 +133,7 @@ CREATE TABLE subscriptions (
     subscription_id SERIAL,
     following_id    INTEGER NOT NULL,
     follower_id     INTEGER NOT NULL,
+    PRIMARY KEY (subscription_id),
     FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE
 );
