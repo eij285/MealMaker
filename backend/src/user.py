@@ -854,6 +854,18 @@ def user_get_profile(token, id):
             is_subscribed = False
             visitor_efficiency = 'Intermediate'
 
+        followers_query = """
+            SELECT COUNT(*) FROM subscriptions WHERE following_id = %s
+            """
+        cur.execute(followers_query, (id,))
+        num_followers, = cur.fetchone()
+
+        followings_query = """
+            SELECT COUNT(*) FROM subscriptions WHERE follower_id = %s
+            """
+        cur.execute(followings_query, (id,))
+        num_followings, = cur.fetchone()
+
         cur.close()
         conn.close()
         return {
@@ -869,7 +881,9 @@ def user_get_profile(token, id):
             'base64_image': user[8],
             'id': id,
             'is_subscribed': is_subscribed,
-            'visitor_efficiency': visitor_efficiency
+            'visitor_efficiency': visitor_efficiency,
+            'num_followers': num_followers,
+            'num_followings': num_followings,
         }
     except:
         cur.close()
