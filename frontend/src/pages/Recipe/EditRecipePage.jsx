@@ -446,6 +446,9 @@ function EditRecipePage () {
                 id="recipe-method"
                 editor={ ClassicEditor }
                 data={ method }
+                config={{
+                  removePlugins: ['MediaEmbed']
+                }}
                 onReady={ editor => {
                   editor.editing.view.change((writer) => {
                     writer.setStyle(
@@ -454,10 +457,10 @@ function EditRecipePage () {
                         editor.editing.view.document.getRoot()
                     );
                   })
-                } }
+                }}
                 onChange={ ( _, editor ) => {
                   setMethod(editor.getData())
-                } }
+                }}
               />
             </Box>
             <FlexRow>

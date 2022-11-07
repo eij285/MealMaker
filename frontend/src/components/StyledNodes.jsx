@@ -29,6 +29,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import GlobalContext from '../utils/GlobalContext';
+import parse from 'html-react-parser';
 import { MediumDefaultButton, MediumAlternateButton } from './Buttons';
 import { SubPageTitle } from './TextNodes';
 import { CentredElementsForm } from '../components/Forms';
@@ -456,6 +457,8 @@ export const WYSIWYGOutput = ({children}) => {
   // else the website become vulnerable to client-side attacks (e.g. XSS, HTML
   // injection, etc)
   return (
-    <WYSIWYGOutputContainer dangerouslySetInnerHTML={{__html: children}} />
+    <WYSIWYGOutputContainer>
+      {parse(children)}
+    </WYSIWYGOutputContainer>
   );
 };
