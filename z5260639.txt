@@ -288,4 +288,24 @@ Week 8
 I worked on implementing a sizable portion of the backend including remaining
 recipes and review functionality, as well as fixing some bugs with user backend.
 Also worked on implementation of the frontend for the remaining user, recipe,
-reviews, search and feed functionality.
+reviews, search and feed functionality. Started on sprint 3 functionality.
+
+################################################################################
+
+Week 9
+=======
+This week was mainly spent discussing and deciding on implementation of routes
+and what data, and structure of data to be exchanged between frontend and
+backend. Being the most experienced database person in the group I also assisted
+the team with design and implementation of the remaining database schema. I
+really wish the power of a relational database, especially one as powerful as
+postgresql was used to it's full capability to efficiently extract data more
+often, by using joins and subqueries (it can do a lot more than that) given that
+running queries without join in a python loop to extract relational data doesn't
+scale well (too much overhead). Quite understandable given different different
+levels of experience with databases among team members, and always offer a hand
+to help those in need with frontend or backend code. The group needs are more
+important than individual needs, especially true given the great amount of time
+and dedication I've contributed to writing most of the project code. We also had
+a meeting to discuss retrospective B. I also spent some time building some of
+the frontend layout and functionality for cookbook, messages and shopping cart.
