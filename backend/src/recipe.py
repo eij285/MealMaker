@@ -1395,7 +1395,7 @@ def recipe_related(recipe_id):
     # Get largest user_id
     max_uid = 0
 
-    cur.execute("SELECT MAX(user_id) FROM recipe_reviews;")
+    cur.execute("SELECT MAX(id) FROM users;")
     sql_result = cur.fetchall()
 
     if sql_result:
@@ -1404,7 +1404,7 @@ def recipe_related(recipe_id):
     # Get largest recipe_id
     max_rid = 0
     
-    cur.execute("SELECT MAX(recipe_id) FROM recipe_reviews;")
+    cur.execute("SELECT MAX(recipe_id) FROM recipes;")
     sql_result = cur.fetchall()
 
     if sql_result:
@@ -1449,6 +1449,7 @@ def recipe_related(recipe_id):
         if not sql_result:
             continue
 
+        print(recipe_id, ratings)
         sim = calculate_similarity(ratings[recipe_id - 1], recipe_ratings)
         recommendations.append((idx + 1, sim))
 
