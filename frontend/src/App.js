@@ -27,6 +27,7 @@ import SubscribersPage from './pages/User/SubscribersPage';
 import MyCookbooksPage from './pages/Cookbook/MyCookbooksPage';
 import CreateCookbookPage from './pages/Cookbook/CreateCookbookPage';
 import EditCookbookPage from './pages/Cookbook/EditCookbookPage';
+import ViewCookbookPage from './pages/Cookbook/ViewCookbookPage';
 import MessageRoomsPage from './pages/Message/MessageRoomsPage';
 import SingleMessageRoomPage from './pages/Message/SingleMessageRoomPage';
 import ManageShoppingPage from './pages/Shopping/ManageShoppingPage';
@@ -48,6 +49,7 @@ function App() {
             <Route exact path="/password-reset" element={<PasswordResetPage />} />
             <Route path="/user/:userId" element={<UserPublicPage />} />
             <Route path="/recipe/:recipeId" element={<ViewRecipePage />} />
+            <Route path="/cookbook/:cookbookId" element={<ViewCookbookPage />} />
             <Route path="/search" order={0} element={<SearchPage />} />
             <Route path="/search/:query" order={1} element={<SearchPage />} />
             <Route element={<AuthorisedRoute />}>
@@ -61,7 +63,7 @@ function App() {
               <Route exact path="/subscribers" element={<SubscribersPage />} />
               <Route exact path="/my-cookbooks" element={<MyCookbooksPage/>} />
               <Route exact path="/create-cookbook" element={<CreateCookbookPage />} />
-              <Route exact path="/edit-cookbook/:cookbookId" element={<EditCookbookPage />} />
+              <Route path="/edit-cookbook/:cookbookId" element={<EditCookbookPage />} />
               <Route exact path="/message-rooms" element={<MessageRoomsPage /> } />
               <Route path="/message-room/:roomId" element={<SingleMessageRoomPage />} />
               <Route exact path="/manage-shopping" element={<ManageShoppingPage />} />

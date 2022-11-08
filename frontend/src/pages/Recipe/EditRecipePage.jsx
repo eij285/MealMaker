@@ -12,7 +12,9 @@ import {
   Select,
   Button,
   Tooltip,
-  IconButton
+  IconButton,
+  Autocomplete,
+  TextField
 } from '@mui/material';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-build-classic-base64-upload';
@@ -220,6 +222,7 @@ function EditRecipePage () {
       };
       backendRequest('/recipe/update', body, 'POST', token, (data) => {
         setResponseSuccess('Recipe Updated Successfully');
+        setIngredientsMessage('');
       }, (error) => {
         setResponseError(error);
       });
@@ -413,11 +416,19 @@ function EditRecipePage () {
                     ))}
                     </Select>
                   </FormControl>
-                  <TextInput
-                    label="Ingredient"
+                  <Autocomplete
+                    fullWidth
+                    options={config.INGREDIENTS}
                     value={ingredient.ingredient_name}
-                    onChange={(e) =>
-                      updateIngredient(index, null, null, e.target.value)}
+                    onChange={(e, newVal) => {
+                      updateIngredient(index, null, null, newVal);
+                    }}
+                    renderInput={(params) => (
+                      <TextInput
+                        label="Ingredient"
+                        {...params}
+                      />
+                    )}
                   />
                   <Tooltip title="Delete ingredient" placement="top" arrow>
                     <IconButton color="error"
