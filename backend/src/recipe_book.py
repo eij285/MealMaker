@@ -755,3 +755,148 @@ def cookbook_unsubscribe(token, unsubscribe_to):
         'status_code': 200
     }
 
+def cookbook_add_recipe(token, cookbook_id, recipe_id):
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        owner_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find user id"
+        }
+    
+    try:
+        query = ("SELECT COUNT(*) FROM cookbooks WHERE cookbook_id = %s AND owner_id = %s")
+        cur.execute(query, (str(cookbook_id), str(owner_id)))
+        if not cur.fetchone():
+            raise Exception
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find cookbook owned by user"
+        }
+    query = ("SELECT COUNT(*) FROM cookbook_recipes WHERE cookbook_id = %s AND recipe_id = %s")
+    cur.execute(query, (str(cookbook_id), str(recipe_id)))
+    duplicates = cur.fetchall()
+    if duplicates > 0:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "recipe already in cookbook"
+        }
+    sql_insert_query = """
+        INSERT INTO cookbook_recipes (cookbook_id, recipe_id)
+        VALUES (%s, %s)
+        """
+    input_data = (cookbook_id, recipe_id)
+    cur.execute(sql_insert_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200
+    }
+
+def cookbook_remove_recipe(token, cookbook_id, recipe_id):
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        owner_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find user id"
+        }
+    
+    try:
+        query = ("SELECT COUNT(*) FROM cookbooks WHERE cookbook_id = %s AND owner_id = %s")
+        cur.execute(query, (str(cookbook_id), str(owner_id)))
+        if not cur.fetchone():
+            raise Exception
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find cookbook owned by user"
+        }
+    query = ("SELECT COUNT(*) FROM cookbook_recipes WHERE cookbook_id = %s AND recipe_id = %s")
+    cur.execute(query, (str(cookbook_id), str(recipe_id)))
+    duplicates = cur.fetchall()
+    if duplicates < 1:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "recipe not in cookbook"
+        }
+    sql_delete_query = """
+        DELETE FROM cookbook_recipe
+        WHERE cookbook_id = %s and recipe_id = %s
+        """
+    input_data = (cookbook_id, recipe_id)
+    cur.execute(sql_delete_query, input_data)
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200
+    }
