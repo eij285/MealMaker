@@ -328,6 +328,218 @@ def feed_subscription():
 def feed_trending():
     return dumps(feed_fetch_trending())
 
+@APP.route('/cart/add-all', methods=['POST'])
+    # Starts a cart using current recipe
+    # 
+    # Don't forget conversions
+    r_id = data['recipe_id']
+    servings = data['servings']
+    token
+
+    # return {
+    #   'body': {
+    #       'cart_id': 2
+    #       'ingredients: [
+    #           {
+    #               'item_id': 3
+    #               'item_name':
+    #               'item_quantity':
+    #               'item_cost':
+    #           },
+    #           {
+    #               'item_id': 2
+    #               'item_name':
+    #               'item_quantity':
+    #               'item_cost':
+    #           },
+    #       ]
+    #   }
+    # }
+
+@APP.route('/cart/rmv-ingredient', methods=['POST'])
+    # Removes ingredient from active cart
+    ing_id = data['ingredient_id']
+    token
+
+    # return {
+    #   'body': {}
+    # }
+
+@APP.route('/cart/add-ingredient/id', methods=['POST'])
+    # Adds ingredient from a recipe's ingredients (individual)
+    ing_id = data['ingredient_id']
+
+    # return {
+    #   'body': {
+    #       'cart_id': id of new cart (if previously inactive)
+    #       'item_id': 3
+    #       'item_name':
+    #       'item_quantity':
+    #       'item_cost':
+    #   }
+    # }
+
+@APP.route('/cart/add-ingredient/name', methods=['POST'])
+    # Adds ingredient by search term
+    ing_name = data['ingredient_name']
+
+    # return {
+    #   'body': {
+    #       'cart_id': id of new cart (if previously inactive)
+    #       'item_id': 3
+    #       'item_name':
+    #       'item_quantity':
+    #       'item_cost':
+    #   }
+    # }
+
+
+@APP.route('/cart/save', methods=['POST'])
+# Saves cart so an order can be made in the future
+
+@APP.route('/cart/load', methods=['POST'])
+# Loads a saved cart so the order can be made
+
+
+@APP.route('/cart/payment-method/save', methods=['POST'])
+    name = data['card_name']
+    number = data['card_number']
+    exp_date = data['card_exp_date']
+    cvv = data['card_cvv']
+
+    # return {
+    #   'body': {
+    #       'method_id': 2
+    #   }
+    # }
+
+@APP.route('/cart/payment-method/update', methods=['POST'])
+    # Returns details of specific updated payment method (individual)
+    name = data['card_name']
+    number = data['card_number']
+    exp_date = data['card_exp_date']
+    cvv = data['card_cvv']
+
+    # return {
+    #   'body': {
+    #       'method_id': 2
+    #   }
+    # }
+
+@APP.route('/cart/payment-method/get', methods=['POST'])
+    # Returns details of specific payment method (individual)
+
+    # return {
+    #   'body': {
+    #       'card_name': 
+    #       'card_number': 
+    #       'card_cvv':
+    #       'card_exp_date':
+    #   }
+    # }
+
+@APP.route('/cart/payment-method/list', methods=['POST'])
+# Returns list of payment methods
+
+    # return {
+    #   'body': [
+    #       {
+    #           'method_id': 2
+    #           'card_name': 
+    #           'card_number': 
+    #           'card_cvv':
+    #           'card_exp_date':
+    #       },
+    #       {
+    #           'method_id': 3
+    #           'card_name': 
+    #           'card_number': 
+    #           'card_cvv':
+    #           'card_exp_date':
+    #       },
+    #   ]
+    # }
+
+@APP.route('/cart/display', methods=['POST'])
+# Gets cart given cart id
+
+@APP.route('/cart/display/all')
+# Gets list of all carts given user id
+
+@APP.route('/cart/order', methods=['POST'])
+    # Places order using stored data in db
+    # Post request so we have the option to send token for emails?
+    # Get request will also need email supplied
+    method_id = data['method_id']
+    deliver_by = data['deliver_by']
+    delivery_address = data['delivery_address']
+    token = 
+
+@APP.route('/cart/past-orders', methods=['POST'])
+    token
+
+    # return {
+    #   'body': [
+    #       {
+    #           'order_id': ,
+    #           'order_number': ,
+    #           'payment_amount': ,
+    #           'order_status': ,
+    #       },
+    #       {
+    #           'order_id': ,
+    #           'order_number': ,
+    #           'payment_amount': ,
+    #           'order_status': ,
+    #       },
+    #   ]
+    # }
+
+@APP.route('/cart/past-orders/get', methods=['POST'])
+    order_id = data['order_id']
+
+    # return {
+    #   'body': {
+    #       order_id        SERIAL,
+    #       order_number    CHAR(10) NOT NULL UNIQUE,
+    #       cart_id         INTEGER NOT NULL,
+    #       placed_on       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    #       completed_on    TIMESTAMP,
+    #       order_status    VARCHAR(10) NOT NULL DEFAULT ('pending'),
+    #       payment_method_id INTEGER NOT NULL,
+    #       delivery_time   TIMESTAMP NOT NULL,
+    #       delivery_address TEXT NOT NULL,
+    #       payment_amount  MONEY NOT NULL,
+    #       'items': [
+    #           {
+    #               'item_id': 3
+    #               'item_name':
+    #               'item_quantity':
+    #               'item_cost':
+    #           },
+    #           {
+    #               'item_id': 2
+    #               'item_name':
+    #               'item_quantity':
+    #               'item_cost':
+    #           },
+    #       ],
+    #       'card_name': 
+    #       'card_number': 
+    #       'card_cvv':
+    #       'card_exp_date':
+    #   },
+    # }
+
+# 
+
+# TODO:
+# Update user stories to allow only authenticated
+# 
+# JSON File containing ingredients (substitute for grocery store integration or
+#   web scraping)
+# 
+
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
 #     data = request.get_json()
