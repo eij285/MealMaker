@@ -201,15 +201,9 @@
   "EFFICIENCY": ["Beginner", "Intermediate", "Expert"],
   "EFFICIENCY_CONV": 0.7,
   "UNITS": ["Metric", "Imperial"],
-<<<<<<< HEAD
   "METRIC_UNITS": ["litres", "mL", "grams", "kg", "cups", "tbsp", "tsp", "pieces"],
   "CUISINES": ["Asian Fusion", "Chinese", "French", "Greek", "Indian",
                "Japanese", "Korean", "Lebanese", "Malaysian",
-=======
-  "METRIC_UNITS": ["litres", "ml", "grams", "kg", "cups", "tbsp", "tsp", "pieces"],
-  "CUISINES": ["Asian Fusion", "Chinese", "French", "Greek", "Indian", "Italian",
-               "Japanese", "Korean", "Lebanese", "Malaysian", "Mexican",
->>>>>>> main
                "Modern Australian", "Other", "Seafood", "Sushi", "Thai",
                "Vietnamese"]
 }

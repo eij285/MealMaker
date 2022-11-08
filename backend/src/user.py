@@ -864,7 +864,7 @@ def user_get_profile(token, id):
             SELECT COUNT(*) FROM subscriptions WHERE follower_id = %s
             """
         cur.execute(followings_query, (id,))
-        num_followings, = cur.fetchone()
+        num_following, = cur.fetchone()
 
         cur.close()
         conn.close()
@@ -883,7 +883,7 @@ def user_get_profile(token, id):
             'is_subscribed': is_subscribed,
             'visitor_efficiency': visitor_efficiency,
             'num_followers': num_followers,
-            'num_followings': num_followings,
+            'num_following': num_following,
         }
     except:
         cur.close()

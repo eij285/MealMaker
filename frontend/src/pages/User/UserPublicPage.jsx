@@ -155,7 +155,7 @@ function UserPublicPage () {
         </Grid>
         <Grid item key="Recipes">
           <Typography align="center" component="h2" variant="h5" fontWeight={600}>
-            4
+            { recipesList.length }
           </Typography>
           <Typography align="center" component="h2" variant="h5" fontWeight={300}>
             Recipes
@@ -171,7 +171,7 @@ function UserPublicPage () {
         </Grid>
         <Grid item key="Following">
           <Typography align="center" component="h2" variant="h5" fontWeight={600}>
-            0
+            { userProfile.num_following }
           </Typography>
           <Typography component="h2" variant="h5" fontWeight={300}>
             Following
