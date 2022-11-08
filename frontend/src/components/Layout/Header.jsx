@@ -155,7 +155,7 @@ function Header ({ incSearch, incButtons }) {
   };
 
   return (
-    <AppBar position="fixed" color="default">
+    <AppBar position="fixed" color="default" sx={{zIndex: 1000}}>
       <Toolbar variant="dense" sx={ toolbarStyles }>
         <BrandingComponent />
         {incSearch && <SearchInput />}

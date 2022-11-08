@@ -29,6 +29,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import GlobalContext from '../utils/GlobalContext';
+import parse from 'html-react-parser';
 import { MediumDefaultButton, MediumAlternateButton } from './Buttons';
 import { SubPageTitle } from './TextNodes';
 import { CentredElementsForm } from '../components/Forms';
@@ -286,7 +287,6 @@ export const UserPreferencesComponent = () => {
       ...userPreferences,
       showUnspecifiedTime: !userPreferences.showUnspecifiedTime
     });
-    //console.log(userPreferences.cuisines['Asian Fusion']);
   };
 
   const handleCuisineChange = (e) => {
@@ -455,8 +455,12 @@ const WYSIWYGOutputContainer = styled.section`
 export const WYSIWYGOutput = ({children}) => {
   // this approach should only be used temporarily until a html parser is added
   // else the website become vulnerable to client-side attacks (e.g. XSS, HTML
-  // injection, etc)
-  return (
-    <WYSIWYGOutputContainer dangerouslySetInnerHTML={{__html: children}} />
-  );
+  // injection, etc). children must be a string else page containing component
+  // results in critical error
+  return (<>
+    {children && typeof variable === 'string' &&
+    <WYSIWYGOutputContainer>
+      {parse(children)}
+    </WYSIWYGOutputContainer>}
+    </>);
 };

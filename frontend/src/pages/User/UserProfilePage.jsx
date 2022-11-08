@@ -60,7 +60,6 @@ function UserProfilePage () {
   React.useEffect(() => {
     backendRequest('/user/info', {}, 'POST', token, (data) => {
       loadUserData(data);
-      console.log(data);
     }, (error) => {
       setResponseError(error);
     });
@@ -168,6 +167,9 @@ function UserProfilePage () {
                 id="user-about"
                 editor={ ClassicEditor }
                 data={ about }
+                config={{
+                  removePlugins: ['MediaEmbed']
+                }}
                 onReady={ editor => {
                   editor.editing.view.change((writer) => {
                     writer.setStyle(
@@ -176,10 +178,10 @@ function UserProfilePage () {
                         editor.editing.view.document.getRoot()
                     );
                   })
-                } }
+                }}
                 onChange={ ( _, editor ) => {
                   setAbout(editor.getData())
-                } }
+                }}
               />
             </Box>
             <FlexRow>

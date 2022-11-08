@@ -49,7 +49,6 @@ function UserPublicPage () {
     };
     backendRequest('/user/get/profile', body, 'POST', token, (data) => {
       setUserProfile({...data});
-      console.log(data);
       loadRecipes();
     }, (error) => {
       setResponseError(error);

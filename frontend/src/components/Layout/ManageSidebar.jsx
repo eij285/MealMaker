@@ -113,10 +113,20 @@ const SidebarItemText = styled(ListItemText, {
 
 const SidebarItem = ({to, text, open, icon}) => {
   let activeItem = false;
-  const urlPath = window.location.pathname;
-  if (to === urlPath) {
+  const wholeUrlPath = window.location.pathname;
+  const urlParts = wholeUrlPath.split('/');
+  const urlPath = '/' + (urlParts.length >= 2 ? urlParts[1] : '');
+  const pageChildren = {
+    '/my-recipes': ['/create-recipe', '/edit-recipe'],
+    '/user-profile': ['/update-password'],
+    '/message-rooms': ['/message-room'],
+    '/my-cookbooks': ['/create-cookbook', '/edit-cookbook'],
+    '/manage-shopping': ['/add-payment-method', '/edit-payment-method'],
+  };
+  if (to === wholeUrlPath) {
     activeItem = true;
-  } else if (to === '/user-profile' && urlPath === '/update-password') {
+  } else if (pageChildren.hasOwnProperty(to) &&
+    pageChildren[to].includes(urlPath)) {
     activeItem = true;
   }
 
@@ -148,8 +158,8 @@ export default function ManageSidebar() {
         <SidebarItem to="/my-cookbooks" text="Cook Books" open={open} icon={<MenuBookIcon />} />
         <SidebarItem to="/subscriptions" text="Subscriptions" open={open} icon={<SubscriptionsIcon />} />
         <SidebarItem to="/subscribers" text="Subscribers" open={open} icon={<LoyaltyIcon />} />
-        <SidebarItem to="#" text="Messages" open={open} icon={<MessageIcon />} />
-        <SidebarItem to="#" text="Shopping" open={open} icon={<StoreIcon />} />
+        <SidebarItem to="/message-rooms" text="Message Rooms" open={open} icon={<MessageIcon />} />
+        <SidebarItem to="/manage-shopping" text="Shopping" open={open} icon={<StoreIcon />} />
         <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />
         <SidebarItem to="/user-preferences" text="Preferences" open={open} icon={<SettingsIcon />} />
       </List>

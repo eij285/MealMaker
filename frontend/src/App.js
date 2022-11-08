@@ -25,12 +25,15 @@ import SearchPage from './pages/SearchPage';
 import SubscriptionsPage from './pages/User/SubscriptionsPage';
 import SubscribersPage from './pages/User/SubscribersPage';
 import MyCookbooksPage from './pages/Cookbook/MyCookbooksPage';
+import CreateCookbookPage from './pages/Cookbook/CreateCookbookPage';
+import EditCookbookPage from './pages/Cookbook/EditCookbookPage';
+import MessageRoomsPage from './pages/Message/MessageRoomsPage';
+import SingleMessageRoomPage from './pages/Message/SingleMessageRoomPage';
+import ManageShoppingPage from './pages/Shopping/ManageShoppingPage';
+import AddEditPaymentMethodPage from './pages/Shopping/AddEditPaymentMethodPage';
 import Forbidden403Page from './pages/Error/Forbidden403Page';
 import NotFound404Page from './pages/Error/NotFound404Page';
 import './App.css';
-
-
-
 
 function App() {
   return (
@@ -54,9 +57,16 @@ function App() {
               <Route exact path="/my-recipes" element={<MyRecipesPage />} />
               <Route exact path="/create-recipe" element={<CreateRecipePage />} />
               <Route path="/edit-recipe/:recipeId" element={<EditRecipePage />} />
-              <Route path="/subscriptions" element={<SubscriptionsPage />} />
-              <Route path="/subscribers" element={<SubscribersPage />} />
+              <Route exact path="/subscriptions" element={<SubscriptionsPage />} />
+              <Route exact path="/subscribers" element={<SubscribersPage />} />
               <Route exact path="/my-cookbooks" element={<MyCookbooksPage/>} />
+              <Route exact path="/create-cookbook" element={<CreateCookbookPage />} />
+              <Route exact path="/edit-cookbook/:cookbookId" element={<EditCookbookPage />} />
+              <Route exact path="/message-rooms" element={<MessageRoomsPage /> } />
+              <Route path="/message-room/:roomId" element={<SingleMessageRoomPage />} />
+              <Route exact path="/manage-shopping" element={<ManageShoppingPage />} />
+              <Route exact path="/add-payment-method" element={<AddEditPaymentMethodPage />} />
+              <Route path="/edit-payment-method/:methodId" element={<AddEditPaymentMethodPage />} />
             </Route>
             <Route exact path="/forbidden-403" element={<Forbidden403Page />} />
             <Route path="*" element={<NotFound404Page />} />
