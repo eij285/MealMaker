@@ -21,6 +21,7 @@ import { SingleAuthorRecipeItem } from '../../components/Recipe/RecipeItems';
 import { SubPageTitle } from '../../components/TextNodes';
 
 
+import Link from '@mui/material/Link';
 import { Avatar, Badge } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -162,20 +163,24 @@ function UserPublicPage () {
           </Typography>
         </Grid>
         <Grid item key="Followers">
-          <Typography align="center" component="h2" variant="h5" fontWeight={600}>
-            { userProfile.num_followers }
-          </Typography>
-          <Typography component="h2" variant="h5" fontWeight={300}>
-            Followers
-          </Typography>
+          <Link href='/subscriptions' color={"#000000"} underline="hover">
+            <Typography align="center" component="h2" variant="h5" fontWeight={600}>
+              { userProfile.num_followers }
+            </Typography>
+            <Typography component="h2" variant="h5" fontWeight={300}>
+              Followers
+            </Typography>
+          </Link>
         </Grid>
         <Grid item key="Following">
-          <Typography align="center" component="h2" variant="h5" fontWeight={600}>
-            { userProfile.num_following }
-          </Typography>
-          <Typography component="h2" variant="h5" fontWeight={300}>
-            Following
-          </Typography>
+         <Link href='/subscribers' color={"#000000"} underline="hover">
+           <Typography align="center" component="h2" variant="h5" fontWeight={600}>
+             { userProfile.num_following }
+           </Typography>
+           <Typography component="h2" variant="h5" fontWeight={300}>
+             Following
+           </Typography>
+          </Link>
         </Grid>
       </Grid>
       </ProfileContainer>}      
