@@ -48,9 +48,6 @@ function UserPublicPage () {
       id: userId
     };
     backendRequest('/user/get/profile', body, 'POST', token, (data) => {
-      // just a word of caution: telling everyone your login email is a good
-      // way to get your account hacked (even if it's just what the backend
-      // sends back)
       setUserProfile({...data});
       console.log(data);
       loadRecipes();
@@ -133,12 +130,18 @@ function UserPublicPage () {
             {userProfile.last_name && <>{userProfile.last_name}</>}
           </Typography>}
 
-          <Typography component="h2" variant="h6" fontWeight={400}>
-            @{userProfile.display_name}
-          </Typography>
+          <Typography color="#707070" > @{userProfile.display_name} </Typography>
 
           {userProfile.hasOwnProperty('country') && userProfile.country &&
-          <><Typography> <LocationOnIcon /> {userProfile.country} </Typography> </> }
+          <><Grid container direction={"row"}>
+            <Grid item key="LocationOnIcon">
+              <LocationOnIcon sx={{color: "#707070"}} />
+            </Grid>
+            <Grid item key="Country">
+              <Typography color="#707070" > {userProfile.country} </Typography>
+            </Grid>
+          </Grid>
+          </> }
           
           {userProfile.hasOwnProperty('about') && userProfile.about &&
           <>
@@ -161,7 +164,7 @@ function UserPublicPage () {
         </Grid>
         <Grid item key="Followers">
           <Typography align="center" component="h2" variant="h5" fontWeight={600}>
-            0
+            { userProfile.num_followers }
           </Typography>
           <Typography component="h2" variant="h5" fontWeight={300}>
             Followers
