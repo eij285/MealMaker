@@ -286,6 +286,9 @@ def cookbook_update(data, token):
         # Close connection
         cur.close()
         conn.close()
+        return {
+            'status_code': 200
+        }
         
     except (Exception, psycopg2.DatabaseError) as error:
         # Close connection
@@ -442,7 +445,7 @@ def cookbook_fetch_own(token):
     
     try:
         query = ("""
-            SELECT cookbook_id, cookbook_name, cookbook_photo, cookbook_status, cookbook_desciption
+            SELECT cookbook_id, cookbook_name, cookbook_photo, cookbook_status, cookbook_description
             FROM cookbooks
             WHERE owner_id = %s
             """)
