@@ -1,7 +1,7 @@
 import psycopg2
 from backend_helper import connect, verify_token
 from config import DB_CONN_STRING
-
+from recipe import recipe_details
 def book_create(name, status, token):
     """Create a new recipe (token must be valid)
     
@@ -523,4 +523,219 @@ def cookbooks_user_published(user_id):
     return {
         'status_code':200,
         'cookbooks': cookbook_list
+    }
+
+def cookbook_view(cookbook_id, token):
+    """
+    Retrieves the information from the database for the cookbook and contained recipes
+
+    Args:
+        cookbook_id   (Integer): the cookbook id to fetch data for
+        token       (String): token of authenticated user
+        
+    Returns:
+        Status 200 - success
+            body    (dict of atomic values and lists)
+                cookbook_name         (String)
+                cookbook_photo        (String)
+                cookbook_status       (String)
+
+        Status 400 - failure to find cookbook id
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        user_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find user id"
+        }
+
+    try:
+        query = ("""SELECT cookbook_name, cookbook_photo, cookbook_status, owner_id, cookbook_id
+            FROM cookbooks WHERE cookbook_id = %s AND cookbook_status = %s""")
+        cur.execute(query, (str(cookbook_id), 'published'))
+        cookbook = cur.fetchone()
+        if not cookbook or (cookbook[3] is not user_id):
+            raise Exception
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot view private cookbook unless owner"
+        }
+    
+    cur.close()
+    conn.close()
+    subs_query = """
+        SELECT r.recipe_id FROM cookbook_recipes c
+        JOIN recipes r ON c.recipe_id = r.recipe_id
+        WHERE c.cookbook_id = %s
+        """
+    cur.execute(subs_query, (token, cookbook[5]))
+    recipes = cur.fetchall()
+    recipe_list = []
+    for r in recipes:
+        recipe_list.append(recipe_details(r[0], token))
+    return {
+        'status_code': 200,
+        'body': {
+            'cookbook_name': cookbook[0],
+            'cookbook_photo': cookbook[1],
+            'cookbook_status': cookbook[2],
+            'recipes': recipe_list
+        }
+    }
+
+def cookbook_subscribe(token, subscribe_to):
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    try:
+        sql_search_query = """SELECT cookbook_status FROM cookbooks WHERE cookbook_id = %s"""
+        cur.execute(sql_search_query, (subscribe_to,))
+        visibility, = cur.fetchone()
+        if visibility is "draft":
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'Cannot subscribe to a private cookbook'
+            }
+        sql_search_query = """
+            SELECT id FROM users WHERE token IS NOT NULL AND token = %s
+            """
+        cur.execute(sql_search_query, (str(token),))
+        follower_result = cur.fetchone()
+        if follower_result is None:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'Subscription requires login'
+            }
+        u_id, = follower_result
+        sql_search_query = """
+            SELECT COUNT(*) FROM cookbook_followers cf
+            WHERE cookbook_id = %s AND follower_id = %s 
+            """
+        cur.execute(sql_search_query, (subscribe_to, u_id))
+        subscribed, = cur.fetchone()
+        if subscribed > 0:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'already subscribed'
+            }
+        sql_insert_query = """
+            INSERT INTO cookbook_followers (following_id, follower_id)
+            VALUES (%s, %s)
+            """
+        input_data = (subscribe_to, u_id)
+        cur.execute(sql_insert_query, input_data)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 500,
+            'error': 'Problem subscribing to cookbook'
+        }
+    return {
+        'status_code': 200
+    }
+
+def cookbook_unsubscribe(token, unsubscribe_to):
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    try:
+        sql_search_query = """
+            SELECT id FROM users WHERE token IS NOT NULL AND token = %s
+            """
+        cur.execute(sql_search_query, (str(token),))
+        follower_result = cur.fetchone()
+        if follower_result is None:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'Unsubscription requires login'
+            }
+        u_id, = follower_result
+        sql_search_query = """
+            SELECT COUNT(*) FROM cookbook_followers cf
+            WHERE following_id = %s AND follower_id = %s 
+            """
+        cur.execute(sql_search_query, (unsubscribe_to, u_id))
+        subscribed, = cur.fetchone()
+        if subscribed == 0:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'not currently subscribed to cookbook'
+            }
+        sql_delete_query = """
+            DELETE FROM cookbook_followers
+            WHERE following_id = %s and follower_id = %s
+            """
+        input_data = (unsubscribe_to, u_id)
+        cur.execute(sql_delete_query, input_data)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 500,
+            'error': 'Problem unsubscribing from cookbook'
+        }
+    return {
+        'status_code': 200
     }
