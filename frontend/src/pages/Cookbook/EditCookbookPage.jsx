@@ -36,19 +36,24 @@ function EditCookbookPage () {
       cookbook_id: cookbookId
     };
     backendRequest('/cookbook/edit', body, 'POST', token, (data) => {
-      setCookbookData({...data.body});
+      setCookbookData({
+        cookbookId: cookbookId,
+        name: data.body.cookbook_name,
+        photo: data.body.cookbook_photo,
+        description: data.body.cookbook_description,
+        cookbookStatus: data.body.cookbook_status,
+      });
     }, (error) => {
       setResponseError(error);
     });
   };
 
   const updateCookbook = (requestBody) => {
-    /*backendRequest('/cookbook/update', body, 'POST', token, (data) => {
-      const cookbookId = data.body.cookbook_id;
+    backendRequest('/cookbook/update', requestBody, 'POST', token, (data) => {
       setResponseSuccess('Cookbook Updated Successfully');
     }, (error) => {
       setResponseError(error);
-    });*/
+    });
   };
 
   React.useEffect(() => {
@@ -64,7 +69,7 @@ function EditCookbookPage () {
           <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}
           {responseError !== '' &&
           <ErrorAlert message={responseError} setMessage={setResponseError} />}
-          <CreateEditCookbookForm data={initialCookbookData()}
+          <CreateEditCookbookForm data={cookbookData}
             callFunction={updateCookbook} />
         </FlexColumn>
       </Grid>

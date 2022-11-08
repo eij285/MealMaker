@@ -18,24 +18,30 @@ import {
 } from '../../components/StyledNodes';
 import { LeftAlignedButton } from '../../components/Buttons';
 import { backendRequest } from '../../helpers';
+import { OwnCookbookItem } from '../../components/Cookbook/CookbookItems';
 
 function MyCookbooksPage () {
   // TODO: complete this page
   const token = React.useContext(GlobalContext).token;
-  const [cookbooks, setCookbooks] = React.useState(0);
+  const [ownCookbooks, setOwnCookbooks] = React.useState([]);
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [deleteIndex, setDeleteIndex] = React.useState(-1);
+  const [deleteDescription, setDeleteDesciption] = React.useState("");
 
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
 
   const loadCookbooks = () => {
-    /*backendRequest('/cookbooks/', {}, 'POST', token, (data) => {
-      setRecipesList([...data.body]);
+    backendRequest('/cookbook/fetch-own', {}, 'POST', token, (data) => {
+      setOwnCookbooks([...data.body]);
+      /*setRecipesList([...data.body]);
       setNumPublished(data.body.filter(recipe => 
         recipe.recipe_status === 'published').length);
-      setTotalRecipes(data.body.length);
+      setTotalRecipes(data.body.length);*/
     }, (error) => {
       setResponseError(error);
-    });*/
+    });
   };
 
   React.useEffect(() => {
@@ -61,6 +67,15 @@ function MyCookbooksPage () {
               Create New Cook Book
             </LeftAlignedButton>
           </FlexRow>
+          <Grid container spacing={2}>
+            {ownCookbooks.length > 0 && ownCookbooks.map((cookbook, index) => (
+            <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
+              <OwnCookbookItem
+                data={cookbook} index={index} setDeleteIndex={setDeleteIndex}
+                setDialogOpen={setDialogOpen}
+                setDeleteDesciption={setDeleteDesciption} />
+            </Grid>))}
+          </Grid>
           <Divider />
           <PageTitle>Followed Cook Books</PageTitle>
         </FlexColumn>

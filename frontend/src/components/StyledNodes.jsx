@@ -86,6 +86,10 @@ export const FlexRow = styled(FlexRowNoGap)`
   column-gap: 20px;
 `;
 
+export const FlexRowSpaced = styled (FlexRow)`
+  justify-content: space-between;
+`;
+
 export const FlexRowVCentred = styled(FlexRow)`
   align-items: center;
 `;
