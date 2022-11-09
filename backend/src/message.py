@@ -313,6 +313,7 @@ def message_react(message_id, react_char, token):
         else:
             query = ("UPDATE message_emojis SET emoji_utf8 = %s WHERE message_id = %s AND reactor_id = %s")
         cur.execute(query, (react_char, message_id, user_id))
+        cur.commit()
         conn.close()
         cur.close()
         return{
