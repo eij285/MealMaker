@@ -12,6 +12,31 @@ import { LeftAlignedSubmitButton } from '../../components/Buttons';
 import { CentredElementsForm } from '../../components/Forms';
 import { FlexRow } from '../StyledNodes';
 
+const CookbookImgContainer = styled.div`
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  justify-content: center;
+  height: 25vh;
+  & img, & svg {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+  }
+`;
+
+/**
+ * Recipe image component
+ */
+export const CookbookImg = ({src, alt}) => {
+  return (
+    <CookbookImgContainer>
+      {src && <img src={src} alt={alt} />}
+      {!src && <AutoStoriesIcon />}
+    </CookbookImgContainer>
+  );
+};
+
 export const CreateEditCookbookForm = ({data, callFunction}) => {
   const [cookbookName, setCookbookName] = React.useState('');
   const [cookbookNameMessage, setCookbookNameMessage] = React.useState('');

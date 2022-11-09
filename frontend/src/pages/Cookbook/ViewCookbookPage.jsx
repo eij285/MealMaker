@@ -1,22 +1,26 @@
 import React from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
-  Grid,
+  Box,
+  Grid
 } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
 import {
   FlexColumn,
   ErrorAlert,
+  FlexRowVCentred,
 } from '../../components/StyledNodes';
 import { backendRequest } from '../../helpers';
-
-import NotFound404Page from '../Error/NotFound404Page';
+import { AutoStoriesOutlined } from '@mui/icons-material';
+import { MediumGreyText, PageTitle } from '../../components/TextNodes';
+import { CookbookImg } from '../../components/Cookbook/CookbookNodes';
+import { RecipeItem } from '../../components/Recipe/RecipeItems';
 
 function ViewCookbookPage () {
   const { cookbookId } = useParams();
   const token = React.useContext(GlobalContext).token;
-  const [errorStatus, setErrorStatus] = React.useState(0);
+  const [cookbookData, setCookbookData] = React.useState({});
   const [responseError, setResponseError] = React.useState('');
 
   const loadCookbook = () => {
@@ -26,29 +30,44 @@ function ViewCookbookPage () {
     const reqURL = '/cookbook/view' + (token ? '' : `?cookbook_id=${cookbookId}`);
     const reqMethod = token ? 'POST' : 'GET';
     backendRequest(reqURL, body, reqMethod, token, (data) => {
-      const body = data.body;
-      
+      setCookbookData({...data.body});
     }, (error) => {
       setResponseError(error);
-    }, setErrorStatus);
+    });
   };
 
   React.useEffect(() => {
     loadCookbook();
   }, [cookbookId, token]);
   
-  return (<>
-    {errorStatus === 404 && <NotFound404Page />}
-    {errorStatus !== 404 &&
+  return (
     <ExploreLayout>
-      <Grid item xl={6} lg={8} md={10} sm={12} xs={12}>
-        <FlexColumn>
-          {responseError !== '' &&
-          <ErrorAlert message={responseError} setMessage={setResponseError} />}
-        </FlexColumn>
-      </Grid>
-    </ExploreLayout>}
-  </>);
+      <FlexColumn>
+        {responseError !== '' &&
+        <Box mt={2}>
+          <ErrorAlert message={responseError} setMessage={setResponseError} />
+        </Box>}
+        {Object.keys(cookbookData).length > 0 &&<>
+        <FlexRowVCentred>
+          <AutoStoriesOutlined sx={{fontSize: '2.5em'}} />
+          <PageTitle>{cookbookData.cookbook_name}</PageTitle>
+        </FlexRowVCentred>
+        <CookbookImg src={cookbookData.cookbook_photo}
+          alt={cookbookData.cookbook_name} />
+        <MediumGreyText textAlign="center">
+          {cookbookData.cookbook_description}
+        </MediumGreyText>
+        {cookbookData.recipes &&
+        <Grid container spacing={2}>
+        {cookbookData.recipes.map((recipe, index) => (
+          <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
+            <RecipeItem recipe={recipe.body} />
+          </Grid>))}
+        </Grid>}
+        </>}
+      </FlexColumn>
+    </ExploreLayout>
+  );
 }
 
 export default ViewCookbookPage;
