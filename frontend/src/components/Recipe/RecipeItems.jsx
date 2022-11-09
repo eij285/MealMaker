@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { Box, Button, Paper, Rating, Typography } from '@mui/material';
+import { Box, Button, Checkbox, Paper, Rating, Typography } from '@mui/material';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import {
   FlexRow,
   FlexColumn,
@@ -16,10 +17,11 @@ import {
   FlexColumnSpaced,
   UserImageName
 } from '../StyledNodes';
-import { MediumGreyText, SmallGreyText, TextVCentred } from '../TextNodes';
+import { MediumGreyText, SmallBlackText, SmallGreyText, TextVCentred } from '../TextNodes';
 import { RecipePrepartionTime } from './RecipeNodes';
 import { SmallDefaultButton } from '../Buttons';
 import { getAverageRating } from '../../helpers';
+import { CheckBox } from '@mui/icons-material';
  
 const RecipeItemActionPanel = styled.div`
   box-shadow: -10px 40px 5px -10px rgba(0,0,0,0.75) inset;
@@ -88,6 +90,9 @@ const RatingStarsColumn = styled(FlexColumnNoGap)`
   height: 32px;
 `;
 
+/**
+ * Rating summary requires reviews and ratings as atomic values
+ */
 const RatingSummary = ({data}) => {
   return (
     <FlexColumn>
@@ -107,6 +112,29 @@ const RatingSummary = ({data}) => {
       <Typography>{data.recipe_name}</Typography>
     </FlexColumn>
   )
+};
+
+/**
+ * Rating summary requires reviews and ratings as collection (arrays)
+ */
+const AlternativeRatingSummary = ({data}) => {
+  const ratingAvg = getAverageRating(data.reviews);
+  const nReviews = data.reviews.length;
+  return (
+    <RatingStarsColumn>
+      {nReviews > 0 && <>
+      <Rating value={ratingAvg} precision={0.1} readOnly />
+      {nReviews === 1 &&
+      <SmallGreyText>{ratingAvg} (1 review)</SmallGreyText>}
+      {nReviews > 1 &&
+      <SmallGreyText>
+        {ratingAvg.toFixed(1)} ({nReviews} reviews)
+      </SmallGreyText>}
+      </>}
+      {nReviews < 1 &&
+      <MediumGreyText>No Reviews</MediumGreyText>}
+    </RatingStarsColumn>
+  );
 };
 
 const RecipeItemLikes = ({likesCount}) => {
@@ -158,6 +186,67 @@ export const OwnRecipeItem = ({data, index, cloneRecipe, setDeleteIndex,
   )
 };
 
+export const OwnCookbookRecipeItem = ({data, index, setRemove}) => {
+  return (
+    <RecipeItemPaper>
+      <Box sx={{position: 'relative'}}>
+        <RecipeItemActionPanel>
+          <RecipeItemTitle>{data.cuisine}</RecipeItemTitle>
+          <RecipeItemActions>
+            <ActionButton color="error" onClick={() => setRemove(index)}>
+              <RemoveCircleIcon />
+            </ActionButton>
+          </RecipeItemActions>
+        </RecipeItemActionPanel>
+        <RecipeItemPhoto src={data.recipe_photo} alt={data.recipe_name} />
+      </Box>
+      <RecipeItemTextContainer>
+        <FlexColumnSpaced>
+          <AlternativeRatingSummary data={data} />
+          <Typography>{data.recipe_name}</Typography>
+        </FlexColumnSpaced>
+        <FlexColumnSpaced>
+          <SmallGreyText align="right">{data.recipe_status}</SmallGreyText>
+          <RecipeItemLikes likesCount={data.likes.likes_count} />
+        </FlexColumnSpaced>
+      </RecipeItemTextContainer>
+    </RecipeItemPaper>
+  )
+};
+
+export const CookbookScrollerRecipeItem = ({data, index, addRemove}) => {
+  const isDraft = data.recipe_status === 'draft';
+  let containerStyles = {};
+  if (isDraft) {
+    containerStyles = {
+      '&::before': {
+        content: '""',
+        display: 'block',
+        position: 'absolute',
+        height: '100%',
+        width: '100%',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+      }
+    };
+  }
+  return (
+    <RecipeItemPaper sx={containerStyles}>
+      <Box sx={{position: 'relative', height: '160px', overflow: 'hidden'}}>
+        <RecipeItemActionPanel>
+          <Typography sx={{color: '#ffffff', lineHeight: 1, fontSize: '8pt'}}>
+            {data.cuisine}<br/>
+            ({data.recipe_status})
+          </Typography>
+          <Checkbox disabled={isDraft}
+            onChange={(e) => addRemove(index, e.target.checked)} />
+        </RecipeItemActionPanel>
+        <RecipeItemPhoto src={data.recipe_photo} alt={data.recipe_name} />
+        <SmallBlackText align="left">{data.recipe_name}</SmallBlackText>
+      </Box>
+    </RecipeItemPaper>
+  )
+};
+
 export const SingleAuthorRecipeItem = ({recipe, level}) => {
   const navigate = useNavigate();
   return (
@@ -184,23 +273,9 @@ export const SingleAuthorRecipeItem = ({recipe, level}) => {
 
 
 const RecipeRatingNameAuthor = ({data}) => {
-  const ratingAvg = getAverageRating(data.reviews);
-  const nReviews = data.reviews.length;
   return (
     <FlexColumn>
-      <RatingStarsColumn>
-        {nReviews > 0 && <>
-        <Rating value={ratingAvg} precision={0.1} readOnly />
-        {nReviews === 1 &&
-        <SmallGreyText>{ratingAvg} (1 review)</SmallGreyText>}
-        {nReviews > 1 &&
-        <SmallGreyText>
-          {ratingAvg.toFixed(1)} ({nReviews} reviews)
-        </SmallGreyText>}
-        </>}
-        {nReviews < 1 &&
-        <MediumGreyText>No Reviews</MediumGreyText>}
-      </RatingStarsColumn>
+      <AlternativeRatingSummary data={data} />
       <Typography>{data.recipe_name}</Typography>
       <UserImageName src={data.author_image} name={data.author_display_name} />
     </FlexColumn>

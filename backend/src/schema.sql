@@ -2,6 +2,9 @@
 -- Please make database schema changes directly to this file then run
 -- http://localhost:5000/reset
 
+DROP TABLE IF EXISTS cookbook_followers;
+DROP TABLE IF EXISTS cookbook_recipes;
+DROP TABLE IF EXISTS cookbooks;
 DROP TABLE IF EXISTS subscriptions;
 DROP TABLE IF EXISTS recipe_user_likes;
 DROP TABLE IF EXISTS recipe_reviews_votes;
@@ -9,9 +12,6 @@ DROP TABLE IF EXISTS recipe_reviews;
 DROP TABLE IF EXISTS recipe_ingredients;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS cookbook_followers;
-DROP TABLE IF EXISTS cookbook_recipes;
-DROP TABLE IF EXISTS cookbooks;
 
 CREATE TABLE users (
     id              SERIAL,
