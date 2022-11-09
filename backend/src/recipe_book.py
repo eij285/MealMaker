@@ -2,6 +2,7 @@ import psycopg2
 from backend_helper import connect, verify_token
 from config import DB_CONN_STRING
 from recipe import recipe_details
+from message import message_send
 
 def cookbook_create(name, status, description, token):
     """Create a new cookbook (token must be valid)
@@ -9,11 +10,11 @@ def cookbook_create(name, status, description, token):
     Args:
         name            (String): cookbook name
         description     (String): cookbook description
-        cookbook_status   (String): 'draft' or 'published'
+        cookbook_status (String): 'draft' or 'published'
         token           (String): token of authenticated user
         
     Returns:
-        Status 201 - cookbook created successfully, returning body (dict)
+        Status 200 - cookbook created successfully, returning body (dict)
                      containing cookbook_id (Integer)
         Status 400 - failure to create cookbook
         Status 401 - invalid or no token
@@ -54,6 +55,16 @@ def cookbook_create(name, status, description, token):
             'status_code': 400,
             'error': "cannot find user id"
         }
+    
+    query = ("SELECT visibility FROM users WHERE token = %s")
+    cur.execute(query, (str(token),))
+    visibility = cur.fetchone()
+    if visibility is 'private':
+        return {
+            'status_code': 400,
+            'error': "private users cannot create cookbooks"
+        }
+    
     # Add new cookbook to system
     try:
         query = ("""
@@ -825,6 +836,18 @@ def cookbook_add_recipe(token, cookbook_id, recipe_id):
     input_data = (cookbook_id, recipe_id)
     cur.execute(sql_insert_query, input_data)
     conn.commit()
+
+    query = ("SELECT cookbook_follower_id FROM cookbook_followers WHERE cookbook_id = %s")
+    cur.execute(query, (str(cookbook_id)))
+    users = cur.fetchall()
+    # notify all followers
+    query = ("SELECT cookbook_name FROM cookbooks WHERE cookbook_id = %s")
+    cur.execute(query, (str(cookbook_id)))
+    name = cur.fetchall()
+    update_msg = 'A recipe has been added to cookbook: ' + name + '!'
+    for u in users:
+        message_send(u[0], update_msg, token)
+
     cur.close()
     conn.close()
     return {
@@ -897,6 +920,17 @@ def cookbook_remove_recipe(token, cookbook_id, recipe_id):
         """
     input_data = (cookbook_id, recipe_id)
     cur.execute(sql_delete_query, input_data)
+
+    query = ("SELECT cookbook_follower_id FROM cookbook_followers WHERE cookbook_id = %s")
+    cur.execute(query, (str(cookbook_id)))
+    users = cur.fetchall()
+    # notify all followers
+    query = ("SELECT cookbook_name FROM cookbooks WHERE cookbook_id = %s")
+    cur.execute(query, (str(cookbook_id)))
+    name = cur.fetchall()
+    update_msg = 'A recipe has been removed to cookbook: ' + name + '!'
+    for u in users:
+        message_send(u[0], update_msg, token)
     conn.commit()
     cur.close()
     conn.close()
