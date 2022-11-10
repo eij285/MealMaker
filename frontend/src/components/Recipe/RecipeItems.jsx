@@ -19,7 +19,7 @@ import {
 } from '../StyledNodes';
 import { MediumGreyText, SmallBlackText, SmallGreyText, TextVCentred } from '../TextNodes';
 import { RecipePrepartionTime } from './RecipeNodes';
-import { SmallDefaultButton } from '../Buttons';
+import { SmallAlternateButton, SmallDefaultButton } from '../Buttons';
 import { getAverageRating } from '../../helpers';
 import { CheckBox } from '@mui/icons-material';
  
@@ -76,12 +76,18 @@ const ActionButton = styled(Button)`
   padding: 0;
 `;
 
-const ViewRecipeButton = styled(SmallDefaultButton)`
+const ViewPublishPanel = styled.div`
   position: absolute;
-  bottom: 4px;
-  right: 4px;
-  opacity: 0.8;
-  &:hover {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  padding: 4px;
+  bottom: 0;
+  width: 100%;
+  & button, & a {
+    opacity: 0.8;
+  }
+  & button:hover, & a:hover {
     opacity: 1;
   }
 `;
@@ -146,7 +152,7 @@ const RecipeItemLikes = ({likesCount}) => {
 };
 
 export const OwnRecipeItem = ({data, index, cloneRecipe, setDeleteIndex,
-  setDialogOpen, setDeleteDesciption}) => {
+  setDialogOpen, setDeleteDesciption, publishRecipe}) => {
   const handleDelete = () => {
     setDeleteIndex(index);
     setDialogOpen(true);
@@ -171,9 +177,16 @@ export const OwnRecipeItem = ({data, index, cloneRecipe, setDeleteIndex,
           </RecipeItemActions>
         </RecipeItemActionPanel>
         <RecipeItemPhoto src={data.recipe_photo} alt={data.recipe_name} />
-        <ViewRecipeButton component={RouterLink} to={`/recipe/${data.recipe_id}`}>
-          View Recipe
-        </ViewRecipeButton>
+        <ViewPublishPanel>
+          <SmallDefaultButton component={RouterLink}
+            to={`/recipe/${data.recipe_id}`}>
+            View Recipe
+          </SmallDefaultButton>
+          <SmallAlternateButton onClick={() => publishRecipe(index)}>
+            {data.recipe_status === 'published' && <>Unpublish</>}
+            {data.recipe_status === 'draft' && <>Publish</>}
+          </SmallAlternateButton>
+        </ViewPublishPanel>
       </Box>
       <RecipeItemTextContainer>
         <RatingSummary data={data} />
