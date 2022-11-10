@@ -10,9 +10,9 @@ from backend_helper import database_reset, database_populate
 from user import user_preferences, user_update, user_info, \
                  user_update_preferences, user_subscribe, user_unsubscribe, \
                  user_get_followers, user_get_following, user_get_profile
-from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
-                   recipe_delete, recipes_fetch_own, recipes_user_published, \
-                   recipe_details, recipe_like, \
+from recipe import recipe_create, recipe_publish, recipe_edit, recipe_update, \
+                   recipe_clone, recipe_delete, recipes_fetch_own, \
+                   recipes_user_published, recipe_details, recipe_like, \
                    recipe_related
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
@@ -186,8 +186,21 @@ def create_recipe():
     description = data['description']
     servings = data['servings']
     recipe_status = data['recipe_status']
-
     return dumps(recipe_create(name, description, servings, recipe_status, token))
+
+@APP.route('/recipe/publish', methods=['PUT'])
+def publish_recipe():
+    data = request.get_json()
+    token = data['token']    
+    recipe_id = data['recipe_id']
+    return dumps(recipe_publish(recipe_id, 'published', token))
+
+@APP.route('/recipe/unpublish', methods=['PUT'])
+def unpublish_recipe():
+    data = request.get_json()
+    token = data['token']    
+    recipe_id = data['recipe_id']
+    return dumps(recipe_publish(recipe_id, 'draft', token))
 
 @APP.route('/recipe/edit', methods=['POST'])
 def edit_recipe():
@@ -421,30 +434,6 @@ def feed_subscription():
 @APP.route('/feed/trending', methods=['GET'])
 def feed_trending():
     return dumps(feed_fetch_trending())
-
-# @APP.route('/recipe/publish', methods=['PUT'])
-# def publish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "t"))
-
-# @APP.route('/recipe/unpublish', methods=['PUT'])
-# def unpublish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "f"))
-
 
 @APP.route('/reset', methods=['GET'])
 def reset():
