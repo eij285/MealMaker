@@ -13,6 +13,17 @@ const theme = createTheme({
             dark: '#5b5ab2',
         },
     },
+    components: {
+        MuiInputLabel: {
+            styleOverrides: {
+                root: {
+                    '&.Mui-focused': {
+                        color: '#b28f01'
+                    },
+                },
+            },
+        },
+    },
 });
 
 export default theme;
