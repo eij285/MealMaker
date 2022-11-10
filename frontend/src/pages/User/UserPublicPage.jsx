@@ -62,12 +62,9 @@ function UserPublicPage () {
     const body = {
       id: userProfile.id
     };
-    backendRequest(reqURL, body, reqMethod, token, (data) => {
-      // on success toggle userProfile.is_subscribed state
-      setUserProfile({
-        ...userProfile,
-        is_subscribed: !userProfile.is_subscribed
-      });
+
+    backendRequest(reqURL, body, reqMethod, token, () => {
+      loadProfile();
     }, (error) => {
       setResponseError(error);
     });
@@ -108,6 +105,7 @@ function UserPublicPage () {
             </IconButton>
           }
           color="primary"
+          invisible={ userId == tokenToUserId(token) }
           overlap='circular'
           sx={{
             "& .MuiBadge-badge": {
@@ -186,7 +184,13 @@ function UserPublicPage () {
       </ProfileContainer>}      
       {userProfile.hasOwnProperty('visitor_efficiency') &&
       recipesList.length > 0 && <>
+      <Grid container direction={"row"}>
+      <IconButton component={RouterLink} to={'/create-recipe'} disableRipple={true} sx={{"&:hover": {color: "#000000"} }}>
+        <AddIcon />
+      </IconButton>
       <SubPageTitle>Recipes</SubPageTitle>
+      </Grid>
+      
       <Grid container spacing={2}>
         {recipesList.map((recipe, index) => (
         <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
