@@ -3,6 +3,8 @@ from backend_helper import connect, verify_token
 from config import DB_CONN_STRING
 from recipe import recipe_details
 from message import message_send
+from algorithm import take_second
+from feed import estimate_rating
 
 def cookbook_create(name, status, description, token):
     """Create a new cookbook (token must be valid)
@@ -140,7 +142,7 @@ def cookbook_edit(cookbook_id, token):
             body    (dict of atomic values and lists)
                 cookbook_name         (String)
                 cookbook_photo        (String)
-                cookbook_desciption   (String)
+                cookbook_description   (String)
                 cookbook_status       (String)
 
         Status 400 - failure to find cookbook id
@@ -218,7 +220,7 @@ def cookbook_update(data, token):
         data    (dict of atomic values and collections): values to update
                 cookbook_name         (String)
                 cookbook_photo        (String)
-                cookbook_desciption   (String)
+                cookbook_description   (String)
                 cookbook_status       (String)
         token   (String): token of authenticated user
         
@@ -284,13 +286,13 @@ def cookbook_update(data, token):
         cookbook_name = data['cookbook_name']
         cookbook_photo = data['cookbook_photo']
         cookbook_status = data['cookbook_status']
-        cookbook_desciption = data['cookbook_description']
-        params = (cookbook_name, cookbook_photo, cookbook_status, cookbook_desciption,\
+        cookbook_description = data['cookbook_description']
+        params = (cookbook_name, cookbook_photo, cookbook_status, cookbook_description,\
             cookbook_id)
 
         query = ("""
             UPDATE cookbooks
-            SET cookbook_name = %s, cookbook_photo = %s, cookbook_status = %s, cookbook_desciption = %s WHERE recipe_id = %s
+            SET cookbook_name = %s, cookbook_photo = %s, cookbook_status = %s, cookbook_description = %s WHERE recipe_id = %s
             """)
         cur.execute(query, params)
         conn.commit()
@@ -411,7 +413,7 @@ def cookbook_fetch_own(token):
                         cookbook_id         (Integer)
                         cookbook_name       (String)
                         cookbook_photo      (String)
-                        cookbook_desciption (String)
+                        cookbook_description (String)
                         cookbook_status     (String)
 
         Status 400 - failure to fetch cookbook
@@ -465,13 +467,13 @@ def cookbook_fetch_own(token):
         cookbooks_list = []
         for cookbook in output:
             # need average but json in flask doesn't like decimal data
-            cookbook_id, cookbook_name, cookbook_photo, cookbook_status, cookbook_desciption = cookbook
+            cookbook_id, cookbook_name, cookbook_photo, cookbook_status, cookbook_description = cookbook
             cookbooks_list.append({
                 'cookbook_id': cookbook_id,
                 'cookbook_name': cookbook_name,
                 'cookbook_photo': cookbook_photo,
                 'cookbook_status': cookbook_status,
-                'cookbook_desciption': cookbook_desciption,
+                'cookbook_description': cookbook_description,
             })
         cur.close()
         conn.close()
@@ -501,7 +503,7 @@ def cookbooks_user_published(user_id):
                         cookbook_id           (Integer)
                         cookbook_name         (String)
                         cookbook_photo        (String)
-                        cookbook_desciption   (String)
+                        cookbook_description   (String)
 
         Status 400 - failure to fetch cookbook
         Status 401 - invalid or no token
@@ -523,7 +525,7 @@ def cookbooks_user_published(user_id):
             raise Exception
         
         query = ("""
-            SELECT cookbook_id, cookbook_name, cookbook_photo, cookbook_desciption
+            SELECT cookbook_id, cookbook_name, cookbook_photo, cookbook_description
             WHERE owner_id = %s AND cookbook_status = 'published'
             """)
         cur.execute(query, (user_id,))
@@ -535,7 +537,7 @@ def cookbooks_user_published(user_id):
                 'cookbook_id': cookbook[0],
                 'cookbook_name': cookbook[1],
                 'cookbook_photo': cookbook[2],
-                'cookbook_desciption': cookbook[3],
+                'cookbook_description': cookbook[3],
             })
         cur.close()
         conn.close()
@@ -558,32 +560,19 @@ def cookbook_view(cookbook_id, token):
 
     Args:
         cookbook_id   (Integer): the cookbook id to fetch data for
-        token       (String): token of authenticated user
-        
+        token         (String): token of authenticated user
     Returns:
         Status 200 - success
             body    (dict of atomic values and lists)
                 cookbook_name         (String)
                 cookbook_photo        (String)
                 cookbook_status       (String)
-                cookbook_desciption   (String)
+                cookbook_description   (String)
 
         Status 400 - failure to find cookbook id
         Status 401 - invalid or no token
         Status 500 - server error (failure to connect to database)
     """
-    # error if no token
-    if not token:
-        return {
-            'status_code': 401,
-            'error': "No token"
-        }
-    
-    if not verify_token(token):
-        return {
-            'status_code': 401,
-            'error': "Invalid token"
-        }
     
     # Start connection to database
     try:
@@ -595,21 +584,12 @@ def cookbook_view(cookbook_id, token):
             'error': 'Unable to connect to database'
         }
 
-    try:
-        query = ("SELECT id FROM users WHERE token = %s")
-        cur.execute(query, (str(token),))
-        user_id, = cur.fetchone()
-    except:
-        # Close connection
-        cur.close()
-        conn.close()
-        return {
-            'status_code': 400,
-            'error': "cannot find user id"
-        }
+    query = ("SELECT id FROM users WHERE token = %s")
+    cur.execute(query, (str(token),))
+    user_id, = cur.fetchone()
 
     try:
-        query = ("""SELECT cookbook_name, cookbook_photo, cookbook_status, owner_id, cookbook_id, cookbook_desciption
+        query = ("""SELECT cookbook_name, cookbook_photo, cookbook_status, owner_id, cookbook_id, cookbook_description
             FROM cookbooks WHERE cookbook_id = %s AND cookbook_status = %s""")
         cur.execute(query, (str(cookbook_id), 'published'))
         cookbook = cur.fetchone()
@@ -642,12 +622,24 @@ def cookbook_view(cookbook_id, token):
             'cookbook_name': cookbook[0],
             'cookbook_photo': cookbook[1],
             'cookbook_status': cookbook[2],
-            'cookbook_desciption': cookbook[5],
+            'cookbook_description': cookbook[5],
             'recipes': recipe_list
         }
     }
 
 def cookbook_subscribe(token, subscribe_to):
+    """subscribe to a cookbook (token must be valid)
+    
+    Args:
+        token           (String): token of authenticated user
+        subscribe_to    (Integer): id of cookbook u are subscribing to
+        
+    Returns:
+        Status 200 - cookbook subscribed to successfully
+        Status 400 - already subscribed
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
@@ -714,6 +706,18 @@ def cookbook_subscribe(token, subscribe_to):
     }
 
 def cookbook_unsubscribe(token, unsubscribe_to):
+    """unsubscribe to a cookbook (token must be valid)
+    
+    Args:
+        token           (String): token of authenticated user
+        unsubscribe_to    (Integer): id of cookbook u are subscribing to
+        
+    Returns:
+        Status 200 - cookbook unsubscribed to successfully
+        Status 400 - not already subscribed
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
@@ -770,6 +774,19 @@ def cookbook_unsubscribe(token, unsubscribe_to):
     }
 
 def cookbook_add_recipe(token, cookbook_id, recipe_id):
+    """adds a recipe to a cookbook (token must be valid) and notifys all subscribers with a message
+    
+    Args:
+        token           (String): token of authenticated user
+        cookbook_id     (Integer): id of cookbook u are adding recipe to
+        recipe_id       (Integer): id of recipe that is being added
+        
+    Returns:
+        Status 200 - recipe added to cookbook successfully
+        Status 400 - recipe already in cookbook
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
     # error if no token
     if not token:
         return {
@@ -855,6 +872,19 @@ def cookbook_add_recipe(token, cookbook_id, recipe_id):
     }
 
 def cookbook_remove_recipe(token, cookbook_id, recipe_id):
+    """removess a recipe to a cookbook (token must be valid) and notifys all subscribers with a message
+    
+    Args:
+        token           (String): token of authenticated user
+        cookbook_id     (Integer): id of cookbook u are removing recipe from
+        recipe_id       (Integer): id of recipe that is being removed
+        
+    Returns:
+        Status 200 - recipe removed from cookbook successfully
+        Status 400 - recipe not already in cookbook
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
     # error if no token
     if not token:
         return {
