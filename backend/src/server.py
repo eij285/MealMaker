@@ -461,7 +461,7 @@ def delete_message():
     token = data['token']
     return dumps(message_delete(message_id, token))
 
-@APP.route('/message/react', methods=['GET'])
+@APP.route('/message/react', methods=['POST'])
 def react_message():
     data = request.get_json()
     message_id = data['message_id']
