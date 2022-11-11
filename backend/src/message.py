@@ -80,7 +80,7 @@ def message_send(target_id, content, token):
         
     # Send message to room
     try:
-        room = backend_helper.fetch_all_with_condition("message_room", "room_id", target_id)
+        room = backend_helper.fetch_all_with_condition("message_rooms", "room_id", target_id)
         if room == []:
             return {
                 'status_code': 400,
@@ -93,7 +93,7 @@ def message_send(target_id, content, token):
         conn.close()
         return {
             'status_code': 200,
-            'body': {},
+            'body': None,
         }    
     except:
         cur.close()
@@ -168,7 +168,7 @@ def message_edit(message_id, message_content, token):
         conn.close()
         return {
             'status_code': 200,
-            'body': {},
+            'body': None,
         }    
     except:
         cur.close()
@@ -240,7 +240,7 @@ def message_delete(message_id, token):
         conn.close()
         return {
             'status_code': 200,
-            'body': {},
+            'body': None,
         }    
     except:
         cur.close()
@@ -294,11 +294,15 @@ def message_react(message_id, react_char, token):
         owner_id = cur.fetchone()[0]
         # Check if person to react message is the owner of the message
         if owner_id == user_id:
+            cur.close()
+            conn.close()
             return{
                 'status_code': 400,
                 'error': 'Owner cannot react to their own message'
             }
     except:
+        cur.close()
+        conn.close()
         return{
             'status_code': 400,
             'error': 'Failed to fetch message'
@@ -310,18 +314,36 @@ def message_react(message_id, react_char, token):
         out = cur.fetchone()
         if out is None:
             query = ("INSERT INTO message_emojis(emoji_utf8, message_id, reactor_id) VALUES (%s, %s, %s) ")
+            cur.execute(query, (react_char, message_id, user_id))
+            conn.commit()
+            conn.close()
+            cur.close()
+            return{
+                'status_code': 200,
+                'body': "Added reaction",
+            }
         else:
-            query = ("UPDATE message_emojis SET emoji_utf8 = %s WHERE message_id = %s AND reactor_id = %s")
-        cur.execute(query, (react_char, message_id, user_id))
-        cur.commit()
-        conn.close()
-        cur.close()
-        return{
-            'status_code': 200,
-            'body': None,
-        }
+            # Check if emoji wants to update is same as original, if yes unreact
+            query = ("SELECT emoji_id FROM message_emojis WHERE emoji_utf8 = %s AND message_id = %s AND reactor_id = %s")
+            cur.execute(query, (react_char, message_id, user_id))
+            out = cur.fetchone()
+            if out != None:
+                query = ("DELETE FROM message_emojis WHERE emoji_id = %s")
+                cur.execute(query, (out))
+                output = "Removed"
+            else:
+                query = ("UPDATE message_emojis SET emoji_utf8 = %s WHERE message_id = %s AND reactor_id = %s")
+                cur.execute(query, (react_char, message_id, user_id))
+                output = "Updated"
+            conn.commit()
+            return {
+                'status_code': 200,
+                'body': output
+            }
+        
     except:
         return{
             'status_code': 400,
             'error': 'Failed to react to message'
         }
+    
