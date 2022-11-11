@@ -490,7 +490,7 @@ def message_rooms():
     return fetch_user_rooms(token)
 
 @APP.route('/message-rooms/add-member', methods=['POST'])
-def message_rooms():
+def message_rooms_add_member():
     data = request.get_json()
     token = data['token']
     room_id = data['room_id']
@@ -498,7 +498,7 @@ def message_rooms():
     return add_member_to_room(room_id, member_id_list, token)
 
 @APP.route('/message-rooms/set-owner', methods=['POST'])
-def message_rooms():
+def message_rooms_set_owner():
     data = request.get_json()
     token = data['token']
     room_id = data['room_id']
@@ -506,7 +506,7 @@ def message_rooms():
     return add_owner_to_room(room_id, owner_id_list, token)
 
 @APP.route('/message-rooms/fetch-details', methods=['POST'])
-def message_rooms():
+def message_rooms_fetch_details():
     data = request.get_json()
     token = data['token']
     room_id = data['room_id']
