@@ -350,24 +350,26 @@ def fetch_room_details(room_id, token):
                             'is_deleted': boolean, 
                             'time_sent': DateTime, 
                             'sender_id': int,
-                            'room_id': int
+                            'room_id': int,
                         },
                     ],
                 'all_emojis': [
-                    {
-                        'message_id': int,
-                        'emoji': CHAR,
-                        'reactor_id': int,
-                    },
+                  {
+                      'emoji_char': CHAR,
+                      'reactor_id': int,
+                      'message_id': int
+                  }  
                 ],
                 'all_members': [
                     {
                         'member_id': int,
+                        'display_name': str
                     }
                 ],
                 'all_owners': [
                     {
                         'owner_id': int
+                        'display_name': str
                     },
                 ]
                 }
@@ -401,28 +403,47 @@ def fetch_room_details(room_id, token):
     # Fetch all owner id
     query = ("""SELECT owner_id FROM message_room_owners WHERE room_id = %s""")
     cur.execute(query, (str(room_id),))
-    all_owner = cur.fetchall()
-    all_owner_id = []
-    for e in all_owner:
-        all_owner_id.append(e[0])
+    all_owner_id = cur.fetchall()
+    all_owner = []
+    for e in all_owner_id:
+        query = ("SELECT display_name FROM users WHERE id = %s")
+        cur.execute(query, (e[0],))
+        name = cur.fetchone()[0]
+        all_owner.append({
+            'owner_id': e[0],
+            'display_name': name
+        })
 
     # Fetch all member id
-    query = ("""SELECT owner_id FROM message_room_owners WHERE room_id = %s""")
+    query = ("""SELECT member_id FROM message_room_members WHERE room_id = %s""")
     cur.execute(query, (str(room_id),))
-    all_member = cur.fetchall()
-    all_member_id = []
-    for e in all_member:
-        all_member_id.append(e[0])
+    all_member_id = cur.fetchall()
+    all_member = []
+    for e in all_member_id:
+        query = ("SELECT display_name FROM users WHERE id = %s")
+        cur.execute(query, (e[0],))
+        name = cur.fetchone()[0]
+        all_member.append({
+            'member_id': e[0],
+            'display_name': name
+        })
     
     # Fetch all messages
-    all_messages = backend_helper.fetch_all_with_condition("messages", "room_id", 1)
-    all_messages
-    return {
+    all_messages = backend_helper.fetch_all_with_condition("messages", "room_id", room_id)
+    all_emojis = backend_helper.fetch_database("message_emojis")
+    all_emoji_message_id = []
+    for emoji in all_emojis:
+        all_emoji_message_id.append(emoji['message_id'])
+    output = {}
+    output['all_members'] = all_member
+    output['all_owners'] = all_owner
+    output['all_messages'] = all_messages
+    output['all_emojis'] = all_emojis
+    return{
         'status_code': 200,
-        'body': all_messages,
+        'body': output
     }
-
-
+    
 def fetch_user_rooms(token):
     """fetch room where user is in
 
