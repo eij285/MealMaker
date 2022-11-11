@@ -11,13 +11,13 @@ import {
 } from '../components/StyledNodes';
 import { RecipeItem } from '../components/Recipe/RecipeItems';
 
-const SingleFeed = ({recipes}) => {
+const SingleFeed = ({recipes, level}) => {
   return (
     <Grid>
       <Grid container spacing={2}>
         {recipes.map((recipe, index) => (
         <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
-          <RecipeItem recipe={recipe} />
+          <RecipeItem recipe={recipe} level={level} />
         </Grid>))}
       </Grid>
     </Grid>
@@ -121,12 +121,16 @@ function HomePage () {
           </FlexRowHCentred>
         </>}
         </Box>
-        {(!token || dropdown === 'Trending') &&
-        <SingleFeed recipes={filteredTrending} />}
+        {(!token ||
+        (token && tabValue === 'Subscribed' && dropdown === 'Trending')) &&
+        <SingleFeed recipes={filteredTrending}
+          level={userPreferences.efficiency} />}
         {token && tabValue === 'Subscribed' && dropdown === 'For You' &&
-        <SingleFeed recipes={filteredSubsFeed} />}
+        <SingleFeed recipes={filteredSubsFeed}
+          level={userPreferences.efficiency} />}
         {token && tabValue === 'Discover' &&
-        <SingleFeed recipes={filteredDiscover} />}
+        <SingleFeed recipes={filteredDiscover}
+          level={userPreferences.efficiency} />}
       </FlexColumn>
     </ExploreLayout>
   );

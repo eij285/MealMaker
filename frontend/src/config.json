@@ -6,8 +6,20 @@
   "EFFICIENCY_CONV": 0.7,
   "UNITS": ["Metric", "Imperial"],
   "METRIC_UNITS": ["litres", "ml", "grams", "kg", "cups", "tbsp", "tsp", "pieces"],
-  "CUISINES": ["Asian Fusion", "Chinese", "French", "Greek", "Indian",
-               "Japanese", "Korean", "Lebanese", "Malaysian",
+  "CUISINES": ["Asian Fusion", "Chinese", "French", "Greek", "Indian", "Italian",
+               "Japanese", "Korean", "Lebanese", "Malaysian", "Mexican",
                "Modern Australian", "Other", "Seafood", "Sushi", "Thai",
-               "Vietnamese"]
+               "Vietnamese"],
+  "INGREDIENTS": ["", "almonds", "apple", "bacon", "basil", "beans", "beef",
+                  "beef mince", "bread crumbs", "butter", "chicken",
+                  "chicken breast", "chilli sauce", "coconut", "corn", "eggs",
+                  "fennel", "fettuccine", "fish", "flour", "garlic", "ginger",
+                  "ham", "lamb", "lasagna sheets", "lemon", "lentils",
+                  "light milk", "macaroni", "mayonnaise", "mozzarella cheese",
+                  "mushrooms", "mustard", "noodles", "oil", "onion", "oregano",
+                  "paprika", "parmesan cheese", "parsley", "peas", "pepper",
+                  "pork", "pork mince", "prawns", "rice", "salt", "skim milk",
+                  "soy sauce", "spaghetti", "spinach", "steak", "strawberries",
+                  "sugar", "tasty cheese", "tomato", "tomato paste", "tuna",
+                  "turkey","vinegar","whole milk"]
 }

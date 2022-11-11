@@ -15,6 +15,7 @@ import {
 } from '../TextNodes';
 import { NumericInput } from '../../components/InputFields';
 import {
+  customPrepTime,
   formatIngredient,
   formatNutrient,
   getAverageRating
@@ -93,6 +94,7 @@ export const RecipeLikes = ({likesObject, likeRecipe}) => {
 
 const RecipeInfoPanelContainer = styled(FlexRowWrapSpaced)`
   border: 1px solid #333333;
+  border-radius: 5px;
   padding: 8px;
   row-gap: 20px;
   align-items: center;
@@ -130,22 +132,14 @@ const RecipePrepartionTimeText = React.forwardRef((props, ref) => {
  */
 export const RecipePrepartionTime = ({hours, minutes, level,
   useSmall = false}) => {
-  let totalMinutes = 0;
+  const totalMinutes = customPrepTime(hours, minutes, level);
   let ttMsg = '';
   if (hours !== null) {
-    totalMinutes = hours * 60;
     ttMsg = `${hours}hrs`;
   }
   if (minutes !== null) {
-    totalMinutes += minutes;
     ttMsg += `${ttMsg?' ':''}${minutes}mins`;
   }
-  if (level === config.EFFICIENCY[2]) {
-    totalMinutes /= config.EFFICIENCY_CONV;
-  } else if (level === config.EFFICIENCY[0]) {
-    totalMinutes /= config.EFFICIENCY_CONV;
-  }
-  totalMinutes = Math.round(totalMinutes);
   const customHours = parseInt(totalMinutes / 60);
   const customMinutes = totalMinutes - (customHours * 60);
   if (hours !== null && minutes !== null) {
@@ -153,6 +147,9 @@ export const RecipePrepartionTime = ({hours, minutes, level,
   }
   const iconStyle = {
     fontSize: `${useSmall? 2 : 3}em`
+  };
+  const unspecTypo = {
+    fontSize: '10pt'
   };
 
   return (
@@ -167,8 +164,10 @@ export const RecipePrepartionTime = ({hours, minutes, level,
         {hours !== null && minutes !== null && level === config.EFFICIENCY[1] &&
         <RecipePrepartionTimeText hours={customHours} minutes={customMinutes}
           level={level} />}
-        {hours === null && minutes === null &&
-        <Typography>Unspecified{!useSmall &&<> Preparation Time</>}</Typography>}
+        {hours === null && minutes === null && <>
+        {useSmall && <Typography sx={unspecTypo}>Unspecified</Typography>}
+        {!useSmall && <Typography>Unspecified Preparation Time</Typography>}
+        </>}
       </PreparationTimeText>
     </FlexRow>
   );

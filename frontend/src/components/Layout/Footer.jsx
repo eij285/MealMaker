@@ -6,7 +6,7 @@ function Footer () {
     <AppBar
       component="footer"
       position="relative"
-      sx={{ alignSelf: 'flex-end', backgroundColor: 'white' }}
+      sx={{ alignSelf: 'flex-end', backgroundColor: 'white', zIndex: 500 }}
     >
       <Toolbar variant="dense">
         <Typography

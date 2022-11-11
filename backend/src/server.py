@@ -10,9 +10,9 @@ from backend_helper import database_reset, database_populate
 from user import user_preferences, user_update, user_info, \
                  user_update_preferences, user_subscribe, user_unsubscribe, \
                  user_get_followers, user_get_following, user_get_profile
-from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
-                   recipe_delete, recipes_fetch_own, recipes_user_published, \
-                   recipe_details, recipe_like, \
+from recipe import recipe_create, recipe_publish, recipe_edit, recipe_update, \
+                   recipe_clone, recipe_delete, recipes_fetch_own, \
+                   recipes_user_published, recipe_details, recipe_like, \
                    recipe_related
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
@@ -21,6 +21,11 @@ from feed import feed_fetch_discover, feed_fetch_subscription, \
 from search import search
 from message import message_send, message_edit, message_delete, message_react
 from message_room import *
+from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
+                        cookbook_fetch_own, cookbook_update, cookbook_view, \
+                        cookbooks_user_published, cookbook_subscribe, \
+                        cookbook_unsubscribe, cookbook_add_recipe, \
+                        cookbook_remove_recipe
 
 APP = Flask(__name__)
 CORS(APP)
@@ -183,8 +188,21 @@ def create_recipe():
     description = data['description']
     servings = data['servings']
     recipe_status = data['recipe_status']
-
     return dumps(recipe_create(name, description, servings, recipe_status, token))
+
+@APP.route('/recipe/publish', methods=['PUT'])
+def publish_recipe():
+    data = request.get_json()
+    token = data['token']    
+    recipe_id = data['recipe_id']
+    return dumps(recipe_publish(recipe_id, 'published', token))
+
+@APP.route('/recipe/unpublish', methods=['PUT'])
+def unpublish_recipe():
+    data = request.get_json()
+    token = data['token']    
+    recipe_id = data['recipe_id']
+    return dumps(recipe_publish(recipe_id, 'draft', token))
 
 @APP.route('/recipe/edit', methods=['POST'])
 def edit_recipe():
@@ -240,6 +258,95 @@ def details_for_recipe():
             recipe_id = None
         token = None
     return dumps(recipe_details(recipe_id, token))
+
+@APP.route('/cookbook/create', methods=['POST'])
+def create_cookbook():
+    data = request.get_json()
+    token = data['token']
+    name = data['name']
+    description = data['description']
+    status = data['status']
+
+    return dumps(cookbook_create(name, status, description, token))
+
+@APP.route('/cookbook/edit', methods=['POST'])
+def edit_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_edit(cookbook_id, token))
+
+@APP.route('/cookbook/update', methods=['POST'])
+def update_cookbook():
+    data = request.get_json()
+    token = data['token']
+    return dumps(cookbook_update(data, token))
+
+@APP.route('/cookbook/delete', methods=['POST'])
+def delete_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_delete(cookbook_id, token))
+
+@APP.route('/cookbook/fetch-own', methods=['POST'])
+def fetch_own_cookbooks():
+    data = request.get_json()
+    token = data['token']
+    return dumps(cookbook_fetch_own(token))
+
+@APP.route('/cookbooks/user/published', methods=['GET'])
+def published_user_cookbooks():
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(cookbooks_user_published(user_id))
+
+@APP.route('/cookbook/view', methods=['GET', 'POST'])
+def details_for_cookbook():
+    if request.method == 'POST':
+        data = request.get_json()
+        token = data['token']
+        cookbook_id = data['cookbook_id']
+    else:
+        if 'cookbook_id' in request.args:
+            cookbook_id = request.args.get('cookbook_id')
+        else:
+            cookbook_id = None
+        token = None
+    return dumps(cookbook_view(cookbook_id, token))
+
+@APP.route('/cookbook/subscribe', methods=['PUT'])
+def subscribe_cookbook():
+    payload = request.get_json()
+    token = payload['token']
+    subscribe_to = payload['cookbook_id']
+    
+    return dumps(cookbook_subscribe(token, subscribe_to))
+
+@APP.route('/cookbook/unsubscribe', methods=['POST'])
+def unsubscribe_cookbook():
+    payload = request.get_json()
+    token = payload['token']
+    unsubscribe_to = payload['cookbook_id']
+    return dumps(cookbook_unsubscribe(token, unsubscribe_to))
+
+@APP.route('/cookbook/add/recipe', methods=['PUT'])
+def recipe_add_cookbook():
+    payload = request.get_json()
+    token = payload['token']
+    cookbook_id = payload['cookbook_id']
+    recipe_id = payload['recipe_id']
+    return dumps(cookbook_add_recipe(token, cookbook_id, recipe_id))
+
+@APP.route('/cookbook/remove/recipe', methods=['POST'])
+def recipe_remove_cookbook():
+    payload = request.get_json()
+    token = payload['token']
+    cookbook_id = payload['cookbook_id']
+    recipe_id = payload['recipe_id']
+    return dumps(cookbook_remove_recipe(token, cookbook_id, recipe_id))
 
 @APP.route('/recipe/like', methods=['POST'])
 def like_recipe():

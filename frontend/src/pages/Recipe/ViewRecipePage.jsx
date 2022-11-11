@@ -4,7 +4,11 @@ import { Box, Grid } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
 import NotFound404Page from '../Error/NotFound404Page';
-import { PageTitle, SubPageTitleNoMargins } from '../../components/TextNodes';
+import {
+  MediumGreyText,
+  PageTitle,
+  SubPageTitleNoMargins
+} from '../../components/TextNodes';
 import {
   ErrorAlert,
   FlexColumn,
@@ -107,7 +111,7 @@ function ViewRecipePage () {
     const reqURL = `/recipe/related?recipe_id=${recipeId}`;
     backendRequest(reqURL, null, 'GET', null, (data) => {
       if (data.body.length > 0) {
-        setGridSize({xl: 10, lg: 9, md: 8});
+        setGridSize({xl: 9, lg: 9, md: 8});
         setRelated([...data.body]);
       }
     }, (error) => {
@@ -197,23 +201,30 @@ function ViewRecipePage () {
               </FlexRowWrapSpaced>
               {recipeData.cuisine &&
               <SubPageTitleNoMargins>{recipeData.cuisine}</SubPageTitleNoMargins>}
-              <RecipeImg src={recipeData.recipe_photo} alt={recipeData.recipe_name} />
-              <FlexRowWrapSpaced>
-                <FlexRow>
-                  <RecipeRating reviews={recipeData.reviews} />
-                  <RecipeLikes likesObject={currData.likes} likeRecipe={likeRecipe} />
-                </FlexRow>
-                <FlexRow>
-                  <UserImageNameLink src={recipeData.author_image}
-                    name={recipeData.author_display_name}
-                    to={`/user/${recipeData.author_id}`} />
-                  {token && !recipeData.user_is_author &&
-                  <SmallAlternateButton onClick={subscribeToUser}>
-                    {!recipeData.is_subscribed && <>Subscribe</>}
-                    {recipeData.is_subscribed && <>Unubscribe</>}
-                  </SmallAlternateButton>}
-                </FlexRow>
-              </FlexRowWrapSpaced>
+              <FlexColumn>
+                <RecipeImg src={recipeData.recipe_photo}
+                  alt={recipeData.recipe_name} />
+                <MediumGreyText>
+                  {recipeData.recipe_description}
+                </MediumGreyText>
+                <FlexRowWrapSpaced>
+                  <FlexRow>
+                    <RecipeRating reviews={recipeData.reviews} />
+                    <RecipeLikes likesObject={currData.likes}
+                      likeRecipe={likeRecipe} />
+                  </FlexRow>
+                  <FlexRow>
+                    <UserImageNameLink src={recipeData.author_image}
+                      name={recipeData.author_display_name}
+                      to={`/user/${recipeData.author_id}`} />
+                    {token && !recipeData.user_is_author &&
+                    <SmallAlternateButton onClick={subscribeToUser}>
+                      {!recipeData.is_subscribed && <>Subscribe</>}
+                      {recipeData.is_subscribed && <>Unubscribe</>}
+                    </SmallAlternateButton>}
+                  </FlexRow>
+                </FlexRowWrapSpaced>
+              </FlexColumn>
               <RecipeInfoPanel data={recipeData} currData={currData} 
                 setServings={setServings} />
             </Box>

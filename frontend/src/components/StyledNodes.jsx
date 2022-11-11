@@ -4,7 +4,6 @@ import styled from '@emotion/styled';
 import {
   Alert,
   Box,
-  Button,
   Checkbox,
   Container,
   Dialog,
@@ -12,14 +11,15 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
   Drawer,
-  FormControl,
   FormControlLabel,
   FormGroup,
+  Grid,
   IconButton,
   Link,
   Paper,
-  Rating,
+  Slider,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -28,8 +28,9 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import GlobalContext from '../utils/GlobalContext';
+import parse from 'html-react-parser';
 import { MediumDefaultButton, MediumAlternateButton } from './Buttons';
-import { SmallBlackText, SubPageTitle } from './TextNodes';
+import { SubPageTitle } from './TextNodes';
 import { CentredElementsForm } from '../components/Forms';
 
 const CustomAlert = ({props, status, message, setMessage}) => {
@@ -82,6 +83,10 @@ export const FlexRowNoGap = styled.div`
 
 export const FlexRow = styled(FlexRowNoGap)`
   column-gap: 20px;
+`;
+
+export const FlexRowSpaced = styled (FlexRow)`
+  justify-content: space-between;
 `;
 
 export const FlexRowVCentred = styled(FlexRow)`
@@ -233,29 +238,83 @@ export const UserPreferencesComponent = () => {
     alignSelf: 'flex-start',
     marginLeft: '14px',
     padding: 0,
-    '& svg': {
-      width: '48px',
-      height: '48px',
+    '&:hover svg': {
+      opacity: 0.9
     }
   };
 
   const openBtnStyles = {
     ...btnStyles,
-    top: '-10px',
-    position: 'absolute'
+    top: '-26px',
+    position: 'absolute',
+    '& svg': {
+      width: '48px',
+      height: '48px',
+      opacity: 0.6,
+      marginBottom: '-10px'
+    },
   };
 
   const closeBtnStyles = {
     ...btnStyles,
-    position: 'relative'
+    position: 'relative',
+    height: '32px',
+    marginTop: '20px',
+    '& svg': {
+      width: '48px',
+      height: '48px',
+      opacity: 0.6,
+    },
+  };
+
+  const drawerStyles = {
+    '& > .MuiPaper-root': { 
+      maxHeight: 'calc(100vh - 48px)'
+    }
   };
 
   const [open, setOpen] = React.useState(false);
 
-  const handleChange = (e) => {
+  const handlePrefsChange = (e) => {
     const objKey = e.target.name;
     const objValue = e.target.checked;
     setUserPreferences({...userPreferences, [objKey]: objValue});
+  };
+
+  const prepTimes = [0, 30, 60, 90, 120, 150, 180, 210];
+
+  const sliderChange = (e, values) => {
+    setUserPreferences({
+      ...userPreferences,
+      minMinutes: values[0],
+      maxMinutes: values[1],
+    });
+  };
+
+  const unspecifiedTimeToggle = (e) => {
+    setUserPreferences({
+      ...userPreferences,
+      showUnspecifiedTime: !userPreferences.showUnspecifiedTime
+    });
+  };
+
+  const handleCuisineChange = (e) => {
+    const objKey = e.target.name;
+    const isChecked = e.target.checked;
+    if (objKey === 'Unspecified') {
+      setUserPreferences({
+        ...userPreferences,
+        showUnspecifiedCuisines: isChecked
+      });
+    } else {
+      setUserPreferences({
+        ...userPreferences,
+        cuisines: {
+          ...userPreferences.cuisines,
+          [`${objKey}`]: isChecked,
+        },
+      });
+    }
   };
 
   return (
@@ -264,59 +323,105 @@ export const UserPreferencesComponent = () => {
         variant="persistent"
         anchor="top"
         open={open}
+        sx={drawerStyles}
       >
         <Container maxWidth={false} sx={{pt: 8}}>
-        <CentredElementsForm noValidate onChange={handleChange}>
-          <FormGroup>
-            <SubPageTitle>Meals</SubPageTitle>
-            <FlexRowWrap>
-              <FormControlLabel label="Breakfast" control={
-                <Checkbox name="breakfast" checked={userPreferences.breakfast} />} />
-              <FormControlLabel label="Lunch" control={
-                <Checkbox name="lunch" checked={userPreferences.lunch} />} />
-              <FormControlLabel label="Dinner" control={
-                <Checkbox name="dinner" checked={userPreferences.dinner} />} />
-              <FormControlLabel label="Snack" control={
-                <Checkbox name="snack" checked={userPreferences.snack} />} />
-            </FlexRowWrap>
-          </FormGroup>
-          <FormGroup>
-            <SubPageTitle>Dietary Needs</SubPageTitle>
-            <FlexRowWrap>
-              <FormControlLabel label="Vegetarian" control={
-                <Checkbox name="vegetarian" checked={userPreferences.vegetarian} />} />
-              <FormControlLabel label="Vegan" control={
-                <Checkbox name="vegan" checked={userPreferences.vegan} />} />
-              <FormControlLabel label="Kosher" control={
-                <Checkbox name="kosher" checked={userPreferences.kosher} />} />
-              <FormControlLabel label="Halal" control={
-                <Checkbox name="halal" checked={userPreferences.halal} />} />
-              <FormControlLabel label="Dairy Free" control={
-                <Checkbox name="dairyFree" checked={userPreferences.dairyFree} />} />
-              <FormControlLabel label="Gluten Free" control={
-                <Checkbox name="glutenFree" checked={userPreferences.glutenFree} />} />
-              <FormControlLabel label="Nut Free" control={
-                <Checkbox name="nutFree" checked={userPreferences.nutFree} />} />
-              <FormControlLabel label="Egg Free" control={
-                <Checkbox name="eggFree" checked={userPreferences.eggFree} />} />
-              <FormControlLabel label="Shellfish Free" control={
-                <Checkbox name="shellfishFree" checked={userPreferences.shellfishFree} />} />
-              <FormControlLabel label="Soy Free" control={
-                <Checkbox name="soyFree" checked={userPreferences.soyFree} />} />
-            </FlexRowWrap>
-          </FormGroup>
+          <CentredElementsForm noValidate onChange={handlePrefsChange}>
+            <FormGroup>
+              <SubPageTitle>Meals</SubPageTitle>
+              <FlexRowWrap>
+                <FormControlLabel label="Breakfast" control={
+                  <Checkbox name="breakfast" checked={userPreferences.breakfast} />} />
+                <FormControlLabel label="Lunch" control={
+                  <Checkbox name="lunch" checked={userPreferences.lunch} />} />
+                <FormControlLabel label="Dinner" control={
+                  <Checkbox name="dinner" checked={userPreferences.dinner} />} />
+                <FormControlLabel label="Snack" control={
+                  <Checkbox name="snack" checked={userPreferences.snack} />} />
+              </FlexRowWrap>
+            </FormGroup>
+            <FormGroup>
+              <SubPageTitle>Dietary Needs</SubPageTitle>
+              <FlexRowWrap>
+                <FormControlLabel label="Vegetarian" control={
+                  <Checkbox name="vegetarian" checked={userPreferences.vegetarian} />} />
+                <FormControlLabel label="Vegan" control={
+                  <Checkbox name="vegan" checked={userPreferences.vegan} />} />
+                <FormControlLabel label="Kosher" control={
+                  <Checkbox name="kosher" checked={userPreferences.kosher} />} />
+                <FormControlLabel label="Halal" control={
+                  <Checkbox name="halal" checked={userPreferences.halal} />} />
+                <FormControlLabel label="Dairy Free" control={
+                  <Checkbox name="dairyFree" checked={userPreferences.dairyFree} />} />
+                <FormControlLabel label="Gluten Free" control={
+                  <Checkbox name="glutenFree" checked={userPreferences.glutenFree} />} />
+                <FormControlLabel label="Nut Free" control={
+                  <Checkbox name="nutFree" checked={userPreferences.nutFree} />} />
+                <FormControlLabel label="Egg Free" control={
+                  <Checkbox name="eggFree" checked={userPreferences.eggFree} />} />
+                <FormControlLabel label="Shellfish Free" control={
+                  <Checkbox name="shellfishFree" checked={userPreferences.shellfishFree} />} />
+                <FormControlLabel label="Soy Free" control={
+                  <Checkbox name="soyFree" checked={userPreferences.soyFree} />} />
+              </FlexRowWrap>
+            </FormGroup>
           </CentredElementsForm>
+          <CentredElementsForm noValidate onChange={handleCuisineChange}>
+            <FormGroup>
+              <SubPageTitle>Cuisines</SubPageTitle>
+              <FlexRowWrap>
+              {Object.keys(userPreferences.cuisines).map((cuisine, index) => (
+                <FormControlLabel key={index} label={`${cuisine}`} control={
+                  <Checkbox name={`${cuisine}`}
+                    checked={userPreferences.cuisines[`${cuisine}`]} />} />
+              ))}
+              <Divider orientation="vertical" variant="middle" flexItem />
+              <FormControlLabel label="Unspecified" control={
+                <Checkbox name="Unspecified"
+                  checked={userPreferences.showUnspecifiedCuisines} />} />
+              </FlexRowWrap>
+            </FormGroup>
+          </CentredElementsForm>
+          <FlexColumn>
+            <SubPageTitle id="preparation-time-range-filter">
+              Preparation Time (minutes)
+            </SubPageTitle>
+            <Grid container columnGap={8} rowGap={2}>
+              <Grid item xl={6} lg={6} md={12} sm={12} xs={12}>
+                <Slider track={false}
+                  aria-labelledby="preparation-time-range-filter"
+                  value={[userPreferences.minMinutes, userPreferences.maxMinutes]}
+                  min={prepTimes[0]}
+                  max={prepTimes[prepTimes.length - 1]}
+                  disableSwap
+                  marks={prepTimes.map(t => {
+                    return {
+                      value: t,
+                      label: `${t}`
+                    }
+                  })}
+                  onChange={sliderChange}
+                />
+              </Grid>
+              <Grid item xl={4} lg={4} md={12} sm={12} xs={12}>
+                <FormControlLabel label="Show Unspecified Time" control={
+                  <Checkbox name="showUnspecifiedTime"
+                    checked={userPreferences.showUnspecifiedTime}
+                    onChange={unspecifiedTimeToggle} />} />
+              </Grid>
+            </Grid>
+          </FlexColumn>
         </Container>
-        <IconButton sx={ closeBtnStyles } size="large" disableRipple={true}
-          onClick={() => setOpen(false)}>
+        <Paper component={IconButton} disableRipple={true} sx={ closeBtnStyles }
+          onClick={() => setOpen(false)} elevation={3}>
           <ExpandLessIcon />
-        </IconButton>
+        </Paper>
       </Drawer>
       {!open &&
-      <IconButton sx={ openBtnStyles } size="large" disableRipple={true}
-        onClick={() => setOpen(true)}>
+      <Paper component={IconButton} disableRipple={true} sx={ openBtnStyles }
+        onClick={() => setOpen(true)} elevation={3}>
         <ExpandMoreIcon />
-      </IconButton>}
+      </Paper>}
     </Box>
   );
 };
@@ -358,10 +463,10 @@ const WYSIWYGOutputContainer = styled.section`
 `;
 
 export const WYSIWYGOutput = ({children}) => {
-  // this approach should only be used temporarily until a html parser is added
-  // else the website become vulnerable to client-side attacks (e.g. XSS, HTML
-  // injection, etc)
   return (
-    <WYSIWYGOutputContainer dangerouslySetInnerHTML={{__html: children}} />
+    <WYSIWYGOutputContainer>
+      {children && typeof children === 'string' && parse(children)}
+      {typeof children !== 'string' && <>{children}</>}
+    </WYSIWYGOutputContainer>
   );
 };
