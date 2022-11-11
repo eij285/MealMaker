@@ -209,6 +209,13 @@ export const longDateString = (str) => {
 };
 
 /**
+ * Convert timestamp string to short format datetime string
+ */
+ export const shortDateTimeString = (str) => {
+  return moment(str).format('h:mma DD/MM/YYYY');
+};
+
+/**
  * Ruturn null if empty string else unchanged
  */
 export const emptyStringToNull = (str) => {

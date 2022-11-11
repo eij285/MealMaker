@@ -1,19 +1,13 @@
 import React from 'react';
-import { Box, Divider, Grid, MenuItem, Select, Tab, Tabs } from '@mui/material';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Box, Divider, Grid } from '@mui/material';
 import styled from '@emotion/styled';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
-import { backendRequest, filterRecipes } from '../../helpers';
-import {
-  ErrorAlert,
-  FlexRowHCentred,
-  FlexColumn,
-  UserPreferencesComponent,
-  FlexRowWrapSpaced,
-  FlexRowWrap,
-} from '../../components/StyledNodes';
+import { backendRequest } from '../../helpers';
+import { ErrorAlert, FlexColumn } from '../../components/StyledNodes';
 import { PageTitle, SubPageTitle } from '../../components/TextNodes';
-import { LargeDefaultButton, LeftAlignedButton, LeftAlignMedButton } from '../../components/Buttons';
+import { LeftAlignedButton, LeftAlignMedButton } from '../../components/Buttons';
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -23,44 +17,72 @@ const ButtonContainer = styled.div`
   row-gap: 20px;
 `;
 
+const MessageRoomButton = ({roomInfo}) => {
+  return (
+    <LeftAlignMedButton component={RouterLink}
+    to={`/message-room/${roomInfo.room_id}`}>
+      Room {roomInfo.room_id}
+    </LeftAlignMedButton>
+  );
+};
+
 function MessageRoomsPage () {
   const token = React.useContext(GlobalContext).token;
+  const [messageRooms, setMessageRooms] = React.useState([]);
   const [responseError, setResponseError] = React.useState('');
+  const navigate = useNavigate();
+
+  const createRoom = () => {
+    const body = {
+      member_id_list: []
+    };
+    backendRequest('/message-rooms/create', body, 'POST', token, (data) => {
+      navigate(`/message-room/${data.body.room_id}`);
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
+  const loadRooms = () => {
+    backendRequest('/message-rooms', {}, 'POST', token, (data) => {
+      setMessageRooms([...data.body]);
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
+  React.useEffect(() => {
+    loadRooms();
+  }, [token]);
 
   return (
     <ManageLayout>
       <Grid item xl={8} lg={12} xs={12}>
         <PageTitle>Message Rooms</PageTitle>
         {responseError !== '' &&
-        <ErrorAlert message={responseError} setMessage={setResponseError} />}
+        <Box mb={2}>
+          <ErrorAlert message={responseError} setMessage={setResponseError} />
+        </Box>}
         <FlexColumn>
-          <LeftAlignedButton>Create Room</LeftAlignedButton>
+          <LeftAlignedButton onClick={createRoom}>
+            Create Room
+          </LeftAlignedButton>
           <Divider />
           <Box>
             <SubPageTitle>Owner</SubPageTitle>
             <ButtonContainer>
-              <LeftAlignMedButton>Room 1</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 2</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 3</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 4</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 5</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 6</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 7</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 8</LeftAlignMedButton>
+            {messageRooms.filter(room => room.is_owner).map((room, index) => (
+              <MessageRoomButton key={index} roomInfo={room} />
+            ))}
             </ButtonContainer>
           </Box>
           <Divider />
           <Box>
             <SubPageTitle>Member</SubPageTitle>
             <ButtonContainer>
-              <LeftAlignMedButton>Room 9</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 10</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 11</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 12</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 13</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 14</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 15</LeftAlignMedButton>
-              <LeftAlignMedButton>Room 16</LeftAlignMedButton>
+            {messageRooms.filter(room => !room.is_owner).map((room, index) => (
+              <MessageRoomButton key={index} roomInfo={room} />
+            ))}
             </ButtonContainer>
           </Box>
         </FlexColumn>
