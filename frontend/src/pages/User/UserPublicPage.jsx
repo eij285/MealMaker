@@ -185,12 +185,13 @@ function UserPublicPage () {
       {userProfile.hasOwnProperty('visitor_efficiency') &&
       recipesList.length > 0 && <>
       <Grid container direction={"row"}>
+      
       <IconButton component={RouterLink} to={'/create-recipe'} disableRipple={true} sx={{"&:hover": {color: "#000000"} }}>
         <AddIcon />
       </IconButton>
       <SubPageTitle>Recipes</SubPageTitle>
       </Grid>
-      
+      {}
       <Grid container spacing={2}>
         {recipesList.map((recipe, index) => (
         <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
