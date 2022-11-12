@@ -12,6 +12,31 @@ import { LeftAlignedSubmitButton } from '../../components/Buttons';
 import { CentredElementsForm } from '../../components/Forms';
 import { FlexRow } from '../StyledNodes';
 
+const CookbookImgContainer = styled.div`
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  justify-content: center;
+  height: 25vh;
+  & img, & svg {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+  }
+`;
+
+/**
+ * Recipe image component
+ */
+export const CookbookImg = ({src, alt}) => {
+  return (
+    <CookbookImgContainer>
+      {src && <img src={src} alt={alt} />}
+      {!src && <AutoStoriesIcon />}
+    </CookbookImgContainer>
+  );
+};
+
 export const CreateEditCookbookForm = ({data, callFunction}) => {
   const [cookbookName, setCookbookName] = React.useState('');
   const [cookbookNameMessage, setCookbookNameMessage] = React.useState('');
@@ -24,25 +49,36 @@ export const CreateEditCookbookForm = ({data, callFunction}) => {
     e.preventDefault();
     if (cookbookName !== '' && cookbookNameMessage === '' && 
         description !== '' && descriptionMessage === '') {
-      const body = {
-        ...(data.cookbookId >= 0 && {cookbook_id: data.cookbookId}),
-        name: cookbookName,
-        description: description,
-        photo: cookbookPhoto,
-        cookbook_status: cookbookStatus,
-      };
-      callFunction(body);
+      if (data.cookbookId >= 0) {
+        // update
+        let body = {
+          cookbook_id: data.cookbookId,
+          cookbook_photo: cookbookPhoto,
+          cookbook_name: cookbookName,
+          cookbook_description: description,
+          cookbook_status: cookbookStatus,
+        };
+        callFunction(body);
+      } else {
+        // create
+        let body = {
+          name: cookbookName,
+          description: description,
+          status: cookbookStatus,
+        };
+        callFunction(body);
+      }      
     } else {
       setCookbookNameMessage(cookbookName?'':'Cook Book name required');
       setDescriptionMessage(description?'':'Cook Book description required');
     }
-  }
+  };
 
   React.useEffect(() => {
     setCookbookName(data.name);
     setCookbookPhoto(data.photo);
     setDescription(data.description);
-    setCookbookStatus(data.cookbook_status);
+    setCookbookStatus(data.cookbookStatus);
   }, [data]);
 
   return (
@@ -57,8 +93,9 @@ export const CreateEditCookbookForm = ({data, callFunction}) => {
         error={cookbookNameMessage !== ''}
         helperText={cookbookNameMessage}
       />
+      {data.cookbookId >= 0 &&
       <ImageInput elementTitle="Cook Book Photo" icon={AutoStoriesIcon}
-        image={cookbookPhoto} setImage={setCookbookPhoto} />
+        image={cookbookPhoto} setImage={setCookbookPhoto} />}
       <TextInput
         label="Description"
         required
@@ -85,7 +122,9 @@ export const CreateEditCookbookForm = ({data, callFunction}) => {
       </FlexRow>
       <FlexRow>
         <LeftAlignedSubmitButton>
-          Create Cook Book
+          {data.cookbookId >= 0 && <>Update </>}
+          {data.cookbookId < 0 && <>Create </>}
+          Cook Book
         </LeftAlignedSubmitButton>
       </FlexRow>
     </CentredElementsForm>

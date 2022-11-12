@@ -72,6 +72,21 @@ function MyRecipesPage () {
     setDialogOpen(false);
   };
 
+  const publishRecipe = (index) => {
+    const recipeId = recipesList[index].recipe_id;
+    const isPublished = recipesList[index].recipe_status === 'published';
+    const reqURL = isPublished ? '/recipe/unpublish' : '/recipe/publish';
+    const body = {  
+      recipe_id: recipeId
+    };
+    backendRequest(reqURL, body, 'PUT', token, (data) => {
+      loadRecipes();
+    }, (error) => {
+      setResponseError(error);
+    });
+    console.log(index);
+  };
+
   React.useEffect(() => {
     loadRecipes();
   }, [token]);
@@ -106,7 +121,9 @@ function MyRecipesPage () {
               <OwnRecipeItem data={recipe} index={index} 
                 cloneRecipe={cloneRecipe} setDeleteIndex={setDeleteIndex}
                 setDialogOpen={setDialogOpen}
-                setDeleteDesciption={setDeleteDesciption} />
+                setDeleteDesciption={setDeleteDesciption}
+                publishRecipe={publishRecipe}
+              />
             </Grid>))}
           </Grid>
         </FlexColumn>

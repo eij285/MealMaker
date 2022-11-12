@@ -2,16 +2,21 @@
 -- Please make database schema changes directly to this file then run
 -- http://localhost:5000/reset
 
+DROP TABLE IF EXISTS cookbook_followers;
+DROP TABLE IF EXISTS cookbook_recipes;
+DROP TABLE IF EXISTS cookbooks;
 DROP TABLE IF EXISTS subscriptions;
 DROP TABLE IF EXISTS recipe_user_likes;
 DROP TABLE IF EXISTS recipe_reviews_votes;
 DROP TABLE IF EXISTS recipe_reviews;
 DROP TABLE IF EXISTS recipe_ingredients;
+DROP TABLE IF EXISTS message_room_members;
+DROP TABLE IF EXISTS message_room_owners;
+DROP TABLE IF EXISTS message_emojis;
 DROP TABLE IF EXISTS recipes;
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS message_rooms;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS cookbook_followers;
-DROP TABLE IF EXISTS cookbook_recipes;
-DROP TABLE IF EXISTS cookbooks;
 
 CREATE TABLE users (
     id              SERIAL,
@@ -139,6 +144,56 @@ CREATE TABLE subscriptions (
     PRIMARY KEY (subscription_id),
     FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE message_rooms (
+    room_id SERIAL,
+    room_name TEXT,
+    PRIMARY KEY (room_id)
+);
+
+CREATE TABLE message_room_owners (
+    message_room_owner_id SERIAL,
+    room_id INTEGER NOT NULL,
+    owner_id INTEGER NOT NULL,
+    FOREIGN KEY (room_id) REFERENCES message_rooms(room_id) ON DELETE CASCADE,
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (message_room_owner_id)
+);
+
+
+CREATE TABLE messages (
+    message_id SERIAL,
+    message_content TEXT, 
+    is_edited BOOLEAN DEFAULT FALSE,
+    is_deleted BOOLEAN DEFAULT FALSE,
+    time_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    sender_id INTEGER NOT NULL,
+    room_id INTEGER NOT NULL,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES message_rooms(room_id) ON DELETE CASCADE,
+    PRIMARY KEY (message_id)
+);
+
+CREATE TABLE message_emojis (
+    emoji_id SERIAL,
+    emoji_utf8 CHAR(9) NOT NULL,
+    message_id INTEGER NOT NULL,
+    reactor_id INTEGER NOT NULL,
+    FOREIGN KEY (message_id) REFERENCES messages(message_id) ON DELETE CASCADE,
+    FOREIGN KEY (reactor_id) REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (emoji_id)
+);
+
+
+CREATE TABLE message_room_members (
+    message_room_member_id SERIAL,
+    room_id INTEGER NOT NULL,
+    member_id INTEGER NOT NULL,
+    FOREIGN KEY (room_id) REFERENCES message_rooms(room_id) ON DELETE CASCADE,
+    FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (message_room_member_id)
 );
 
 CREATE TABLE cookbooks (

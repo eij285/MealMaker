@@ -88,36 +88,83 @@ def recipe_create(name, description, servings, recipe_status, token):
         }
     }
 
-
-def publish_recipe(recipe_id, publish):
+def recipe_publish(recipe_id, publish_status, token):
+    """Create a new recipe (token must be valid)
     
+    Args:
+        recipe_id   (Integer): the recipe id to publish/unpublish
+        publish_status (String): the new value - 'published' or 'draft'
+        token       (String): token of authenticated user
+        
+    Returns:
+        Status 201 - success
+        Status 400 - failure to publish or unpublish recipe
+        Status 401 - invalid or no token
+        Status 404 - cannot find recipe
+        Status 500 - server error (failure to connect to database)
+    """
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
     # Start connection to database
-    connection = connect()
-    cur = connection.cursor()
-    
-    # Publish recipe
     try:
-        command = ("""
-            UPDATE recipe
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("""
+            SELECT COUNT(r.*) FROM recipes r
+            JOIN users u ON (r.owner_id = u.id)
+            WHERE recipe_id = %s AND token = %s
+            """)
+        cur.execute(query, (recipe_id, token))
+        recipe_cnt, = cur.fetchone()
+        if recipe_cnt < 1:
+            raise Exception
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 404,
+            'error': "cannot find recipe owned by user"
+        }
+    # Publish/Unpublish recipe
+    try:
+        query = ("""
+            UPDATE recipes
             SET recipe_status = %s
             WHERE recipe_id = %s
             """)
-        cur.execute(command, (publish, recipe_id,))
-        connection.commit()
+        cur.execute(query, (publish_status, recipe_id))
+        conn.commit()
         
         # Close connection
-        connection.close()
+        conn.close()
         cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:
+    except:
         # Close connection
-        connection.close()
+        conn.close()
         cur.close()
         return {
             'status_code': 400,
-            'error': 'recipe could not be published'
+            'error': f'recipe could not set to {publish_status}'
         }
     return {
-        'status_code': 200
+        'status_code': 200,
     }
 
 def recipe_fetch_ingredients(recipe_id):
@@ -1395,7 +1442,7 @@ def recipe_related(recipe_id):
     # Get largest user_id
     max_uid = 0
 
-    cur.execute("SELECT MAX(user_id) FROM recipe_reviews;")
+    cur.execute("SELECT MAX(id) FROM users;")
     sql_result = cur.fetchall()
 
     if sql_result:
@@ -1404,7 +1451,7 @@ def recipe_related(recipe_id):
     # Get largest recipe_id
     max_rid = 0
     
-    cur.execute("SELECT MAX(recipe_id) FROM recipe_reviews;")
+    cur.execute("SELECT MAX(recipe_id) FROM recipes;")
     sql_result = cur.fetchall()
 
     if sql_result:
@@ -1449,6 +1496,7 @@ def recipe_related(recipe_id):
         if not sql_result:
             continue
 
+        print(recipe_id, ratings)
         sim = calculate_similarity(ratings[recipe_id - 1], recipe_ratings)
         recommendations.append((idx + 1, sim))
 

@@ -11,15 +11,17 @@ from user import user_preferences, user_update, user_info, \
                  user_update_preferences, user_subscribe, user_unsubscribe, \
                  user_get_followers, user_get_following, user_get_profile, \
                  get_users
-from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
-                   recipe_delete, recipes_fetch_own, recipes_user_published, \
-                   recipe_details, recipe_like, \
+from recipe import recipe_create, recipe_publish, recipe_edit, recipe_update, \
+                   recipe_clone, recipe_delete, recipes_fetch_own, \
+                   recipes_user_published, recipe_details, recipe_like, \
                    recipe_related
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
 from feed import feed_fetch_discover, feed_fetch_subscription, \
                  feed_fetch_trending
 from search import search
+from message import message_send, message_edit, message_delete, message_react
+from message_room import *
 from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
                         cookbook_fetch_own, cookbook_update, cookbook_view, \
                         cookbooks_user_published, cookbook_subscribe, \
@@ -191,8 +193,21 @@ def create_recipe():
     description = data['description']
     servings = data['servings']
     recipe_status = data['recipe_status']
-
     return dumps(recipe_create(name, description, servings, recipe_status, token))
+
+@APP.route('/recipe/publish', methods=['PUT'])
+def publish_recipe():
+    data = request.get_json()
+    token = data['token']    
+    recipe_id = data['recipe_id']
+    return dumps(recipe_publish(recipe_id, 'published', token))
+
+@APP.route('/recipe/unpublish', methods=['PUT'])
+def unpublish_recipe():
+    data = request.get_json()
+    token = data['token']    
+    recipe_id = data['recipe_id']
+    return dumps(recipe_publish(recipe_id, 'draft', token))
 
 @APP.route('/recipe/edit', methods=['POST'])
 def edit_recipe():
@@ -426,6 +441,81 @@ def feed_subscription():
 @APP.route('/feed/trending', methods=['GET'])
 def feed_trending():
     return dumps(feed_fetch_trending())
+
+
+@APP.route('/message/send', methods=['POST'])
+def send_message():
+    data = request.get_json()
+    message = data['message']
+    target_id = data['room_id']
+    token = data['token']
+    return dumps(message_send(target_id, message, token))
+
+@APP.route('/message/edit', methods=['POST'])
+def edit_message():
+    data = request.get_json()
+    message_id = data['message_id']
+    message_content = data['message']
+    token = data['token']
+    return dumps(message_edit(message_id, message_content, token))
+
+@APP.route('/message/delete', methods=['POST'])
+def delete_message():
+    data = request.get_json()
+    message_id = data['message_id']
+    token = data['token']
+    return dumps(message_delete(message_id, token))
+
+@APP.route('/message/react', methods=['POST'])
+def react_message():
+    data = request.get_json()
+    message_id = data['message_id']
+    react_char = data['react_char']
+    token = data['token']
+    return dumps(message_react(message_id, react_char, token))
+
+@APP.route('/message-rooms/create', methods=['POST'])
+def create_message_room():
+    data = request.get_json()
+    token = data['token']
+    member_id_list = data['member_id_list']
+    return dumps(create_room(member_id_list, token))
+
+@APP.route('/message-rooms/delete', methods=['POST'])
+def delete_message_room():
+    data = request.get_json()
+    token = data['token']
+    room_id = data['room_id']
+    return dumps(delete_room(token, room_id))
+
+@APP.route('/message-rooms', methods=['POST'])
+def message_rooms():
+    data = request.get_json()
+    token = data['token']
+    return fetch_user_rooms(token)
+
+@APP.route('/message-rooms/add-member', methods=['POST'])
+def message_rooms_add_member():
+    data = request.get_json()
+    token = data['token']
+    room_id = data['room_id']
+    member_id_list = data['member_id_list']
+    return add_member_to_room(room_id, member_id_list, token)
+
+@APP.route('/message-rooms/set-owner', methods=['POST'])
+def message_rooms_set_owner():
+    data = request.get_json()
+    token = data['token']
+    room_id = data['room_id']
+    owner_id_list = data['owner_id_list']
+    return add_owner_to_room(room_id, owner_id_list, token)
+
+@APP.route('/message-rooms/fetch-details', methods=['POST'])
+def message_rooms_fetch_details():
+    data = request.get_json()
+    token = data['token']
+    room_id = data['room_id']
+    return fetch_room_details(room_id, token)
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
