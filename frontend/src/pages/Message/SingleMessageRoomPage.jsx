@@ -8,6 +8,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import SendIcon from '@mui/icons-material/Send';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
@@ -112,6 +113,7 @@ const MessageDrawer = ({open, setOpen, roomId, roomData}) => {
   const token = React.useContext(GlobalContext).token;
   const userId = tokenToUserId(token);
   const [toastMessage, setToastMessage] = React.useState('');
+  const [users, setUsers] = React.useState([]);
   const [toastState, setToastState] = React.useState('error');
   const isOwner = roomData.all_owners.filter(
     (owner) => owner.owner_id == userId).length > 0;
@@ -141,17 +143,42 @@ const MessageDrawer = ({open, setOpen, roomId, roomData}) => {
     });
   };
 
-  const addUserToRoom = (userId) => {
+  const addUsersToRoom = (e) => {
+    e.preventDefault();
+    let member_id_list = [];
+    const userOpts = e.target.users;
+    for (let user of userOpts) {
+      if (user.selected) {
+        member_id_list.push(parseInt(user.value));
+      }
+    }
     const body = {
       room_id: roomId,
-      member_id_list: [userId]
+      member_id_list: member_id_list
     };
-    backendRequest('/message-rooms/add-member', body, 'POST', token, (data) => {},
+    backendRequest('/message-rooms/add-member', body, 'POST', token, (data) => {
+      setToastState('success');
+      setToastMessage(`Added ${member_id_list.length} users to room`);
+    },
     (error) => {
       setToastState('error');
       setToastMessage(error);
     });
   };
+
+  const getUsers = () => {
+    backendRequest('/user/get/users', {}, 'POST', token, (data) => {
+      setUsers([...data.body]);
+    },
+    (error) => {
+      setToastState('error');
+      setToastMessage(error);
+    });
+  };
+
+  React.useEffect(() => {
+    getUsers();
+  }, [token]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -213,18 +240,49 @@ const MessageDrawer = ({open, setOpen, roomId, roomData}) => {
         <Box m={1}>
           <Typography component="h3" sx={headerStyles}>
             Users
+            <Tooltip title="refresh" placement="right" arrow>
+              <IconButton color="success" size="small" onClick={getUsers}>
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
           </Typography>
-          <Button color="success"
-            size="small"
-            onClick={() => addUserToRoom(0)}
-            sx={{textTransform: 'none'}}
-            startIcon={<AddCircleIcon />}>
-            Add user(s)
-          </Button>
+          <form onSubmit={addUsersToRoom}>
+            <Select
+              name="users"
+              multiple
+              native
+              fullWidth
+              inputProps={{
+                id: 'users-select-multiple-native',
+              }}>
+              {users.filter((user) => {
+                if (roomData.all_owners.filter((owner) => 
+                  owner.owner_id === user.id).length > 0) {
+                  return false;
+                }
+                if (roomData.all_members.filter((member) => 
+                  member.member_id === user.id).length > 0) {
+                  return false;
+                }
+                return true;
+              }).map((user, index) => (
+                <option key={index} value={user.id}>
+                  {user.display_name}
+                </option>
+              ))}
+            </Select>
+            <Button color="success"
+              size="small"
+              type="submit"
+              sx={{textTransform: 'none'}}
+              startIcon={<AddCircleIcon />}>
+              Add user(s)
+            </Button>
+          </form>
         </Box>
       </Drawer>
       <AlertToast content={toastMessage} setContent={setToastMessage}
-        state="error" />
+        state={toastState} />
     </Box>
   );
 };
@@ -307,8 +365,9 @@ function SingleMessageRoomPage () {
   };
 
   React.useEffect(() => {
-    loadRoomDetails();
-  }, [roomId]);
+    let interval = setInterval(() => loadRoomDetails(), 1000);
+    return () => clearInterval(interval);
+  });
 
   return (
     <ManageLayout>
@@ -322,7 +381,8 @@ function SingleMessageRoomPage () {
           {roomData.all_messages.map((msg, index) => (
             <Box key={index} mt={2} mb={2} p={1} flexDirection="column"
               textAlign={msg.sender_id === userId ? 'right' : 'left'}>
-              {msg.is_deleted && <MediumBlackText>deleted</MediumBlackText>}
+              {msg.is_deleted &&
+              <MediumBlackText>This message has been deleted</MediumBlackText>}
               {!msg.is_deleted && <>
               {idToUserName(msg.sender_id)}
               <SmallGreyText>

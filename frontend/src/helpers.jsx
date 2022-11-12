@@ -16,7 +16,7 @@ const config = require('./config.json');
 export const backendRequest = async (path, body, method, token, onSuccess,
   onFail = null, setStatus = null) => {
   const requestUrl = `${config.BACKEND_SERVER}${path}`;
-  console.log(requestUrl);
+  //console.log(requestUrl);
 
   const requestObject = {
     method: method,
