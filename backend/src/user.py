@@ -892,3 +892,31 @@ def user_get_profile(token, id):
             'status_code': 500,
             'error': 'Problem retrieving user profile'
         }
+
+def get_users():
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    sql_search_query = """select id, display_name from users;"""
+    cur.execute(sql_search_query)
+    users = cur.fetchall()
+    user_list = []
+    for u in users:
+        dict = {
+            "id": u[0],
+            "display_name": u[1]
+        }
+        user_list.append(dict)
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200,
+        'body': user_list
+    }
