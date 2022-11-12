@@ -5,12 +5,47 @@ from datetime import datetime, timezone, timedelta
 
 import psycopg2
 
+def check_cart_active():
+    pass
+
+def activate_new_cart():
+    pass
+
+def purchase_minimal_costs():
+    pass
+
 def cart_add_all_ingredients(r_id, servings, token):
 
     # Connect to database
-    # try:
-    #     conn = psycopg2.connect(DB_CONN_STRING)
-    # except:
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    # Verify token
+    token_valid = verify_token(token)
+    if not token_valid:
+        return {
+            'status_code': 401,
+            'error': 'Invalid token'
+        }
+    else:
+        u_id = token_valid
+
+    # Check if cart is active
+    sql_query = "SELECT cart_id FROM shopping_carts WHERE cart_status = \
+                 'active' AND owner_id = $s;"
+    cur.execute(sql_query, (u_id,))
+
+    sql_result = cur.fetchall()
+    if not sql_result:
+        pass
+
+
 
     return {
         'status_code': 200,
