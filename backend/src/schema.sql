@@ -8,11 +8,12 @@ DROP TABLE IF EXISTS recipe_reviews_votes;
 DROP TABLE IF EXISTS recipe_reviews;
 DROP TABLE IF EXISTS recipe_ingredients;
 DROP TABLE IF EXISTS recipes;
-DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS payment_methods;
 DROP TABLE IF EXISTS cart_items;
+DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS shopping_carts;
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     id              SERIAL,
@@ -163,6 +164,16 @@ CREATE TABLE cart_items (
     PRIMARY KEY (item_id),
     FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE
 );
+
+CREATE TABLE order_items {
+    item_id         SERIAL,
+    ingredient_name VARCHAR(30) NOT NULL,
+    ingredient_quantity INTEGER NOT NULL,
+    ingredient_cost MONEY NOT NULL,
+    order_id        INTEGER NOT NULL,
+    PRIMARY KEY (item_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+}
 
 CREATE TABLE payment_methods (
     method_id       SERIAL,

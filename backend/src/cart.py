@@ -1,3 +1,4 @@
+from tkinter import E
 from config import DB_CONN_STRING
 from backend_helper import verify_token
 from datetime import datetime, timezone, timedelta
@@ -9,6 +10,7 @@ def cart_add_all_ingredients(r_id, servings, token):
     # Connect to database
     # try:
     #     conn = psycopg2.connect(DB_CONN_STRING)
+    # except:
 
     return {
         'status_code': 200,
@@ -69,13 +71,13 @@ def cart_add_by_name(ing_name, ing_unit, ing_quantity, token):
         }
     }
 
-def cart_set_saved():
+def cart_set_saved(token):
     return {
         'status_code': 200,
         'body': {}
     }
 
-def cart_load_saved():
+def cart_load_saved(cart_id, token):
     return {
         'status_code': 200,
         'body': {
@@ -131,11 +133,41 @@ def cart_list_payment_methods(token):
         ]
     }
 
-def cart_display_details():
-    pass
+def cart_display_details(cart_id, token):
+    updated = datetime.now(tz=timezone.utc)
 
-def cart_display_all_details():
-    pass
+    return {
+        'status_code': 200,
+        'cart_id': 2,
+        'owner_id': 4,
+        'cart_status': 'saved',
+        'last_updated': updated,
+        'items': [
+            {
+                'item_id': 3,
+                'item_name': 'Apple Royal Gala',
+                'unit_type': 'pieces',
+                'unit_quantity': 1,
+                'item_quantity': 2,
+                'item_cost': 1.56
+            },
+            {
+                'item_id': 4,
+                'item_name': 'D\'orsogna Middle Bacon Per Kg',
+                'unit_type': 'kg',
+                'unit_quantity': 1,
+                'item_quantity': 2,
+                'item_cost': 28.00
+            }
+        ],
+        'owner_name': 'Person C'
+    }
+
+def cart_display_all_details(token):
+    return {
+        'status_code': 200,
+        'cart_id': 2
+    }
 
 def cart_make_order(m_id, deliver_by, deliver_loc, token):
     return {

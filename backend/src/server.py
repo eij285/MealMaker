@@ -19,7 +19,13 @@ from review import reviews_all_for_recipe, review_create, review_delete, \
 from feed import feed_fetch_discover, feed_fetch_subscription, \
                  feed_fetch_trending
 from search import search
-from cart import cart_add_all_ingredients
+from cart import cart_add_all_ingredients, cart_remove_ingredient, \
+                 cart_add_by_id, cart_add_by_name, cart_set_saved, \
+                 cart_load_saved, cart_save_payment_method, \
+                 cart_update_payment_method, cart_get_payment_method, \
+                 cart_list_payment_methods, cart_display_details, \
+                 cart_display_all_details, cart_make_order, \
+                 cart_fetch_past_orders_all, cart_fetch_past_order_details
 
 APP = Flask(__name__)
 CORS(APP)
@@ -396,6 +402,7 @@ def cart_add_ingredient_id():
 @APP.route('/cart/add-ingredient/name', methods=['POST'])
 def cart_add_ingredient_name():
     # Adds ingredient by search term
+    data = request.get_json()
     ing_name = data['ingredient_name']
     ing_unit = data['ingredient_unit']
     ing_quantity = data['ingredient_quantity']
@@ -417,13 +424,17 @@ def cart_add_ingredient_name():
 @APP.route('/cart/save', methods=['POST'])
 def cart_save():
 # Saves cart so an order can be made in the future
-    return dumps(cart_set_saved())
+    data = request.get_json()
+    token = data['token']
+    return dumps(cart_set_saved(token))
 
 @APP.route('/cart/load', methods=['POST'])
 def cart_load():
 # Loads a saved cart so the order can be made
-    return  dumps(cart_load_saved())
-
+    data = request.get_json()
+    cart_id = data['cart_id']
+    token = data['token']
+    return dumps(cart_load_saved(cart_id, token))
 
 @APP.route('/cart/payment-method/save', methods=['POST'])
 def cart_payment_method_save():
@@ -506,13 +517,25 @@ def cart_payment_method_list():
 
 @APP.route('/cart/display', methods=['POST'])
 def cart_display():
-    return dumps(cart_display_details())
-# Gets cart given cart id
+    data = request.get_json()
+    cart_id = data['cart_id']
+    token = data['token']
+    return dumps(cart_display_details(cart_id, token))
+# Displays cart given id
+
+# @APP.route('/cart/display/active', methods=['POST'])
+# def cart_display():
+#     data = request.get_json()
+#     token = data['token']
+#     return dumps(cart_display_details(token))
+# # Displays currently active cart
 
 @APP.route('/cart/display/all')
 def cart_display_all():
+    data = request.get_json()
+    token = data['token']
 # Gets list of all carts given user id
-    return dumps(cart_display_all_details())
+    return dumps(cart_display_all_details(token))
 
 @APP.route('/cart/order', methods=['POST'])
 def cart_order():
