@@ -9,6 +9,10 @@ DROP TABLE IF EXISTS recipe_reviews;
 DROP TABLE IF EXISTS recipe_ingredients;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS payment_methods;
+DROP TABLE IF EXISTS cart_items;
+DROP TABLE IF EXISTS shopping_carts;
 
 CREATE TABLE users (
     id              SERIAL,
@@ -136,4 +140,54 @@ CREATE TABLE subscriptions (
     PRIMARY KEY (subscription_id),
     FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE shopping_carts (
+    cart_id         SERIAL,
+    owner_id        INTEGER NOT NULL,
+    cart_status     VARCHAR(9) NOT NULL DEFAULT ('active'),
+    last_updated    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (cart_id),
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT valid_cart_status CHECK (cart_status in ('saved', 'active'))
+    -- Look into enforcing one active cart per owner
+    -- CONSTRAINT one_active_cart UNIQUE(owner_id, )
+);
+
+CREATE TABLE cart_items (
+    item_id         SERIAL,
+    ingredient_name VARCHAR(30) NOT NULL,
+    ingredient_quantity INTEGER NOT NULL,
+    ingredient_cost MONEY NOT NULL,
+    cart_id         INTEGER NOT NULL,
+    PRIMARY KEY (item_id),
+    FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE
+);
+
+CREATE TABLE payment_methods (
+    method_id       SERIAL,
+    owner_id        INTEGER NOT NULL,
+    cardholder_name VARCHAR(30) NOT NULL,
+    card_number     VARCHAR(20) NOT NULL,
+    expiration_date DATE NOT NULL,
+    cvv             VARCHAR(4) NOT NULL,
+    PRIMARY KEY (method_id),
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE orders (
+    order_id        SERIAL,
+    order_number    CHAR(10) NOT NULL UNIQUE,
+    cart_id         INTEGER NOT NULL,
+    placed_on       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_on    TIMESTAMP,
+    order_status    VARCHAR(10) NOT NULL DEFAULT ('pending'),
+    payment_method_id INTEGER NOT NULL,
+    delivery_time   TIMESTAMP NOT NULL,
+    delivery_address TEXT NOT NULL,
+    payment_amount  MONEY NOT NULL,
+    PRIMARY KEY (order_id),
+    FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE,
+    FOREIGN KEY (payment_method_id) REFERENCES payment_methods(method_id) ON DELETE CASCADE,
+    CONSTRAINT valid_order_status CHECK (order_status in ('pending', 'processing', 'approved', 'completed'))
 );

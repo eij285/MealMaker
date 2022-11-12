@@ -19,6 +19,7 @@ from review import reviews_all_for_recipe, review_create, review_delete, \
 from feed import feed_fetch_discover, feed_fetch_subscription, \
                  feed_fetch_trending
 from search import search
+from cart import cart_add_all_ingredients
 
 APP = Flask(__name__)
 CORS(APP)
@@ -329,12 +330,16 @@ def feed_trending():
     return dumps(feed_fetch_trending())
 
 @APP.route('/cart/add-all', methods=['POST'])
+def cart_add_all():
     # Starts a cart using current recipe
     # 
     # Don't forget conversions
+    data = request.get_json()
     r_id = data['recipe_id']
     servings = data['servings']
-    token
+    token = data['token']
+
+    return dumps(cart_add_all_ingredients(r_id, servings, token))
 
     # return {
     #   'body': {
@@ -357,17 +362,26 @@ def feed_trending():
     # }
 
 @APP.route('/cart/rmv-ingredient', methods=['POST'])
+def cart_rmv_ingredient():
     # Removes ingredient from active cart
+    data = request.get_json()
     ing_id = data['ingredient_id']
-    token
+    token = data['token']
+
+    return dumps(cart_remove_ingredient(ing_id, token))
 
     # return {
     #   'body': {}
     # }
 
 @APP.route('/cart/add-ingredient/id', methods=['POST'])
+def cart_add_ingredient_id():
     # Adds ingredient from a recipe's ingredients (individual)
+    data = request.get_json()
     ing_id = data['ingredient_id']
+    token = data['token']
+
+    return dumps(cart_add_by_id(ing_id, token))
 
     # return {
     #   'body': {
@@ -380,8 +394,14 @@ def feed_trending():
     # }
 
 @APP.route('/cart/add-ingredient/name', methods=['POST'])
+def cart_add_ingredient_name():
     # Adds ingredient by search term
     ing_name = data['ingredient_name']
+    ing_unit = data['ingredient_unit']
+    ing_quantity = data['ingredient_quantity']
+    token = data['token']
+
+    return dumps(cart_add_by_name(ing_name, ing_unit, ing_quantity, token))
 
     # return {
     #   'body': {
@@ -395,17 +415,26 @@ def feed_trending():
 
 
 @APP.route('/cart/save', methods=['POST'])
+def cart_save():
 # Saves cart so an order can be made in the future
+    return dumps(cart_set_saved())
 
 @APP.route('/cart/load', methods=['POST'])
+def cart_load():
 # Loads a saved cart so the order can be made
+    return  dumps(cart_load_saved())
 
 
 @APP.route('/cart/payment-method/save', methods=['POST'])
+def cart_payment_method_save():
+    data = request.get_json()
     name = data['card_name']
     number = data['card_number']
     exp_date = data['card_exp_date']
     cvv = data['card_cvv']
+    token = data['token']
+
+    return dumps(cart_save_payment_method(name, number, exp_date, cvv, token))
 
     # return {
     #   'body': {
@@ -414,11 +443,16 @@ def feed_trending():
     # }
 
 @APP.route('/cart/payment-method/update', methods=['POST'])
+def cart_payment_method_update():
     # Returns details of specific updated payment method (individual)
+    data = request.get_json()
     name = data['card_name']
     number = data['card_number']
     exp_date = data['card_exp_date']
     cvv = data['card_cvv']
+    token = data['token']
+
+    return dumps(cart_update_payment_method(name, number, exp_date, cvv, token))
 
     # return {
     #   'body': {
@@ -427,7 +461,13 @@ def feed_trending():
     # }
 
 @APP.route('/cart/payment-method/get', methods=['POST'])
+def cart_payment_method_get():
     # Returns details of specific payment method (individual)
+    data = request.get_json()
+    method_id = data['method_id']
+    token = data['token']
+
+    return dumps(cart_get_payment_method(method_id, token))
 
     # return {
     #   'body': {
@@ -439,8 +479,12 @@ def feed_trending():
     # }
 
 @APP.route('/cart/payment-method/list', methods=['POST'])
+def cart_payment_method_list():
 # Returns list of payment methods
+    data = request.get_json()
+    token = data['token']
 
+    return dumps(cart_list_payment_methods(token))
     # return {
     #   'body': [
     #       {
@@ -461,22 +505,34 @@ def feed_trending():
     # }
 
 @APP.route('/cart/display', methods=['POST'])
+def cart_display():
+    return dumps(cart_display_details())
 # Gets cart given cart id
 
 @APP.route('/cart/display/all')
+def cart_display_all():
 # Gets list of all carts given user id
+    return dumps(cart_display_all_details())
 
 @APP.route('/cart/order', methods=['POST'])
+def cart_order():
     # Places order using stored data in db
     # Post request so we have the option to send token for emails?
     # Get request will also need email supplied
+    data = request.get_json()
     method_id = data['method_id']
     deliver_by = data['deliver_by']
-    delivery_address = data['delivery_address']
-    token = 
+    deliver_loc = data['delivery_address']
+    token = data['token']
+
+    return dumps(cart_make_order(method_id, deliver_by, deliver_loc, token))
 
 @APP.route('/cart/past-orders', methods=['POST'])
-    token
+def cart_past_orders():
+    data = request.get_json()
+    token = data['token']
+
+    return dumps(cart_fetch_past_orders_all(token))
 
     # return {
     #   'body': [
@@ -496,7 +552,12 @@ def feed_trending():
     # }
 
 @APP.route('/cart/past-orders/get', methods=['POST'])
+def cart_past_orders_get():
+    data = request.get_json()
     order_id = data['order_id']
+    token = data['token']
+
+    return dumps(cart_fetch_past_order_details(order_id, token))
 
     # return {
     #   'body': {
