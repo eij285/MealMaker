@@ -9,7 +9,8 @@ from auth import auth_register, auth_login, auth_logout, \
 from backend_helper import database_reset, database_populate
 from user import user_preferences, user_update, user_info, \
                  user_update_preferences, user_subscribe, user_unsubscribe, \
-                 user_get_followers, user_get_following, user_get_profile
+                 user_get_followers, user_get_following, user_get_profile, \
+                 get_users
 from recipe import recipe_create, recipe_publish, recipe_edit, recipe_update, \
                    recipe_clone, recipe_delete, recipes_fetch_own, \
                    recipes_user_published, recipe_details, recipe_like, \
@@ -179,6 +180,10 @@ def get_profile():
     id = payload['id']
     
     return dumps(user_get_profile(token, id))
+
+@APP.route('/user/get/users', methods=['POST'])
+def users_get():    
+    return dumps(get_users())
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
