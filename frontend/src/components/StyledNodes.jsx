@@ -4,7 +4,6 @@ import styled from '@emotion/styled';
 import {
   Alert,
   Box,
-  Button,
   Checkbox,
   Container,
   Dialog,
@@ -84,6 +83,10 @@ export const FlexRowNoGap = styled.div`
 
 export const FlexRow = styled(FlexRowNoGap)`
   column-gap: 20px;
+`;
+
+export const FlexRowSpaced = styled (FlexRow)`
+  justify-content: space-between;
 `;
 
 export const FlexRowVCentred = styled(FlexRow)`
@@ -264,6 +267,12 @@ export const UserPreferencesComponent = () => {
     },
   };
 
+  const drawerStyles = {
+    '& > .MuiPaper-root': { 
+      maxHeight: 'calc(100vh - 48px)'
+    }
+  };
+
   const [open, setOpen] = React.useState(false);
 
   const handlePrefsChange = (e) => {
@@ -314,6 +323,7 @@ export const UserPreferencesComponent = () => {
         variant="persistent"
         anchor="top"
         open={open}
+        sx={drawerStyles}
       >
         <Container maxWidth={false} sx={{pt: 8}}>
           <CentredElementsForm noValidate onChange={handlePrefsChange}>
@@ -453,14 +463,10 @@ const WYSIWYGOutputContainer = styled.section`
 `;
 
 export const WYSIWYGOutput = ({children}) => {
-  // this approach should only be used temporarily until a html parser is added
-  // else the website become vulnerable to client-side attacks (e.g. XSS, HTML
-  // injection, etc). children must be a string else page containing component
-  // results in critical error
-  return (<>
-    {children && typeof variable === 'string' &&
+  return (
     <WYSIWYGOutputContainer>
-      {parse(children)}
-    </WYSIWYGOutputContainer>}
-    </>);
+      {children && typeof children === 'string' && parse(children)}
+      {typeof children !== 'string' && <>{children}</>}
+    </WYSIWYGOutputContainer>
+  );
 };

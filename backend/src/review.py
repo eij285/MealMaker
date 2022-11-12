@@ -2,9 +2,35 @@ import psycopg2
 from backend_helper import verify_token
 from config import DB_CONN_STRING
 
-def review_details(recipe_id, auth_user_id):
+def review_details(recipe_id, auth_user_id = None):
     """
-    Returns the review details
+    Returns the review details. auth_user_id is only used to determine the vote
+    of the authenticated user, and therefore optional.
+    Note: This is an internal function, it must not directly be called by
+    server.py as it does not contain a HTTP response status.
+
+    Args:
+        recipe_id       (Integer): the recipe id
+        auth_user_id    (Integer/None): id of authenticated user (optional)
+        
+    Returns:
+        reviews_list    (list of dict): some dict values may be None
+                        [
+                            {
+                                user_id         (Integer)
+                                display_name    (String)
+                                user_image      (String)
+                                user_visibility (String): private/public
+                                review_id       (Integer)
+                                rating          (Integer)
+                                comment         (String)
+                                reply           (String)
+                                created_on      (String)
+                                upvote_count    (Integer)
+                                downvote_count  (Integer)
+                                cur_user_vote   (Boolean or String)
+                            }
+                        ]
     """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
@@ -71,9 +97,35 @@ def review_details(recipe_id, auth_user_id):
         raise Exception
     return reviews_list
 
-def reviews_all_for_recipe(recipe_id, token):
+def reviews_all_for_recipe(recipe_id, token = None):
     """
     Get all public user reviews for recipe
+
+    Args:
+        recipe_id       (Integer): the recipe id
+        token           (String/None): token of authenticated user
+        
+    Returns:
+        Status 200 - success - reviews for recipe (list of dict)
+                    [
+                        {
+                            user_id         (Integer)
+                            display_name    (String)
+                            user_image      (String)
+                            user_visibility (String): private/public
+                            review_id       (Integer)
+                            rating          (Integer)
+                            comment         (String)
+                            reply           (String)
+                            created_on      (String)
+                            upvote_count    (Integer)
+                            downvote_count  (Integer)
+                            cur_user_vote   (Boolean or String)
+                        }
+                    ]
+        Status 400 - invalid recipe_id or failure to fetch reviews
+        Status 404 - recipe does not exist
+        Status 500 - server error (failure to connect to database)
     """
     if not recipe_id:
         return {
@@ -129,6 +181,19 @@ def review_create(recipe_id, rating, comment, token):
     """
     Create a review for a recipe. Recipe can only be reviewed by authenticated
     however recipe author cannot review own recipe.
+
+    Args:
+        recipe_id       (Integer): the recipe id
+        rating          (Integer): the rating ranging from 1 to 5
+        comment         (Integer): optional review comment
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 201 - success - returns review id (Integer)
+        Status 400 - non existent recipe id or cannot review recipe
+        Status 401 - invalid or no token
+        Status 404 - recipe does not exist
+        Status 500 - server error (failure to connect to database)
     """
     # error if no token
     if not token:
@@ -175,7 +240,7 @@ def review_create(recipe_id, rating, comment, token):
         cur.close()
         conn.close()
         return {
-            'status_code': 400,
+            'status_code': 404,
             'error': "cannot find recipe id"
         }
 
@@ -233,6 +298,17 @@ def review_delete(review_id, token):
     Delete a review for a recipe. Only reviewer can delete review, however
     recipe author can indirectly delete review by deleting recipe due to
     the relational structure of records.
+
+    Args:
+        review_id       (Integer): the review id to delete
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 201 - success - returns deleted review id (Integer)
+        Status 400 - cannot delete review
+        Status 401 - invalid or no token
+        Status 404 - cannot find review id
+        Status 500 - server error (failure to connect to database)
     """
     # error if no token
     if not token:
@@ -279,7 +355,7 @@ def review_delete(review_id, token):
         cur.close()
         conn.close()
         return {
-            'status_code': 400,
+            'status_code': 404,
             'error': "cannot find review id"
         }
 
@@ -311,8 +387,23 @@ def review_delete(review_id, token):
 
 def verify_recipe_owner_for_reply(review_id, token, is_delete):
     """
-    Recipe owner/author create/delete reply to review helper function. Note:
-    if the reviewer deletes the review it also deletes the reply.
+    Recipe owner/author create/delete reply to review helper function.
+    Note: if the reviewer deletes the review it also deletes the reply. Also
+    the success return is a boolean, the error return is a dictionary,
+    therefore this function must not be directly called by server.py (internal
+    use only).
+
+    Args:
+        review_id       (Integer): the review id to delete
+        token           (String): token of authenticated user
+        is_delete       (Boolean): true if reply delete, false if reply create
+        
+    Returns:
+        True if owner of reviewed recipe
+        Status 400 - not authenticated
+        Status 401 - invalid or no token
+        Status 404 - cannot find recipe or review
+        Status 500 - server error (failure to connect to database)
     """
     if not token:
         return {
@@ -359,7 +450,7 @@ def verify_recipe_owner_for_reply(review_id, token, is_delete):
         cur.close()
         conn.close()
         return {
-            'status_code': 400,
+            'status_code': 404,
             'error': "cannot find review"
         }
 
@@ -372,7 +463,7 @@ def verify_recipe_owner_for_reply(review_id, token, is_delete):
         cur.close()
         conn.close()
         return {
-            'status_code': 400,
+            'status_code': 404,
             'error': "cannot find recipe id"
         }
 
@@ -390,6 +481,18 @@ def review_reply(review_id, reply, token):
     """
     Recipe owner/author reply to existing review. Note: if the reviewer deletes
     the review it also deletes the reply.
+
+    Args:
+        review_id       (Integer): the review id to reply to
+        reply           (String): the recipe author's reply to review
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 200 - success
+        Status 400 - not authenticated or failure to reply
+        Status 401 - invalid or no token
+        Status 404 - cannot find recipe or review
+        Status 500 - server error (failure to connect to database)
     """
     response = verify_recipe_owner_for_reply(review_id, token, False)
     if isinstance(response, dict):
@@ -420,6 +523,17 @@ def review_reply(review_id, reply, token):
 def review_reply_delete(review_id, token):
     """
     Recipe owner/author delete reply to existing review.
+
+    Args:
+        review_id       (Integer): the review id to delete
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 200 - success
+        Status 400 - not authenticated or failure to delete reply
+        Status 401 - invalid or no token
+        Status 404 - cannot find recipe or review
+        Status 500 - server error (failure to connect to database)
     """
     response = verify_recipe_owner_for_reply(review_id, token, False)
     if isinstance(response, dict):
@@ -454,6 +568,22 @@ def review_vote(review_id, is_upvote, token):
     Allow users (including recipe author) to upvote and downvote reviews (as
     helpful or unhelpful, respetively). Reviewer cannot upvote or downvote own
     reviews.
+
+    Args:
+        review_id       (Integer): the review id to delete
+        is_upvote       (Boolean): upvote (True) or downvote (False)
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 200 - success
+                     body (dict)
+                            upvote_count    (Integer)
+                            downvote_count  (Integer)
+                            cur_user_vote   (Boolean or None)
+        Status 400 - not authenticated or cannot vote on review
+        Status 401 - invalid or no token
+        Status 404 - cannot find review
+        Status 500 - server error (failure to connect to database)
     """
     # error if no token
     if not token or not verify_token(token):
@@ -494,14 +624,14 @@ def review_vote(review_id, is_upvote, token):
         cur.close()
         conn.close()
         return {
-            'status_code': 400,
+            'status_code': 404,
             'error': "cannot find review id"
         }
 
     # seems a bit egotistical to vote for own review
     if user_id == reviewer_id:
         return {
-            'status_code':400,
+            'status_code': 400,
             'error': "user cannot upvote or downvote own review"
         }
 

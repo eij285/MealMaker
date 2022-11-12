@@ -17,20 +17,17 @@ import {
 } from '../../components/Cookbook/CookbookNodes';
 
 function CreateCookbookPage () {
-  // TODO: complete this page
   const token = React.useContext(GlobalContext).token;
-
   const [responseError, setResponseError] = React.useState('');
-
   const navigate = useNavigate();
 
   const createCookbook = (requestBody) => {
-    /*backendRequest('/cookbook/create', body, 'POST', token, (data) => {
+    backendRequest('/cookbook/create', requestBody, 'POST', token, (data) => {
       const cookbookId = data.body.cookbook_id;
       navigate(`/edit-cookbook/${cookbookId}`);
     }, (error) => {
       setResponseError(error);
-    });*/
+    });
   };
   
   return (

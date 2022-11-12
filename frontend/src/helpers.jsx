@@ -399,6 +399,6 @@ export const initialCookbookData = () => {
     name: '',
     photo: '',
     description: '',
-    cookbook_status: 'draft',
+    cookbookStatus: 'draft',
   };
 };

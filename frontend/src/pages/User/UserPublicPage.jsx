@@ -34,6 +34,7 @@ function UserPublicPage () {
   const [userProfile, setUserProfile] = React.useState({});
   const [recipesList, setRecipesList] = React.useState([]);
   const [responseError, setResponseError] = React.useState('');
+  const [isOwnProfile, setIsOwnProfile] = React.useState(false);
 
   const loadRecipes = () => {
     const reqURL = `/recipes/user/published?user_id=${userId}`;
@@ -51,6 +52,7 @@ function UserPublicPage () {
     backendRequest('/user/get/profile', body, 'POST', token, (data) => {
       setUserProfile({...data});
       loadRecipes();
+      setIsOwnProfile(parseInt(userId) === tokenToUserId(token));
     }, (error) => {
       setResponseError(error);
     });
@@ -81,7 +83,7 @@ function UserPublicPage () {
         <ErrorAlert message={responseError} setMessage={setResponseError} />
       </Box>}
       {Object.keys(userProfile).length > 0 && <ProfileContainer>
-      {!isNaN(userId) && parseInt(userId) === tokenToUserId(token) &&
+      {!isNaN(userId) && isOwnProfile &&
       <Box sx={{position: 'absolute', zIndex: 1, right: 0, top: 0}}>
         <MediumAlternateButton component={RouterLink} to={'/user-profile'}>
           Edit Profile

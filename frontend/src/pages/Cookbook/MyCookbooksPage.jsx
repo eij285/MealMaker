@@ -18,29 +18,52 @@ import {
 } from '../../components/StyledNodes';
 import { LeftAlignedButton } from '../../components/Buttons';
 import { backendRequest } from '../../helpers';
+import { OwnCookbookItem } from '../../components/Cookbook/CookbookItems';
 
 function MyCookbooksPage () {
   // TODO: complete this page
   const token = React.useContext(GlobalContext).token;
-  const [cookbooks, setCookbooks] = React.useState(0);
+  const [ownCookbooks, setOwnCookbooks] = React.useState([]);
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [deleteIndex, setDeleteIndex] = React.useState(-1);
+  const [deleteDescription, setDeleteDesciption] = React.useState('');
 
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
 
   const loadCookbooks = () => {
-    /*backendRequest('/cookbooks/', {}, 'POST', token, (data) => {
-      setRecipesList([...data.body]);
-      setNumPublished(data.body.filter(recipe => 
-        recipe.recipe_status === 'published').length);
-      setTotalRecipes(data.body.length);
+    backendRequest('/cookbook/fetch-own', {}, 'POST', token, (data) => {
+      setOwnCookbooks([...data.body]);
     }, (error) => {
       setResponseError(error);
-    });*/
+    });
+  };
+
+  const deleteCookbook = () => {
+    const cookbookId = ownCookbooks[deleteIndex].cookbook_id;
+    const body = {
+      cookbook_id: cookbookId
+    };
+    backendRequest('/cookbook/delete', body, 'POST', token, (data) => {
+      loadCookbooks();
+      setResponseSuccess(
+        `Successfully deleted cookbook (cookbook id: ${data.body.cookbook_id})`);
+    }, (error) => {
+      setResponseError(error);
+    });
+    setDialogOpen(false);
   };
 
   React.useEffect(() => {
     loadCookbooks();
   }, [token]);
+
+  React.useEffect(() => {
+    if (!dialogOpen) {
+      setDeleteIndex(-1);
+    }
+  }, [dialogOpen, deleteIndex]);
 
   return (
     <ManageLayout>
@@ -52,8 +75,10 @@ function MyCookbooksPage () {
           {responseError !== '' &&
           <ErrorAlert message={responseError} setMessage={setResponseError} />}
           <Box>
-            <Typography>Published: {1}</Typography>
-            <Typography>Total: {2}</Typography>
+            <Typography>Published:
+              {ownCookbooks.filter((c) => c.cookbook_status === 'published').length}
+            </Typography>
+            <Typography>Total: {ownCookbooks.length}</Typography>
             <Typography>Followed: {1}</Typography>
           </Box>
           <FlexRow>
@@ -61,10 +86,23 @@ function MyCookbooksPage () {
               Create New Cook Book
             </LeftAlignedButton>
           </FlexRow>
+          <Grid container spacing={2}>
+            {ownCookbooks.length > 0 && ownCookbooks.map((cookbook, index) => (
+            <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
+              <OwnCookbookItem
+                data={cookbook} index={index} setDeleteIndex={setDeleteIndex}
+                setDialogOpen={setDialogOpen}
+                setDeleteDesciption={setDeleteDesciption} />
+            </Grid>))}
+          </Grid>
           <Divider />
           <PageTitle>Followed Cook Books</PageTitle>
         </FlexColumn>
       </Grid>
+      <ConfirmationDialog title="Confirm deletion of:"
+        description={deleteDescription}
+        acceptContent="Delete" rejectContent="Cancel" openState={dialogOpen}
+        setOpenState={setDialogOpen} execOnAccept={deleteCookbook} />
     </ManageLayout>
   );
 }
