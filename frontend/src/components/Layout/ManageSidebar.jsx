@@ -117,6 +117,7 @@ const SidebarItem = ({to, text, open, icon}) => {
   const urlParts = wholeUrlPath.split('/');
   const urlPath = '/' + (urlParts.length >= 2 ? urlParts[1] : '');
   const pageChildren = {
+    '/dashboard': ['/subscriptions', '/subscribers'],
     '/my-recipes': ['/create-recipe', '/edit-recipe'],
     '/user-profile': ['/update-password'],
     '/message-rooms': ['/message-room'],
@@ -154,10 +155,9 @@ export default function ManageSidebar() {
       </SidebarToggle>
       <Divider />
       <List sx={{ paddingTop: 0 }}>
+        <SidebarItem to="/dashboard" text="Dashboard" open={open} icon={<FoodBankIcon />} />
         <SidebarItem to="/my-recipes" text="My Recipes" open={open} icon={<FoodBankIcon />} />
         <SidebarItem to="/my-cookbooks" text="Cook Books" open={open} icon={<MenuBookIcon />} />
-        <SidebarItem to="/subscriptions" text="Subscriptions" open={open} icon={<SubscriptionsIcon />} />
-        <SidebarItem to="/subscribers" text="Subscribers" open={open} icon={<LoyaltyIcon />} />
         <SidebarItem to="/message-rooms" text="Message Rooms" open={open} icon={<MessageIcon />} />
         <SidebarItem to="/manage-shopping" text="Shopping" open={open} icon={<StoreIcon />} />
         <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />
