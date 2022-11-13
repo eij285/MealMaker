@@ -371,7 +371,7 @@ def cart_add_all():
 def cart_rmv_ingredient():
     # Removes ingredient from active cart
     data = request.get_json()
-    ing_id = data['ingredient_id']
+    ing_id = data['cart_ingredient_id']
     token = data['token']
 
     return dumps(cart_remove_ingredient(ing_id, token))
@@ -384,7 +384,7 @@ def cart_rmv_ingredient():
 def cart_add_ingredient_id():
     # Adds ingredient from a recipe's ingredients (individual)
     data = request.get_json()
-    ing_id = data['ingredient_id']
+    ing_id = data['recipe_ingredient_id']
     token = data['token']
 
     return dumps(cart_add_by_id(ing_id, token))

@@ -65,10 +65,10 @@ def cart_add_all_ingredients(r_id, servings, token):
     # For each cart item, insert into database and ingredients body
     for item in cart_items:
         sql_query = "INSERT INTO cart_items(ingredient_name, \
-                     ingredient_quantity, ingredient_cost, cart_id) VALUES \
-                     (%s, %s, %s, %s) RETURNING item_id;"
+                     ingredient_quantity, ingredient_cost, unit_type, cart_id) \
+                     VALUES (%s, %s, %s, %s) RETURNING item_id;"
         cur.execute(sql_query, (item['item_name'], item['unit_quantity'], \
-                    item['item_cost'], cart_id))
+                    item['item_cost'], item['unit_type'], cart_id))
         
         item_id = cur.fetchone()[0]
 
@@ -124,7 +124,29 @@ def cart_remove_ingredient(ingredient_id, token):
 
 def cart_add_by_id(ingr_id, token):
 
+    # Connect to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    # Verify token
+    token_valid = verify_token(token)
+    if not token_valid:
+        return {
+            'status_code': 401,
+            'error': 'Invalid token'
+        }
+    else:
+        u_id = token_valid
     
+    # Get ingredient from recipe
+    sql_query = "SELECT ingredient_name, quantity, unit FROM recipe_ingredients WHERE ingredient_id = %s;"
+
     return {
         'status_code': 200,
         'body': {
