@@ -61,7 +61,7 @@ def cookbook_create(name, status, description, token):
     query = ("SELECT visibility FROM users WHERE token = %s")
     cur.execute(query, (str(token),))
     visibility = cur.fetchall()
-    if visibility[0] is 'private':
+    if visibility[0] == 'private':
         return {
             'status_code': 400,
             'error': "private users cannot create cookbooks"
@@ -653,7 +653,7 @@ def cookbook_subscribe(token, subscribe_to):
         sql_search_query = """SELECT cookbook_status FROM cookbooks WHERE cookbook_id = %s"""
         cur.execute(sql_search_query, (subscribe_to,))
         visibility, = cur.fetchone()
-        if visibility is "draft":
+        if visibility == "draft":
             cur.close()
             conn.close()
             return {
