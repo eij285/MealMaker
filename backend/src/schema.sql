@@ -2,6 +2,7 @@
 -- Please make database schema changes directly to this file then run
 -- http://localhost:5000/reset
 
+DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS cookbook_followers;
 DROP TABLE IF EXISTS cookbook_recipes;
 DROP TABLE IF EXISTS cookbooks;
@@ -226,4 +227,15 @@ CREATE TABLE cookbook_followers (
     FOREIGN KEY (cookbook_id) REFERENCES cookbooks(cookbook_id) ON DELETE CASCADE,
     FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT unique_cookbook_followers UNIQUE(cookbook_id, follower_id)
+);
+
+CREATE TABLE notifications (
+    notification_id     SERIAL,
+    reciever_id         INTEGER NOT NULL,
+    notification_content TEXT NOT NULL,
+    sender_id           INTEGER NOT NULL DEFAULT -1,
+    sender_name         VARCHAR(30) NOT NULL DEFAULT ('anon'),
+	time_sent           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (notification_id),
+    FOREIGN KEY (reciever_id) REFERENCES users(id) ON DELETE CASCADE
 );
