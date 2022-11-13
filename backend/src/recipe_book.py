@@ -604,8 +604,7 @@ def cookbook_view(cookbook_id, token):
             'error': "cannot view private cookbook unless owner"
         }
     
-    cur.close()
-    conn.close()
+
     subs_query = """
         SELECT r.recipe_id FROM cookbook_recipes c
         JOIN recipes r ON c.recipe_id = r.recipe_id
@@ -616,6 +615,8 @@ def cookbook_view(cookbook_id, token):
     recipe_list = []
     for r in recipes:
         recipe_list.append(recipe_details(r[0], token))
+    cur.close()
+    conn.close()
     return {
         'status_code': 200,
         'body': {
