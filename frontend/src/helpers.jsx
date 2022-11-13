@@ -324,6 +324,7 @@ export const customPrepTime = (hours, minutes, level) => {
  */
 export const defaultFilterOptions = () => {
   return {
+    filtersEnabled: true,
     breakfast: true,
     lunch: true,
     dinner: true,
@@ -352,6 +353,9 @@ export const defaultFilterOptions = () => {
  */
 export const filterRecipes = (userPreferences, allRecipes, setFiltered) => {
   setFiltered([...allRecipes.filter((recipe) => {
+    if (!userPreferences.filtersEnabled) {
+      return true;
+    }
     // meal must meet all dietary needs
     if ((!recipe.vegetarian && userPreferences.vegetarian) ||
       (!recipe.vegan && userPreferences.vegan) ||
