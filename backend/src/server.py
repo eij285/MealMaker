@@ -27,6 +27,7 @@ from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
                         cookbooks_user_published, cookbook_subscribe, \
                         cookbook_unsubscribe, cookbook_add_recipe, \
                         cookbook_remove_recipe
+from notifications import notifications_fetch_all
 
 APP = Flask(__name__)
 CORS(APP)
@@ -516,6 +517,13 @@ def message_rooms_fetch_details():
     token = data['token']
     room_id = data['room_id']
     return fetch_room_details(room_id, token)
+
+@APP.route('/notifications/fetch-all', methods=['POST'])
+def fetch_all_notifications():
+    data = request.get_json()
+    token = data['token']
+    return notifications_fetch_all(token)
+    
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
