@@ -60,8 +60,8 @@ def cookbook_create(name, status, description, token):
     
     query = ("SELECT visibility FROM users WHERE token = %s")
     cur.execute(query, (str(token),))
-    visibility = cur.fetchone()
-    if visibility is 'private':
+    visibility = cur.fetchall()
+    if visibility[0] is 'private':
         return {
             'status_code': 400,
             'error': "private users cannot create cookbooks"
@@ -189,7 +189,7 @@ def cookbook_edit(cookbook_id, token):
         query = ("""SELECT cookbook_name, cookbook_photo, cookbook_status, cookbook_description
             FROM cookbooks WHERE cookbook_id = %s AND owner_id = %s""")
         cur.execute(query, (str(cookbook_id), str(owner_id)))
-        cookbook = cur.fetchone()
+        cookbook, = cur.fetchone()
         if not cookbook:
             raise Exception
     except:
@@ -592,7 +592,7 @@ def cookbook_view(cookbook_id, token):
         query = ("""SELECT cookbook_name, cookbook_photo, cookbook_status, owner_id, cookbook_id, cookbook_description
             FROM cookbooks WHERE cookbook_id = %s AND cookbook_status = %s""")
         cur.execute(query, (str(cookbook_id), 'published'))
-        cookbook = cur.fetchone()
+        cookbook, = cur.fetchone()
         if not cookbook or (cookbook[3] is not user_id):
             raise Exception
     except:
@@ -664,7 +664,7 @@ def cookbook_subscribe(token, subscribe_to):
             SELECT id FROM users WHERE token IS NOT NULL AND token = %s
             """
         cur.execute(sql_search_query, (str(token),))
-        follower_result = cur.fetchone()
+        follower_result, = cur.fetchone()
         if follower_result is None:
             cur.close()
             conn.close()
@@ -732,7 +732,7 @@ def cookbook_unsubscribe(token, unsubscribe_to):
             SELECT id FROM users WHERE token IS NOT NULL AND token = %s
             """
         cur.execute(sql_search_query, (str(token),))
-        follower_result = cur.fetchone()
+        follower_result, = cur.fetchone()
         if follower_result is None:
             cur.close()
             conn.close()
