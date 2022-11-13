@@ -32,7 +32,7 @@ def notification_send(reciever_id, content, sender_id, sender_name):
         query = ("""
             INSERT INTO notifications
             (reciever_id, notification_content, sender_id, sender_name)
-            VALUES (%s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s)
             RETURNING notification_id
             """)
         cur.execute(query, (reciever_id, content, sender_id, sender_name))
@@ -84,7 +84,6 @@ def notification_auth_send(reciever_id, content, token):
             'status_code': 401,
             'error': "Invalid token"
         }
-
     # Start connection to database
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
@@ -177,7 +176,7 @@ def notifications_fetch_all(token):
     try:
         query = ("SELECT id FROM users WHERE token = %s")
         cur.execute(query, (str(token),))
-        receiver_id, = cur.fetchone()
+        reciever_id, = cur.fetchone()
     except:
         # Close connection
         cur.close()
@@ -193,7 +192,7 @@ def notifications_fetch_all(token):
             FROM notifications
             WHERE reciever_id = %s
         """)
-        cur.execute(query, (str(token), receiver_id))
+        cur.execute(query, (reciever_id,))
         results = cur.fetchall()
         notifications_list = []
         for one_notification in results:
@@ -211,12 +210,10 @@ def notifications_fetch_all(token):
         conn.close()
         return {
             'status_code': 400,
-            'error': "cannot find user id"
+            'error': "cannot find notifications"
         }
 
     return {
         'status_code': 200,
-        'body': {
-            'notifications': notifications_list
-        }
+        'notifications': notifications_list
     }

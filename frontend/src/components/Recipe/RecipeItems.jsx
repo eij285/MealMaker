@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { Box, Button, Checkbox, Paper, Rating, Typography } from '@mui/material';
+import { Box, Button, Checkbox, Paper, Rating, Tooltip, Typography } from '@mui/material';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -206,21 +206,20 @@ export const OwnCookbookRecipeItem = ({data, index, setRemove}) => {
         <RecipeItemActionPanel>
           <RecipeItemTitle>{data.cuisine}</RecipeItemTitle>
           <RecipeItemActions>
-            <ActionButton color="error" onClick={() => setRemove(index)}>
-              <RemoveCircleIcon />
-            </ActionButton>
+            <Tooltip title="Remove from cookbook" placement="left" arrow>
+              <ActionButton color="error" onClick={() => setRemove(index)}>
+                <RemoveCircleIcon />
+              </ActionButton>
+            </Tooltip>
           </RecipeItemActions>
         </RecipeItemActionPanel>
         <RecipeItemPhoto src={data.recipe_photo} alt={data.recipe_name} />
       </Box>
       <RecipeItemTextContainer>
-        <FlexColumnSpaced>
-          <AlternativeRatingSummary data={data} />
-          <Typography>{data.recipe_name}</Typography>
-        </FlexColumnSpaced>
+        <RatingSummary data={data} />
         <FlexColumnSpaced>
           <SmallGreyText align="right">{data.recipe_status}</SmallGreyText>
-          <RecipeItemLikes likesCount={data.likes.likes_count} />
+          <RecipeItemLikes likesCount={data.likes_cnt} />
         </FlexColumnSpaced>
       </RecipeItemTextContainer>
     </RecipeItemPaper>

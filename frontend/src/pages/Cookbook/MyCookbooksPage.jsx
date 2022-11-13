@@ -55,6 +55,20 @@ function MyCookbooksPage () {
     setDialogOpen(false);
   };
 
+  const publishToggle = (index) => {
+    const cookbookId = ownCookbooks[index].cookbook_id;
+    const isPublished = ownCookbooks[index].cookbook_status === 'published';
+    const reqURL = isPublished ? '/cookbook/unpublish' : '/cookbook/publish';
+    const body = {  
+      cookbook_id: cookbookId
+    };
+    backendRequest(reqURL, body, 'PUT', token, (data) => {
+      loadCookbooks();
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
   React.useEffect(() => {
     loadCookbooks();
   }, [token]);
@@ -92,7 +106,8 @@ function MyCookbooksPage () {
               <OwnCookbookItem
                 data={cookbook} index={index} setDeleteIndex={setDeleteIndex}
                 setDialogOpen={setDialogOpen}
-                setDeleteDesciption={setDeleteDesciption} />
+                setDeleteDesciption={setDeleteDesciption}
+                publishToggle={publishToggle} />
             </Grid>))}
           </Grid>
           <Divider />

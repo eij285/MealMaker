@@ -10,12 +10,15 @@ import {
   FlexColumn,
   ErrorAlert,
   FlexRowVCentred,
+  FlexRowWrapSpaced,
+  UserImageNameLink,
 } from '../../components/StyledNodes';
 import { backendRequest } from '../../helpers';
 import { AutoStoriesOutlined } from '@mui/icons-material';
 import { MediumGreyText, PageTitle } from '../../components/TextNodes';
 import { CookbookImg } from '../../components/Cookbook/CookbookNodes';
 import { RecipeItem } from '../../components/Recipe/RecipeItems';
+import { RightAlignMedButton, SmallAlternateButton } from '../../components/Buttons';
 
 function ViewCookbookPage () {
   const { cookbookId } = useParams();
@@ -36,6 +39,22 @@ function ViewCookbookPage () {
     });
   };
 
+  const followCookbook = () => {
+    const reqURL = `/cookbook/${cookbookData.is_following?'unsubscribe':'subscribe'}`;
+    const reqMethod = cookbookData.is_following ? 'POST' : 'PUT';
+    const body = {
+      cookbook_id: cookbookId
+    };
+    backendRequest(reqURL, body, reqMethod, token, (data) => {
+      setCookbookData({
+        ...cookbookData,
+        is_following: !cookbookData.is_following
+      });
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
   React.useEffect(() => {
     loadCookbook();
   }, [cookbookId, token]);
@@ -48,15 +67,34 @@ function ViewCookbookPage () {
           <ErrorAlert message={responseError} setMessage={setResponseError} />
         </Box>}
         {Object.keys(cookbookData).length > 0 &&<>
-        <FlexRowVCentred>
-          <AutoStoriesOutlined sx={{fontSize: '2.5em'}} />
-          <PageTitle>{cookbookData.cookbook_name}</PageTitle>
-        </FlexRowVCentred>
+        <FlexRowWrapSpaced>
+          <FlexRowVCentred>
+            <AutoStoriesOutlined sx={{fontSize: '2.5em'}} />
+            <PageTitle>{cookbookData.cookbook_name}</PageTitle>
+          </FlexRowVCentred>
+          {cookbookData.is_owner &&
+          <RightAlignMedButton component={RouterLink}
+            to={`/edit-cookbook/${cookbookId}`}>
+            Edit Cook Book
+          </RightAlignMedButton>}
+        </FlexRowWrapSpaced>
         <CookbookImg src={cookbookData.cookbook_photo}
           alt={cookbookData.cookbook_name} />
         <MediumGreyText textAlign="center">
           {cookbookData.cookbook_description}
         </MediumGreyText>
+        <FlexRowWrapSpaced>
+          {!cookbookData.is_owner &&
+          <SmallAlternateButton onClick={followCookbook}>
+            {!cookbookData.is_following && <>Follow Cook Book</>}
+            {cookbookData.is_following && <>Unfollow Cook Book</>}
+          </SmallAlternateButton>}
+          <Box sx={{marginLeft: 'auto'}}>
+            <UserImageNameLink src={cookbookData.author_image}
+              name={cookbookData.author_display_name}
+              to={`/user/${cookbookData.author_id}`} />
+          </Box>
+        </FlexRowWrapSpaced>
         {cookbookData.recipes &&
         <Grid container spacing={2}>
         {cookbookData.recipes.map((recipe, index) => (
