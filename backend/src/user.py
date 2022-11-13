@@ -300,6 +300,7 @@ def user_update_surname(token, last_name):
     return {
         'status_code': 200,
     }
+
 def user_update_display_name(token, display_name):
     """Changes users display name
 
@@ -390,6 +391,7 @@ def user_update_email(token, email):
     return {
         'status_code': 200,
     }
+
 def user_update_about_me(token, about_me):
     """Changes users about me
 
@@ -422,6 +424,7 @@ def user_update_about_me(token, about_me):
     return {
         'status_code': 200,
     }
+
 def user_update_country(token, country):
     """Changes users country
 
@@ -460,6 +463,7 @@ def user_update_country(token, country):
     return {
         'status_code': 200,
     }
+
 def user_update_visibility(token, visibility):
     """Changes users visibilty
 
@@ -883,7 +887,9 @@ def user_get_profile(token, id):
             'is_subscribed': is_subscribed,
             'visitor_efficiency': visitor_efficiency,
             'num_followers': num_followers,
+            'followers': user_get_followers(token)['followers'],
             'num_following': num_following,
+            'following': user_get_following(token)['followings'],
         }
     except:
         cur.close()
