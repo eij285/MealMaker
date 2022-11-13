@@ -709,8 +709,8 @@ def cookbook_unsubscribe(token, unsubscribe_to):
     """unsubscribe to a cookbook (token must be valid)
     
     Args:
-        token           (String): token of authenticated user
-        unsubscribe_to    (Integer): id of cookbook u are subscribing to
+        token             (String): token of authenticated user
+        unsubscribe_to    (Integer): id of cookbook u are unsubscribing to
         
     Returns:
         Status 200 - cookbook unsubscribed to successfully
