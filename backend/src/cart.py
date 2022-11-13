@@ -1,18 +1,9 @@
-from tkinter import E
 from config import DB_CONN_STRING
 from backend_helper import verify_token
 from datetime import datetime, timezone, timedelta
+from store import recipe_item_to_cart
 
 import psycopg2
-
-def check_cart_active():
-    pass
-
-def activate_new_cart():
-    pass
-
-def purchase_minimal_costs():
-    pass
 
 def cart_add_all_ingredients(r_id, servings, token):
 
@@ -42,43 +33,98 @@ def cart_add_all_ingredients(r_id, servings, token):
     cur.execute(sql_query, (u_id,))
 
     sql_result = cur.fetchall()
+
+    # If not active, activate a new cart
     if not sql_result:
-        pass
+        sql_query = "INSERT INTO shopping_carts(owner_id) VALUES (%s) \
+                     RETURNING cart_id;"
+        cur.execute(sql_query, (u_id,))
 
+        cart_id = cur.fetchone()[0]
 
+    # Otherwise, set the cart_id from sql_query results
+    else:
+        cart_id, = sql_result[0]
+    
+    # Use recipe_id to get recipe ingredients
+    sql_query = "SELECT ingredient_name, ingredient_quantity, unit FROM \
+                 recipe_ingredients WHERE recipe_id = %s;"
+    cur.execute(sql_query, (r_id,))
+
+    sql_result = cur.fetchall()
+
+    cart_items = []
+
+    # Add all cart items information to list
+    for ingredient in sql_result:
+        name, quantity, unit = ingredient
+        cart_items += recipe_item_to_cart(name, quantity, unit)
+
+    ingredients_body_content = []
+
+    # For each cart item, insert into database and ingredients body
+    for item in cart_items:
+        sql_query = "INSERT INTO cart_items(ingredient_name, \
+                     ingredient_quantity, ingredient_cost, cart_id) VALUES \
+                     (%s, %s, %s, %s) RETURNING item_id;"
+        cur.execute(sql_query, (item['item_name'], item['unit_quantity'], \
+                    item['item_cost'], cart_id))
+        
+        item_id = cur.fetchone()[0]
+
+        # TODO: Add handling to check for quantities
+        ingredients_body_content.append({
+            'item_id': item_id,
+            'item_name': item['item_name'],
+            'unit_type': item['unit_type'],
+            'unit_quantity': item['unit_quantity'],
+            'item_quantity': 1,
+            'item_cost': item['item_cost']
+        })
 
     return {
         'status_code': 200,
         'body': {
-            'cart_id': 12,
-            'ingredients': [
-                {
-                    'item_id': 3,
-                    'item_name': 'Apple Royal Gala',
-                    'unit_type': 'pieces',
-                    'unit_quantity': 1,
-                    'item_quantity': 2,
-                    'item_cost': 1.56
-                },
-                {
-                    'item_id': 5,
-                    'item_name': 'Woolworths Almonds Natural',
-                    'unit_type': 'grams',
-                    'unit_quantity': 450,
-                    'item_quantity': 2,
-                    'item_cost': 7.70
-                }
-            ]
+            'cart_id': cart_id,
+            'ingredients': ingredients_body_content
         }
     }
 
 def cart_remove_ingredient(ingredient_id, token):
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    # Verify token
+    token_valid = verify_token(token)
+    if not token_valid:
+        return {
+            'status_code': 401,
+            'error': 'Invalid token'
+        }
+    else:
+        u_id = token_valid
+
+    # TODO: Verify cart item is from user's cart
+
+    # Drop ingredient
+    cur.execute("DELETE FROM cart_items WHERE item_id = %s;", (ingredient_id))
+
     return {
         'status_code': 200,
         'body': {}
     }
 
 def cart_add_by_id(ingr_id, token):
+
+    
     return {
         'status_code': 200,
         'body': {
@@ -267,3 +313,6 @@ def cart_fetch_past_order_details(order_id, token):
         'card_cvv': 412,
         'card_exp_date': '12/30'
     }
+
+if __name__ == "__main__":
+    print(recipe_item_to_cart('almonds', 320, 'grams'))
