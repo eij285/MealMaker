@@ -19,7 +19,7 @@ import {
 import { backendRequest, tokenToUserId } from '../../helpers';
 import { SingleAuthorRecipeItem } from '../../components/Recipe/RecipeItems';
 import { SubPageTitle } from '../../components/TextNodes';
-import { CookbookItem, SingleAuthorCookbookItem } from '../../components/Cookbook/CookbookItems';
+import { CookbookItem } from '../../components/Cookbook/CookbookItems';
 
 function UserPublicPage () {
   const { userId } = useParams();
@@ -156,7 +156,7 @@ function UserPublicPage () {
       <Grid container spacing={2}>
         {cookbooksList.map((cookbook, index) => (
         <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
-          <SingleAuthorCookbookItem cookbook={cookbook} />
+          <CookbookItem cookbook={cookbook} />
         </Grid>))}
       </Grid>
     

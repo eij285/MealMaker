@@ -12,9 +12,11 @@ import {
   ImageContainer4by3,
   ResponsiveImage4by3,
   FlexRowSpaced,
+  FlexColumn,
+  UserImageName,
 } from '../StyledNodes';
 import { SmallAlternateButton, SmallDefaultButton } from '../Buttons';
-import { SmallGreyText, TextVCentred } from '../TextNodes';
+import { MediumBlackText, SmallGreyText, TextVCentred } from '../TextNodes';
 
 const CookbookItemActions = styled(Paper)`
   padding: 4px 8px;
@@ -129,7 +131,7 @@ export const OwnCookbookItem = ({data, index, setDeleteIndex, setDialogOpen,
   )
 };
 
-export const SingleAuthorCookbookItem = ({cookbook}) => {
+export const CookbookItem = ({cookbook, showAuthor}) => {
   const navigate = useNavigate();
   return (
     <CookbookItemPaperCursor
@@ -140,8 +142,14 @@ export const SingleAuthorCookbookItem = ({cookbook}) => {
       <CookbookItemPhoto src={cookbook.cookbook_photo}
         alt={cookbook.cookbook_name} />
       <CookbookItemTextContainer>
-        {cookbook.cookbook_name}
-        <Box>
+        <FlexColumn>
+          <MediumBlackText>{cookbook.cookbook_name}</MediumBlackText>
+          {showAuthor && cookbook.hasOwnProperty('author_display_name') &&
+          cookbook.hasOwnProperty('author_image') &&
+          <UserImageName src={cookbook.author_image}
+            name={cookbook.author_display_name} />}
+        </FlexColumn>
+        <Box sx={{alignSelf: 'flex-end'}}>
           <Box sx={{alignSelf: 'flex-end'}}>
             <TextVCentred>
               <FoodBankIcon />&nbsp;{cookbook.recipe_count}

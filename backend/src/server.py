@@ -27,7 +27,7 @@ from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
                         cookbooks_user_published, cookbook_subscribe, \
                         cookbook_unsubscribe, cookbook_add_recipe, \
                         cookbook_remove_recipe, cookbook_all_recipes, \
-                        cookbook_publish
+                        cookbook_publish, cookbooks_following
 from notifications import notifications_fetch_all
 
 APP = Flask(__name__)
@@ -375,6 +375,12 @@ def unpublish_cookbook():
     token = data['token']
     cookbook_id = data['cookbook_id']
     return dumps(cookbook_publish(cookbook_id, 'draft', token))
+
+@APP.route('/cookbooks/following', methods=['POST'])
+def following_cookbooks():
+    data = request.get_json()
+    token = data['token']
+    return dumps(cookbooks_following(token))
 
 @APP.route('/recipe/like', methods=['POST'])
 def like_recipe():
