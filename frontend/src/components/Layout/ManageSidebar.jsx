@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Divider,
@@ -17,9 +17,8 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import SettingsIcon from '@mui/icons-material/Settings';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
-import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import MessageIcon from '@mui/icons-material/Message';
+import SpeedIcon from '@mui/icons-material/Speed';
 import StoreIcon from '@mui/icons-material/Store';
 
 const drawerWidth = 240;
@@ -117,6 +116,7 @@ const SidebarItem = ({to, text, open, icon}) => {
   const urlParts = wholeUrlPath.split('/');
   const urlPath = '/' + (urlParts.length >= 2 ? urlParts[1] : '');
   const pageChildren = {
+    '/dashboard': ['/subscriptions', '/subscribers'],
     '/my-recipes': ['/create-recipe', '/edit-recipe'],
     '/user-profile': ['/update-password'],
     '/message-rooms': ['/message-room'],
@@ -154,10 +154,9 @@ export default function ManageSidebar() {
       </SidebarToggle>
       <Divider />
       <List sx={{ paddingTop: 0 }}>
+        <SidebarItem to="/dashboard" text="Dashboard" open={open} icon={<SpeedIcon />} />
         <SidebarItem to="/my-recipes" text="My Recipes" open={open} icon={<FoodBankIcon />} />
         <SidebarItem to="/my-cookbooks" text="Cook Books" open={open} icon={<MenuBookIcon />} />
-        <SidebarItem to="/subscriptions" text="Subscriptions" open={open} icon={<SubscriptionsIcon />} />
-        <SidebarItem to="/subscribers" text="Subscribers" open={open} icon={<LoyaltyIcon />} />
         <SidebarItem to="/message-rooms" text="Message Rooms" open={open} icon={<MessageIcon />} />
         <SidebarItem to="/manage-shopping" text="Shopping" open={open} icon={<StoreIcon />} />
         <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />

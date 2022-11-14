@@ -9,16 +9,18 @@ from auth import auth_register, auth_login, auth_logout, \
 from backend_helper import database_reset, database_populate
 from user import user_preferences, user_update, user_info, \
                  user_update_preferences, user_subscribe, user_unsubscribe, \
-                 user_get_followers, user_get_following, user_get_profile
-from recipe import recipe_create, recipe_edit, recipe_update, recipe_clone, \
-                   recipe_delete, recipes_fetch_own, recipes_user_published, \
-                   recipe_details, recipe_like, \
+                 user_get_followers, user_get_following, user_get_profile, \
+                 get_users, user_stats
+from recipe import recipe_create, recipe_publish, recipe_edit, recipe_update, \
+                   recipe_clone, recipe_delete, recipes_fetch_own, \
+                   recipes_user_published, recipe_details, recipe_like, \
                    recipe_related
 from review import reviews_all_for_recipe, review_create, review_delete, \
                    review_reply, review_reply_delete, review_vote
 from feed import feed_fetch_discover, feed_fetch_subscription, \
                  feed_fetch_trending
 from search import search
+<<<<<<< HEAD
 from cart import cart_add_all_ingredients, cart_remove_ingredient, \
                  cart_add_by_id, cart_add_by_name, cart_set_saved, \
                  cart_load_saved, cart_save_payment_method, \
@@ -26,6 +28,17 @@ from cart import cart_add_all_ingredients, cart_remove_ingredient, \
                  cart_list_payment_methods, cart_display_details, \
                  cart_display_all_details, cart_make_order, \
                  cart_fetch_past_orders_all, cart_fetch_past_order_details
+=======
+from message import message_send, message_edit, message_delete, message_react
+from message_room import *
+from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
+                        cookbook_fetch_own, cookbook_update, cookbook_view, \
+                        cookbooks_user_published, cookbook_subscribe, \
+                        cookbook_unsubscribe, cookbook_add_recipe, \
+                        cookbook_remove_recipe, cookbook_all_recipes, \
+                        cookbook_publish, cookbooks_following
+from notifications import notifications_fetch_all
+>>>>>>> main
 
 APP = Flask(__name__)
 CORS(APP)
@@ -132,14 +145,12 @@ def update_user_preferences():
 def get_user_details():
     payload = request.get_json()
     token = payload['token']
-    
     return dumps(user_info(token))
 
 @APP.route('/user/preferences', methods=['POST'])
 def get_user_preferences():
     payload = request.get_json()
     token = payload['token']
-    
     return dumps(user_preferences(token))
 
 @APP.route('/user/subscribe', methods=['PUT'])
@@ -147,7 +158,6 @@ def subscribe():
     payload = request.get_json()
     token = payload['token']
     subscribe_to = payload['id']
-    
     return dumps(user_subscribe(token, subscribe_to))
 
 @APP.route('/user/unsubscribe', methods=['POST'])
@@ -155,30 +165,48 @@ def unsubscribe():
     payload = request.get_json()
     token = payload['token']
     unsubscribe_to = payload['id']
-    
     return dumps(user_unsubscribe(token, unsubscribe_to))
 
-@APP.route('/user/get/subscribers', methods=['POST'])
+@APP.route('/user/get/subscribers', methods=['GET'])
 def get_subscribers():
-    payload = request.get_json()
-    token = payload['token']
-    
-    return dumps(user_get_followers(token))
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(user_get_followers(user_id))
 
-@APP.route('/user/get/subscriptions', methods=['POST'])
+@APP.route('/user/get/subscriptions', methods=['GET'])
 def get_subscriptions():
-    payload = request.get_json()
-    token = payload['token']
-    
-    return dumps(user_get_following(token))
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(user_get_following(user_id))
 
 @APP.route('/user/get/profile', methods=['POST'])
 def get_profile():
     payload = request.get_json()
     token = payload['token']
     id = payload['id']
-    
     return dumps(user_get_profile(token, id))
+
+@APP.route('/user/get/users', methods=['POST'])
+def users_get():    
+    return dumps(get_users())
+
+@APP.route('/user/stats', methods=['GET', 'POST'])
+def stats_for_user():
+    if request.method == 'POST':
+        data = request.get_json()
+        token = data['token']
+        user_id = data['user_id']
+    else:
+        if 'user_id' in request.args:
+            user_id = request.args.get('user_id')
+        else:
+            user_id = -1
+        token = None
+    return dumps(user_stats(user_id, token))
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
@@ -188,8 +216,21 @@ def create_recipe():
     description = data['description']
     servings = data['servings']
     recipe_status = data['recipe_status']
-
     return dumps(recipe_create(name, description, servings, recipe_status, token))
+
+@APP.route('/recipe/publish', methods=['PUT'])
+def publish_recipe():
+    data = request.get_json()
+    token = data['token']    
+    recipe_id = data['recipe_id']
+    return dumps(recipe_publish(recipe_id, 'published', token))
+
+@APP.route('/recipe/unpublish', methods=['PUT'])
+def unpublish_recipe():
+    data = request.get_json()
+    token = data['token']    
+    recipe_id = data['recipe_id']
+    return dumps(recipe_publish(recipe_id, 'draft', token))
 
 @APP.route('/recipe/edit', methods=['POST'])
 def edit_recipe():
@@ -245,6 +286,122 @@ def details_for_recipe():
             recipe_id = None
         token = None
     return dumps(recipe_details(recipe_id, token))
+
+@APP.route('/cookbook/create', methods=['POST'])
+def create_cookbook():
+    data = request.get_json()
+    token = data['token']
+    name = data['name']
+    description = data['description']
+    status = data['status']
+
+    return dumps(cookbook_create(name, status, description, token))
+
+@APP.route('/cookbook/edit', methods=['POST'])
+def edit_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_edit(cookbook_id, token))
+
+@APP.route('/cookbook/all-recipes', methods=['POST'])
+def all_recipes_for_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_all_recipes(cookbook_id, token))
+
+@APP.route('/cookbook/update', methods=['POST'])
+def update_cookbook():
+    data = request.get_json()
+    token = data['token']
+    return dumps(cookbook_update(data, token))
+
+@APP.route('/cookbook/delete', methods=['POST'])
+def delete_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_delete(cookbook_id, token))
+
+@APP.route('/cookbook/fetch-own', methods=['POST'])
+def fetch_own_cookbooks():
+    data = request.get_json()
+    token = data['token']
+    return dumps(cookbook_fetch_own(token))
+
+@APP.route('/cookbooks/user/published', methods=['GET'])
+def published_user_cookbooks():
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(cookbooks_user_published(user_id))
+
+@APP.route('/cookbook/view', methods=['GET', 'POST'])
+def details_for_cookbook():
+    if request.method == 'POST':
+        data = request.get_json()
+        token = data['token']
+        cookbook_id = data['cookbook_id']
+    else:
+        if 'cookbook_id' in request.args:
+            cookbook_id = request.args.get('cookbook_id')
+        else:
+            cookbook_id = None
+        token = None
+    return dumps(cookbook_view(cookbook_id, token))
+
+@APP.route('/cookbook/subscribe', methods=['PUT'])
+def subscribe_cookbook():
+    payload = request.get_json()
+    token = payload['token']
+    subscribe_to = payload['cookbook_id']
+    
+    return dumps(cookbook_subscribe(token, subscribe_to))
+
+@APP.route('/cookbook/unsubscribe', methods=['POST'])
+def unsubscribe_cookbook():
+    payload = request.get_json()
+    token = payload['token']
+    unsubscribe_to = payload['cookbook_id']
+    return dumps(cookbook_unsubscribe(token, unsubscribe_to))
+
+@APP.route('/cookbook/add/recipe', methods=['PUT'])
+def recipe_add_cookbook():
+    payload = request.get_json()
+    token = payload['token']
+    cookbook_id = payload['cookbook_id']
+    recipe_id = payload['recipe_id']
+    return dumps(cookbook_add_recipe(token, cookbook_id, recipe_id))
+
+@APP.route('/cookbook/remove/recipe', methods=['POST'])
+def recipe_remove_cookbook():
+    payload = request.get_json()
+    token = payload['token']
+    cookbook_id = payload['cookbook_id']
+    recipe_id = payload['recipe_id']
+    return dumps(cookbook_remove_recipe(token, cookbook_id, recipe_id))
+
+@APP.route('/cookbook/publish', methods=['PUT'])
+def publish_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_publish(cookbook_id, 'published', token))
+
+@APP.route('/cookbook/unpublish', methods=['PUT'])
+def unpublish_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_publish(cookbook_id, 'draft', token))
+
+@APP.route('/cookbooks/following', methods=['POST'])
+def following_cookbooks():
+    data = request.get_json()
+    token = data['token']
+    return dumps(cookbooks_following(token))
 
 @APP.route('/recipe/like', methods=['POST'])
 def like_recipe():
@@ -632,20 +789,85 @@ def cart_past_orders_get():
 #     if not verify_token(token):
 #         return dumps({'status_code': 401, 'error': None})
 
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "t"))
+@APP.route('/message/send', methods=['POST'])
+def send_message():
+    data = request.get_json()
+    message = data['message']
+    target_id = data['room_id']
+    token = data['token']
+    return dumps(message_send(target_id, message, token))
 
-# @APP.route('/recipe/unpublish', methods=['PUT'])
-# def unpublish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "f"))
+@APP.route('/message/edit', methods=['POST'])
+def edit_message():
+    data = request.get_json()
+    message_id = data['message_id']
+    message_content = data['message']
+    token = data['token']
+    return dumps(message_edit(message_id, message_content, token))
+
+@APP.route('/message/delete', methods=['POST'])
+def delete_message():
+    data = request.get_json()
+    message_id = data['message_id']
+    token = data['token']
+    return dumps(message_delete(message_id, token))
+
+@APP.route('/message/react', methods=['POST'])
+def react_message():
+    data = request.get_json()
+    message_id = data['message_id']
+    react_char = data['react_char']
+    token = data['token']
+    return dumps(message_react(message_id, react_char, token))
+
+@APP.route('/message-rooms/create', methods=['POST'])
+def create_message_room():
+    data = request.get_json()
+    token = data['token']
+    member_id_list = data['member_id_list']
+    return dumps(create_room(member_id_list, token))
+
+@APP.route('/message-rooms/delete', methods=['POST'])
+def delete_message_room():
+    data = request.get_json()
+    token = data['token']
+    room_id = data['room_id']
+    return dumps(delete_room(token, room_id))
+
+@APP.route('/message-rooms', methods=['POST'])
+def message_rooms():
+    data = request.get_json()
+    token = data['token']
+    return fetch_user_rooms(token)
+
+@APP.route('/message-rooms/add-member', methods=['POST'])
+def message_rooms_add_member():
+    data = request.get_json()
+    token = data['token']
+    room_id = data['room_id']
+    member_id_list = data['member_id_list']
+    return add_member_to_room(room_id, member_id_list, token)
+
+@APP.route('/message-rooms/set-owner', methods=['POST'])
+def message_rooms_set_owner():
+    data = request.get_json()
+    token = data['token']
+    room_id = data['room_id']
+    owner_id_list = data['owner_id_list']
+    return add_owner_to_room(room_id, owner_id_list, token)
+
+@APP.route('/message-rooms/fetch-details', methods=['POST'])
+def message_rooms_fetch_details():
+    data = request.get_json()
+    token = data['token']
+    room_id = data['room_id']
+    return fetch_room_details(room_id, token)
+
+@APP.route('/notifications/fetch-all', methods=['POST'])
+def fetch_all_notifications():
+    data = request.get_json()
+    token = data['token']
+    return notifications_fetch_all(token)
 
 
 @APP.route('/reset', methods=['GET'])

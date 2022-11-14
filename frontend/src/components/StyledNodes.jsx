@@ -4,7 +4,6 @@ import styled from '@emotion/styled';
 import {
   Alert,
   Box,
-  Button,
   Checkbox,
   Container,
   Dialog,
@@ -21,6 +20,7 @@ import {
   Link,
   Paper,
   Slider,
+  Switch,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -31,7 +31,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import GlobalContext from '../utils/GlobalContext';
 import parse from 'html-react-parser';
 import { MediumDefaultButton, MediumAlternateButton } from './Buttons';
-import { SubPageTitle } from './TextNodes';
+import { SmallBlackText, SubPageTitle } from './TextNodes';
 import { CentredElementsForm } from '../components/Forms';
 
 const CustomAlert = ({props, status, message, setMessage}) => {
@@ -84,6 +84,10 @@ export const FlexRowNoGap = styled.div`
 
 export const FlexRow = styled(FlexRowNoGap)`
   column-gap: 20px;
+`;
+
+export const FlexRowSpaced = styled (FlexRow)`
+  justify-content: space-between;
 `;
 
 export const FlexRowVCentred = styled(FlexRow)`
@@ -220,6 +224,24 @@ export const ConfirmationDialog = ({ title, description, acceptContent,
   );
 };
 
+const FilterEnableDisable = ({userPreferences, setUserPreferences}) => {
+  const handleToggle = (e) => {
+    setUserPreferences({
+      ...userPreferences,
+      filtersEnabled: e.target.checked
+    });
+  };
+  return (
+    <FormControlLabel sx={{marginLeft: 0}} control={<>
+      <SmallBlackText>on</SmallBlackText>
+      <Switch checked={userPreferences.filtersEnabled}
+        onChange={handleToggle} />
+      <SmallBlackText>&emsp;off</SmallBlackText>
+    </>}
+    label="Filters: " labelPlacement="start" />
+  );
+};
+
 export const UserPreferencesComponent = () => {
   const globals = React.useContext(GlobalContext);
   const userPreferences = globals.userPreferences;
@@ -262,6 +284,12 @@ export const UserPreferencesComponent = () => {
       height: '48px',
       opacity: 0.6,
     },
+  };
+
+  const drawerStyles = {
+    '& > .MuiPaper-root': { 
+      maxHeight: 'calc(100vh - 48px)'
+    }
   };
 
   const [open, setOpen] = React.useState(false);
@@ -314,8 +342,12 @@ export const UserPreferencesComponent = () => {
         variant="persistent"
         anchor="top"
         open={open}
+        sx={drawerStyles}
       >
         <Container maxWidth={false} sx={{pt: 8}}>
+          <FilterEnableDisable userPreferences={userPreferences}
+            setUserPreferences={setUserPreferences} />
+          {userPreferences.filtersEnabled && <>
           <CentredElementsForm noValidate onChange={handlePrefsChange}>
             <FormGroup>
               <SubPageTitle>Meals</SubPageTitle>
@@ -401,6 +433,7 @@ export const UserPreferencesComponent = () => {
               </Grid>
             </Grid>
           </FlexColumn>
+          </>}
         </Container>
         <Paper component={IconButton} disableRipple={true} sx={ closeBtnStyles }
           onClick={() => setOpen(false)} elevation={3}>
@@ -453,14 +486,10 @@ const WYSIWYGOutputContainer = styled.section`
 `;
 
 export const WYSIWYGOutput = ({children}) => {
-  // this approach should only be used temporarily until a html parser is added
-  // else the website become vulnerable to client-side attacks (e.g. XSS, HTML
-  // injection, etc). children must be a string else page containing component
-  // results in critical error
-  return (<>
-    {children && typeof variable === 'string' &&
+  return (
     <WYSIWYGOutputContainer>
-      {parse(children)}
-    </WYSIWYGOutputContainer>}
-    </>);
+      {children && typeof children === 'string' && parse(children)}
+      {typeof children !== 'string' && <>{children}</>}
+    </WYSIWYGOutputContainer>
+  );
 };

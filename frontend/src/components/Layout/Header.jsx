@@ -1,7 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { AppBar, Box, IconButton, InputAdornment, Link, TextField, Toolbar, Typography } from '@mui/material';
+import {
+  AppBar,
+  Box,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Toolbar,
+  Typography
+} from '@mui/material';
 import { HeaderButton } from '../../components/Buttons';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -171,9 +179,9 @@ function Header ({ incSearch, incButtons }) {
           </HeaderButton>
           </>}
           {incButtons && token && <>
-          <HeaderButton component={RouterLink} to="/user-profile">
+          <HeaderButton component={RouterLink} to="/dashboard">
             <AccountCircleIcon />
-            <HeaderButtonTypo>My Profile</HeaderButtonTypo>
+            <HeaderButtonTypo>Dashboard</HeaderButtonTypo>
           </HeaderButton>
           <LogoutButton />
           </>}

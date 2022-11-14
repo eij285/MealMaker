@@ -2,17 +2,26 @@
 -- Please make database schema changes directly to this file then run
 -- http://localhost:5000/reset
 
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS cookbook_followers;
+DROP TABLE IF EXISTS cookbook_recipes;
+DROP TABLE IF EXISTS cookbooks;
 DROP TABLE IF EXISTS subscriptions;
 DROP TABLE IF EXISTS recipe_user_likes;
 DROP TABLE IF EXISTS recipe_reviews_votes;
 DROP TABLE IF EXISTS recipe_reviews;
 DROP TABLE IF EXISTS recipe_ingredients;
+DROP TABLE IF EXISTS message_room_members;
+DROP TABLE IF EXISTS message_room_owners;
+DROP TABLE IF EXISTS message_emojis;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS shopping_carts;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS payment_methods;
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS message_rooms;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -203,4 +212,96 @@ CREATE TABLE order_items (
     PRIMARY KEY (item_id),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     CONSTRAINT valid_unit_type CHECK (unit_type in ('litres', 'ml', 'grams', 'kg', 'cups', 'tbsp', 'tsp', 'pieces'))
+);
+
+CREATE TABLE message_rooms (
+    room_id SERIAL,
+    room_name TEXT,
+    PRIMARY KEY (room_id)
+);
+
+CREATE TABLE message_room_owners (
+    message_room_owner_id SERIAL,
+    room_id INTEGER NOT NULL,
+    owner_id INTEGER NOT NULL,
+    FOREIGN KEY (room_id) REFERENCES message_rooms(room_id) ON DELETE CASCADE,
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (message_room_owner_id)
+);
+
+
+CREATE TABLE messages (
+    message_id SERIAL,
+    message_content TEXT, 
+    is_edited BOOLEAN DEFAULT FALSE,
+    is_deleted BOOLEAN DEFAULT FALSE,
+    time_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    sender_id INTEGER NOT NULL,
+    room_id INTEGER NOT NULL,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES message_rooms(room_id) ON DELETE CASCADE,
+    PRIMARY KEY (message_id)
+);
+
+CREATE TABLE message_emojis (
+    emoji_id SERIAL,
+    emoji_utf8 CHAR(9) NOT NULL,
+    message_id INTEGER NOT NULL,
+    reactor_id INTEGER NOT NULL,
+    FOREIGN KEY (message_id) REFERENCES messages(message_id) ON DELETE CASCADE,
+    FOREIGN KEY (reactor_id) REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (emoji_id)
+);
+
+
+CREATE TABLE message_room_members (
+    message_room_member_id SERIAL,
+    room_id INTEGER NOT NULL,
+    member_id INTEGER NOT NULL,
+    FOREIGN KEY (room_id) REFERENCES message_rooms(room_id) ON DELETE CASCADE,
+    FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (message_room_member_id)
+);
+
+CREATE TABLE cookbooks (
+    cookbook_id     SERIAL,
+    cookbook_name   VARCHAR(255) NOT NULL,
+    cookbook_description TEXT,
+    owner_id        INTEGER NOT NULL,
+    cookbook_photo  TEXT,
+    cookbook_status VARCHAR(9) NOT NULL DEFAULT ('draft'),
+    PRIMARY KEY (cookbook_id),
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT valid_cookbook_status CHECK (cookbook_status in ('draft', 'published'))
+);
+
+CREATE TABLE cookbook_recipes (
+    cookbook_recipe_id  SERIAL,
+    cookbook_id         INTEGER NOT NULL,
+    recipe_id           INTEGER NOT NULL,
+    PRIMARY KEY (cookbook_recipe_id),
+    FOREIGN KEY (cookbook_id) REFERENCES cookbooks(cookbook_id) ON DELETE CASCADE,
+    FOREIGN KEY (recipe_id) REFERENCES recipes(recipe_id) ON DELETE CASCADE,
+    CONSTRAINT unique_cookbook_recipes UNIQUE(cookbook_id, recipe_id)
+);
+
+CREATE TABLE cookbook_followers (
+    cookbook_follower_id  SERIAL,
+    cookbook_id           INTEGER NOT NULL,
+    follower_id           INTEGER NOT NULL,
+    PRIMARY KEY (cookbook_follower_id),
+    FOREIGN KEY (cookbook_id) REFERENCES cookbooks(cookbook_id) ON DELETE CASCADE,
+    FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT unique_cookbook_followers UNIQUE(cookbook_id, follower_id)
+);
+
+CREATE TABLE notifications (
+    notification_id     SERIAL,
+    reciever_id         INTEGER NOT NULL,
+    notification_content TEXT NOT NULL,
+    sender_id           INTEGER NOT NULL DEFAULT -1,
+    sender_name         VARCHAR(30) NOT NULL DEFAULT ('anon'),
+	time_sent           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (notification_id),
+    FOREIGN KEY (reciever_id) REFERENCES users(id) ON DELETE CASCADE
 );

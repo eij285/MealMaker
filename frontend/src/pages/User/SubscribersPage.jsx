@@ -8,7 +8,7 @@ import {
   ErrorAlert, FlexRowWrap, UserImageNameLink
 } from '../../components/StyledNodes';
 import { PageTitle, SubPageTitle } from '../../components/TextNodes';
-import { backendRequest } from '../../helpers';
+import { backendRequest, tokenToUserId } from '../../helpers';
 
 function SubscribersPage () {
   const token = React.useContext(GlobalContext).token;
@@ -17,7 +17,8 @@ function SubscribersPage () {
   const [responseError, setResponseError] = React.useState('');
 
   const loadSubscribers = () => {
-    backendRequest('/user/get/subscribers', {}, 'POST', token, (data) => {
+    const reqURL = `/user/get/subscribers?user_id=${tokenToUserId(token)}`;
+    backendRequest(reqURL, null, 'GET', null, (data) => {
       setFollowers([...data.followers]);
       if (data.visibility === 'public') {
         const nSubs = data.followers.length;

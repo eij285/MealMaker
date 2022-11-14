@@ -16,7 +16,7 @@ const config = require('./config.json');
 export const backendRequest = async (path, body, method, token, onSuccess,
   onFail = null, setStatus = null) => {
   const requestUrl = `${config.BACKEND_SERVER}${path}`;
-  console.log(requestUrl);
+  //console.log(requestUrl);
 
   const requestObject = {
     method: method,
@@ -209,6 +209,13 @@ export const longDateString = (str) => {
 };
 
 /**
+ * Convert timestamp string to short format datetime string
+ */
+ export const shortDateTimeString = (str) => {
+  return moment(str).format('h:mma DD/MM/YYYY');
+};
+
+/**
  * Ruturn null if empty string else unchanged
  */
 export const emptyStringToNull = (str) => {
@@ -317,6 +324,7 @@ export const customPrepTime = (hours, minutes, level) => {
  */
 export const defaultFilterOptions = () => {
   return {
+    filtersEnabled: true,
     breakfast: true,
     lunch: true,
     dinner: true,
@@ -345,6 +353,9 @@ export const defaultFilterOptions = () => {
  */
 export const filterRecipes = (userPreferences, allRecipes, setFiltered) => {
   setFiltered([...allRecipes.filter((recipe) => {
+    if (!userPreferences.filtersEnabled) {
+      return true;
+    }
     // meal must meet all dietary needs
     if ((!recipe.vegetarian && userPreferences.vegetarian) ||
       (!recipe.vegan && userPreferences.vegan) ||
@@ -399,6 +410,6 @@ export const initialCookbookData = () => {
     name: '',
     photo: '',
     description: '',
-    cookbook_status: 'draft',
+    cookbookStatus: 'draft',
   };
 };
