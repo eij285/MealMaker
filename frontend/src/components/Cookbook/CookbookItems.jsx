@@ -5,6 +5,8 @@ import { Box, Button, Paper, Typography } from '@mui/material';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import FoodBankIcon from '@mui/icons-material/FoodBank';
+import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import {
   FlexRow,
   ImageContainer4by3,
@@ -12,7 +14,7 @@ import {
   FlexRowSpaced,
 } from '../StyledNodes';
 import { SmallAlternateButton, SmallDefaultButton } from '../Buttons';
-import { SmallGreyText } from '../TextNodes';
+import { SmallGreyText, TextVCentred } from '../TextNodes';
 
 const CookbookItemActions = styled(Paper)`
   padding: 4px 8px;
@@ -56,6 +58,18 @@ const CookbookItemTextContainer = styled(FlexRow)`
 
 const CookbookItemPaperCursor = styled(CookbookItemPaper)`
   cursor: pointer;
+  & .show-on-hover {
+    display: none;
+    padding: 8px;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    color: #ffffff;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+  }
 `;
 
 const CookbookItemBottomPanel = styled(Paper)`
@@ -112,5 +126,34 @@ export const OwnCookbookItem = ({data, index, setDeleteIndex, setDialogOpen,
         </FlexRowSpaced>
       </CookbookItemBottomPanel>
     </CookbookItemPaper>
+  )
+};
+
+export const SingleAuthorCookbookItem = ({cookbook}) => {
+  const navigate = useNavigate();
+  return (
+    <CookbookItemPaperCursor
+      onClick={() => navigate(`/cookbook/${cookbook.cookbook_id}`)}>
+      <Box className="show-on-hover">
+        {cookbook.cookbook_description}
+      </Box>
+      <CookbookItemPhoto src={cookbook.cookbook_photo}
+        alt={cookbook.cookbook_name} />
+      <CookbookItemTextContainer>
+        {cookbook.cookbook_name}
+        <Box>
+          <Box sx={{alignSelf: 'flex-end'}}>
+            <TextVCentred>
+              <FoodBankIcon />&nbsp;{cookbook.recipe_count}
+            </TextVCentred>
+          </Box>
+          <Box sx={{alignSelf: 'flex-end'}}>
+            <TextVCentred>
+              <LoyaltyIcon />&nbsp;{cookbook.follower_count}
+            </TextVCentred>
+          </Box>
+        </Box>
+      </CookbookItemTextContainer>
+    </CookbookItemPaperCursor>
   )
 };

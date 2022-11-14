@@ -63,7 +63,6 @@ function DashboardPage () {
   const loadNotifications = () => {
     backendRequest('/notifications/fetch-all', {}, 'POST', token, (data) => {
       setNotifications([...data.notifications]);
-      console.log(data.notifications);
     }, (error) => {
       setResponseError(error);
     });

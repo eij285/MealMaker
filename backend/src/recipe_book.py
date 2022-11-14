@@ -698,8 +698,15 @@ def cookbooks_user_published(user_id):
             raise Exception
         
         query = ("""
-            SELECT cookbook_id, cookbook_name, cookbook_photo, cookbook_description
-            WHERE owner_id = %s AND cookbook_status = 'published'
+            SELECT c.cookbook_id, c.cookbook_name, c.cookbook_photo,
+            c.cookbook_description, COUNT(r.*), COUNT(f.*)
+            FROM cookbooks c 
+            LEFT OUTER JOIN cookbook_recipes r
+            ON (r.cookbook_id = c.cookbook_id)
+            LEFT OUTER JOIN cookbook_followers f
+            ON (f.cookbook_id = c.cookbook_id)
+            WHERE c.owner_id = %s AND c.cookbook_status = 'published'
+            GROUP BY c.cookbook_id
             """)
         cur.execute(query, (user_id,))
         output = cur.fetchall()
@@ -711,6 +718,8 @@ def cookbooks_user_published(user_id):
                 'cookbook_name': cookbook[1],
                 'cookbook_photo': cookbook[2],
                 'cookbook_description': cookbook[3],
+                'recipe_count': cookbook[4],
+                'follower_count': cookbook[5]
             })
         cur.close()
         conn.close()
@@ -792,12 +801,12 @@ def cookbook_view(cookbook_id, token):
     
     try:
         is_owner = user_id == cookbook[3]
-        subs_query = """
+        recipes_query = """
             SELECT r.recipe_id FROM cookbook_recipes c
             JOIN recipes r ON c.recipe_id = r.recipe_id
             WHERE c.cookbook_id = %s
             """
-        cur.execute(subs_query, (cookbook[4],))
+        cur.execute(recipes_query, (cookbook[4],))
         recipes = cur.fetchall()
         recipe_list = []
         for r in recipes:
@@ -813,6 +822,21 @@ def cookbook_view(cookbook_id, token):
             is_following = cur.fetchone()[0] > 0
         else:
             is_following = False
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "failed to fetch cookbook recipes"
+        }
+
+    try:
+        subs_query = """
+            SELECT COUNT(*) FROM cookbook_followers WHERE cookbook_id = %s
+            """
+        cur.execute(subs_query, (cookbook[4],))
+        subs_count, = cur.fetchone()
         cur.close()
         conn.close()
     except:
@@ -821,7 +845,7 @@ def cookbook_view(cookbook_id, token):
         conn.close()
         return {
             'status_code': 400,
-            'error': "failed to fetch cookbook recipes"
+            'error': "failed to fetch cookbook follower count"
         }
     
     return {
@@ -836,7 +860,8 @@ def cookbook_view(cookbook_id, token):
             'author_image': cookbook[7],
             'is_owner': is_owner,
             'is_following': is_following,
-            'recipes': recipe_list
+            'recipes': recipe_list,
+            'follower_count': subs_count
         }
     }
 

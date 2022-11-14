@@ -2,8 +2,12 @@ import React from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
-  Grid
+  Grid,
+  Tooltip
 } from '@mui/material';
+import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
+import FoodBankIcon from '@mui/icons-material/FoodBank';
+import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
 import {
@@ -12,10 +16,10 @@ import {
   FlexRowVCentred,
   FlexRowWrapSpaced,
   UserImageNameLink,
+  FlexRow,
 } from '../../components/StyledNodes';
 import { backendRequest } from '../../helpers';
-import { AutoStoriesOutlined } from '@mui/icons-material';
-import { MediumGreyText, PageTitle } from '../../components/TextNodes';
+import { MediumGreyText, PageTitle, TextVCentred } from '../../components/TextNodes';
 import { CookbookImg } from '../../components/Cookbook/CookbookNodes';
 import { RecipeItem } from '../../components/Recipe/RecipeItems';
 import { RightAlignMedButton, SmallAlternateButton } from '../../components/Buttons';
@@ -69,7 +73,7 @@ function ViewCookbookPage () {
         {Object.keys(cookbookData).length > 0 &&<>
         <FlexRowWrapSpaced>
           <FlexRowVCentred>
-            <AutoStoriesOutlined sx={{fontSize: '2.5em'}} />
+            <AutoStoriesOutlinedIcon sx={{fontSize: '2.5em'}} />
             <PageTitle>{cookbookData.cookbook_name}</PageTitle>
           </FlexRowVCentred>
           {cookbookData.is_owner &&
@@ -89,7 +93,19 @@ function ViewCookbookPage () {
             {!cookbookData.is_following && <>Follow Cook Book</>}
             {cookbookData.is_following && <>Unfollow Cook Book</>}
           </SmallAlternateButton>}
-          <Box sx={{marginLeft: 'auto'}}>
+          <FlexRow>
+            <Tooltip title="recipes" placement="top" arrow>
+              <TextVCentred>
+                <FoodBankIcon />&nbsp;{cookbookData.recipes.length}
+              </TextVCentred>
+            </Tooltip>
+            <Tooltip title="followers" placement="top" arrow>
+              <TextVCentred>
+                <LoyaltyIcon />&nbsp;{cookbookData.follower_count}
+              </TextVCentred>
+            </Tooltip>
+          </FlexRow>
+          <Box>
             <UserImageNameLink src={cookbookData.author_image}
               name={cookbookData.author_display_name}
               to={`/user/${cookbookData.author_id}`} />
