@@ -4,7 +4,6 @@ import styled from '@emotion/styled';
 import {
   Avatar,
   Box,
-  Button,
   Divider,
   Grid,
   Link,
@@ -29,12 +28,21 @@ const CentredContentContainer = styled(Paper)`
   align-items: center;
   padding: 12px;
   height: 100%;
-`;
-
-const SubsText = styled(CentredContentContainer)`
   text-decoration: none;
   text-align: center;
   font-weight: bold;
+  font-size: 1.5em;
+`;
+
+const StatHeader = styled.h3`
+  font-size: 16pt;
+  margin: 0;
+`;
+
+const StatText = styled.p`
+  font-size: 14pt;
+  font-weight: 400;
+  margin: 0;
 `;
 
 const OneNotification = ({data}) => {
@@ -74,7 +82,6 @@ function DashboardPage () {
     };
     backendRequest('/user/stats', body, 'POST', token, (data) => {
       setUserStats({...data.body});
-      console.log(data.body);
     }, (error) => {
       setResponseError(error);
     });
@@ -112,22 +119,115 @@ function DashboardPage () {
               <Grid item xl={6} lg={12} md={12} sm={12} xs={12}>
                 <CentredContentContainer
                   component={RouterLink} to={`/user/${userId}`}>
-                  <Avatar sx={{ width: 128, height: 128 }} variant="circular" src={userStats.user_image} alt={userStats.display_name} />
+                  <Avatar sx={{ width: 160, height: 160 }} variant="circular"
+                    src={userStats.user_image} alt={userStats.display_name} />
                   <SubPageTitle>{userStats.display_name}</SubPageTitle>
                 </CentredContentContainer>
               </Grid>
               <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
-                <SubsText component={RouterLink} to="/subscriptions">
+                <CentredContentContainer component={RouterLink} to="/subscriptions">
                   {userStats.num_followings} Subscriptions
-                </SubsText>
+                </CentredContentContainer>
               </Grid>
               <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
-                <SubsText component={RouterLink} to="/subscribers">
+                <CentredContentContainer component={RouterLink} to="/subscribers">
                   {userStats.num_followers} Subscribers
-                </SubsText>
+                </CentredContentContainer>
               </Grid>
-              <Grid item xs={12}></Grid>
-              <Grid item xs={12}></Grid>
+              <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
+                <CentredContentContainer component={RouterLink} to="/my-recipes">
+                  <StatHeader>
+                    Recipes
+                  </StatHeader>
+                  <StatText>
+                    Published: {userStats.num_published_recipes}
+                  </StatText>
+                  <StatText>
+                    Total: {userStats.num_recipes}
+                  </StatText>
+                </CentredContentContainer>
+              </Grid>
+              <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
+                <CentredContentContainer component={RouterLink} to="/my-cookbooks">
+                  <StatHeader>
+                    Cook Books
+                  </StatHeader>
+                  <StatText>
+                    Published: {userStats.num_published_cookbooks}
+                  </StatText>
+                  <StatText>
+                    Total: {userStats.num_cookbooks}
+                  </StatText>
+                  <StatText>
+                    Followed: {userStats.num_cookbooks_followed}
+                  </StatText>
+                  <StatText>
+                    Following: {userStats.num_cookbooks_following}
+                  </StatText>
+                </CentredContentContainer>
+              </Grid>
+              <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
+                <CentredContentContainer>
+                  <StatHeader>
+                    Recipe Reviews Recieved
+                  </StatHeader>
+                  <StatText>
+                    Total: {userStats.reviews_received_count}
+                  </StatText>
+                  <StatText>
+                    Average Rating:&nbsp;
+                    {userStats.reviews_received_count === 0 && <>N/A</>}
+                    {userStats.reviews_received_count > 0 && 
+                    parseFloat(userStats.reviews_received_average).toFixed(1)}
+                  </StatText>
+                </CentredContentContainer>
+              </Grid>
+              <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
+                <CentredContentContainer>
+                  <StatHeader>
+                    Recipe Reviews Created
+                  </StatHeader>
+                  <StatText>
+                    Total: {userStats.reviews_received_count}
+                  </StatText>
+                  <StatText>
+                    Average Rating:&nbsp;
+                    {userStats.reviews_made_count === 0 && <>N/A</>}
+                    {userStats.reviews_made_count > 0 && 
+                    parseFloat(userStats.reviews_made_average).toFixed(1)}
+                  </StatText>
+                </CentredContentContainer>
+              </Grid>
+              <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
+                <CentredContentContainer>
+                  <StatHeader>
+                    Recipe Likes
+                  </StatHeader>
+                  <StatText>
+                    You liked {userStats.reciped_liked_by_user} recipes
+                  </StatText>
+                  <StatText>
+                    {userStats.reciped_liked_by_others} users liked your recipes
+                  </StatText>
+                </CentredContentContainer>
+              </Grid>
+              <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
+                <CentredContentContainer>
+                  <StatHeader>
+                    Message Rooms
+                  </StatHeader>
+                  <StatText>
+                    Owner of {userStats.num_message_rooms_owner}
+                    {userStats.num_message_rooms_owner !== 1 && <> rooms</>}
+                    {userStats.num_message_rooms_owner === 1 && <> room</>}
+                  </StatText>
+                  <StatText>
+                    Member of {userStats.num_message_rooms_member}
+                    {userStats.num_message_rooms_member !== 1 && <> rooms</>}
+                    {userStats.num_message_rooms_member === 1 && <> room</>}
+                  </StatText>
+                </CentredContentContainer>
+              </Grid>
             </Grid>
             <Grid item xl={4} lg={6} md={7} sm={8} xs={12}>
               <Paper>

@@ -40,7 +40,7 @@ function SingleMessageRoomPage () {
 
   return (
     <ManageLayout>
-      <Grid item xl={8} lg={12} xs={12}>
+      <Grid item xl={12} lg={12} md={12} sm={12} xs={12}>
         {responseError !== '' &&
         <ErrorAlert message={responseError} setMessage={setResponseError} />}
         {Object.keys(roomData).length > 0 && <>

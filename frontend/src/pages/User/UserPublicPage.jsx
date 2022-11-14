@@ -8,9 +8,7 @@ import {
   FlexColumnNoGap,
   WYSIWYGOutput
 } from '../../components/StyledNodes';
-import {
-  MediumAlternateButton, MediumDefaultButton,
-} from '../../components/Buttons';
+import { MediumAlternateButton } from '../../components/Buttons';
 import {
   UserImg,
   ProfileContainer,

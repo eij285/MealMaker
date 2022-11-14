@@ -6,7 +6,12 @@ import { PasswordInput } from '../../components/InputFields';
 import { CentredPageTitle, CustomLink } from '../../components/TextNodes';
 import { LargeSubmitButton } from '../../components/Buttons';
 import { CentredElementsForm } from '../../components/Forms';
-import { isValidEmail, validatePassword, validatePasswordMatch, backendRequest } from '../../helpers';
+import {
+  isValidEmail,
+  validatePassword,
+  validatePasswordMatch,
+  backendRequest
+} from '../../helpers';
 import { ErrorAlert, SuccessAlert } from '../../components/StyledNodes';
 
 function PasswordResetPage () {
@@ -37,7 +42,7 @@ function PasswordResetPage () {
     e.preventDefault();
     
     if (password !== '' && passwordMessage === '' &&
-        confirm != '' && confirmMessage === '') {
+        confirm !== '' && confirmMessage === '') {
       // send to backend (email, code, password)
       const body = {
         email: email,

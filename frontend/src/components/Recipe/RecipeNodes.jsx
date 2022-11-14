@@ -5,7 +5,7 @@ import FoodBankIcon from '@mui/icons-material/FoodBank';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
-import { FlexRow, FlexRowWrapSpaced, FlexColumn } from '../StyledNodes';
+import { FlexRow, FlexRowWrapSpaced } from '../StyledNodes';
 import {
   MediumGreyText,
   MediumBlackText,
