@@ -21,7 +21,6 @@ import { MediumGreyText, SmallBlackText, SmallGreyText, TextVCentred } from '../
 import { RecipePrepartionTime } from './RecipeNodes';
 import { SmallAlternateButton, SmallDefaultButton } from '../Buttons';
 import { getAverageRating } from '../../helpers';
-import { CheckBox } from '@mui/icons-material';
  
 const RecipeItemActionPanel = styled.div`
   box-shadow: -10px 40px 5px -10px rgba(0,0,0,0.75) inset;

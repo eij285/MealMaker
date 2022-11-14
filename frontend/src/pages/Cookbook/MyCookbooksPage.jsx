@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
-import { PageTitle } from '../../components/TextNodes';
+import { MediumBlackText, PageTitle } from '../../components/TextNodes';
 import {
   ConfirmationDialog,
   FlexColumn,
@@ -18,12 +18,14 @@ import {
 } from '../../components/StyledNodes';
 import { LeftAlignedButton } from '../../components/Buttons';
 import { backendRequest } from '../../helpers';
-import { OwnCookbookItem } from '../../components/Cookbook/CookbookItems';
+import { OwnCookbookItem, CookbookItem } from '../../components/Cookbook/CookbookItems';
 
 function MyCookbooksPage () {
   // TODO: complete this page
   const token = React.useContext(GlobalContext).token;
   const [ownCookbooks, setOwnCookbooks] = React.useState([]);
+  const [followedCookbooks, setFollowedCookbooks] = React.useState([]);
+  const [followingCookbooks, setFollowingCookbooks] = React.useState([]);
 
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [deleteIndex, setDeleteIndex] = React.useState(-1);
@@ -35,6 +37,16 @@ function MyCookbooksPage () {
   const loadCookbooks = () => {
     backendRequest('/cookbook/fetch-own', {}, 'POST', token, (data) => {
       setOwnCookbooks([...data.body]);
+      setFollowedCookbooks([...data.body.filter((c) => c.follower_count > 0)]);
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
+  const loadFollowingCookbooks = () => {
+    backendRequest('/cookbooks/following', {}, 'POST', token, (data) => {
+      setFollowingCookbooks([...data.cookbooks]);
+      console.log(data);
     }, (error) => {
       setResponseError(error);
     });
@@ -71,6 +83,7 @@ function MyCookbooksPage () {
 
   React.useEffect(() => {
     loadCookbooks();
+    loadFollowingCookbooks();
   }, [token]);
 
   React.useEffect(() => {
@@ -93,7 +106,8 @@ function MyCookbooksPage () {
               {ownCookbooks.filter((c) => c.cookbook_status === 'published').length}
             </Typography>
             <Typography>Total: {ownCookbooks.length}</Typography>
-            <Typography>Followed: {1}</Typography>
+            <Typography>Followed: {followedCookbooks.length}</Typography>
+            <Typography>Following: {followingCookbooks.length}</Typography>
           </Box>
           <FlexRow>
             <LeftAlignedButton component={RouterLink} to="/create-cookbook">
@@ -112,6 +126,30 @@ function MyCookbooksPage () {
           </Grid>
           <Divider />
           <PageTitle>Followed Cook Books</PageTitle>
+          <Grid container spacing={2}>
+            {followedCookbooks.length > 0 &&
+            followedCookbooks.map((cookbook, index) => (
+            <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
+              <CookbookItem cookbook={cookbook} showAuthor={false} />
+            </Grid>))}
+            {followedCookbooks.length < 1 &&
+            <Grid item xs={12}>
+              <MediumBlackText>No Followed Cookbooks</MediumBlackText>
+            </Grid>}
+          </Grid>
+          <Divider />
+          <PageTitle>Following Cook Books</PageTitle>
+          <Grid container spacing={2}>
+            {followingCookbooks.length > 0 &&
+            followingCookbooks.map((cookbook, index) => (
+            <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
+              <CookbookItem cookbook={cookbook} showAuthor={true} />
+            </Grid>))}
+            {followingCookbooks.length < 1 &&
+            <Grid item xs={12}>
+              <MediumBlackText>Not Following Any Cookbooks</MediumBlackText>
+            </Grid>}
+          </Grid>
         </FlexColumn>
       </Grid>
       <ConfirmationDialog title="Confirm deletion of:"
