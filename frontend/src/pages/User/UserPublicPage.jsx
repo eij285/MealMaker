@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
-import { Avatar, Backdrop, Badge, Box, Button, CardContent, CardHeader, Grid, IconButton, Typography } from '@mui/material';
+import { Avatar, Backdrop, Badge, Box, Button, CardContent, CardHeader, Divider, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
 import {
@@ -40,7 +40,8 @@ function UserPublicPage () {
   const [recipesList, setRecipesList] = React.useState([]);
   const [responseError, setResponseError] = React.useState('');
   const [isOwnProfile, setIsOwnProfile] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
+  const [followersBackdrop, setFollowersBackdrop] = React.useState(false);
+  const [followingBackdrop, setFollowingBackdrop] = React.useState(false);
 
   const loadRecipes = () => {
     const reqURL = `/recipes/user/published?user_id=${userId}`;
@@ -78,12 +79,19 @@ function UserPublicPage () {
     });
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseFollowersBackdrop = () => {
+    setFollowersBackdrop(false);
   };
-  const handleToggle = () => {
-    setOpen(!open);
+  const handleToggleFollowersBackdrop = () => {
+    setFollowersBackdrop(!followersBackdrop);
   };
+
+  const handleCloseFollowingBackdrop = () => {
+    setFollowingBackdrop(false);
+  }
+  const handleToggleFollowingBackdrop = () => {
+    setFollowingBackdrop(!followingBackdrop);
+  }
 
   React.useEffect(() => {
     loadProfile();
@@ -157,7 +165,12 @@ function UserPublicPage () {
 
   function FollowersButton() {
     return (
-      <Button variant="text" onClick={handleToggle} focusRipple={true} >
+      <Button
+        variant="text"
+        onClick={handleToggleFollowersBackdrop}
+        focusRipple={true}
+        sx={{ mt: 3 }}
+      >
         <Grid container direction={"column"}>
           <Grid item key="FollowerCount">
             <Typography
@@ -190,13 +203,13 @@ function UserPublicPage () {
     return (
       <Backdrop
             sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-            open={open}
-            onClick={handleClose}
+            open={followersBackdrop}
+            onClick={handleCloseFollowersBackdrop}
           >
-            <Card sx={{width: 600}} >
+            <Card sx={{ maxHeight: 600, width: 600}}>
               <CardHeader
                 action={
-                  <IconButton on={handleClose}>
+                  <IconButton on={handleCloseFollowersBackdrop}>
                     <CloseIcon/>
                   </IconButton>
                 }
@@ -205,31 +218,103 @@ function UserPublicPage () {
                   <Typography variant='h4' fontWeight={800}>Followers</Typography>
                 } 
               />
+              <Divider />
               <CardContent>
-              <Grid container direction={"column"}>
-                {userProfile.followers.map((follower, index) => (
-                  <Grid item key={index}>
-                    <Button component={RouterLink} to={`/user/${follower.id}`}>
-                      <Grid container direction={"row"} spacing={2} alignItems="center">
-                        <Grid item key="FollowerImage">
-                          <Avatar src={follower.base64_image} sx={{height: 60, width: 60}} />
-                        </Grid>
-                        <Grid item key="FollowerDisplayName">
-                          <Typography
-                            color={"#000000"}
-                            component="h3"
-                            variant="h6"
-                            fontWeight={300}
-                            textTransform="none"
-                          >
-                            {follower.display_name}
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Button>
-                  </Grid>
-                ))}
-              </Grid>
+                <List>
+                  {userProfile.followers.map((follower, index) => (
+                    <ListItem
+                      secondaryAction={
+                        <Button variant="outlined" color="error">
+                          Remove
+                        </Button>
+                      }
+                    >
+                      <ListItemAvatar sx={{ mx: 2 }}>
+                        <Avatar src={follower.base64_image} sx={{height: 60, width: 60}} />
+                      </ListItemAvatar>
+                      <ListItemText primary={follower.display_name} />
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Backdrop>
+    );
+  }
+
+  function FollowingButton() {
+    return (
+      <Button
+        variant="text"
+        onClick={handleToggleFollowingBackdrop}
+        focusRipple={true}
+        sx={{ mt: 3 }}
+      >
+        <Grid container direction={"column"}>
+          <Grid item key="FollowingCount">
+            <Typography
+              align="center"
+              color={"#000000"}
+              component="h2"
+              variant="h5"
+              fontWeight={600}
+            >
+              { userProfile.num_following }
+            </Typography>
+          </Grid>
+          <Grid item key="FollowingHeading">
+            <Typography
+              color={"#000000"}
+              component="h2"
+              variant="h5"
+              fontWeight={300}
+              textTransform="none"
+            >
+              Following
+            </Typography>
+          </Grid>
+        </Grid>
+      </Button>
+    )
+  }
+
+  function FollowingBackdropCard() {
+    return (
+      <Backdrop
+            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={followingBackdrop}
+            onClick={handleCloseFollowingBackdrop}
+          >
+            <Card sx={{ maxHeight: 600, width: 600}}>
+              <CardHeader
+                action={
+                  <IconButton on={handleCloseFollowingBackdrop}>
+                    <CloseIcon/>
+                  </IconButton>
+                }
+                align="center"
+                title={
+                  <Typography variant='h4' fontWeight={800}>Following</Typography>
+                } 
+              />
+              <Divider />
+              <CardContent>
+                <List>
+                  {userProfile.following.map((following, index) => (
+                    <ListItem
+                      secondaryAction={
+                        <Button variant="outlined" color="error">
+                          Unfollow
+                        </Button>
+                      }
+                    >
+                      <ListItemAvatar sx={{ mx: 2 }}>
+                        <Avatar src={following.base64_image} sx={{height: 60, width: 60}} />
+                      </ListItemAvatar>
+                      <ListItemText primary={following.display_name} />
+                    </ListItem>
+                  ))}
+                </List>
               </CardContent>
             </Card>
           </Backdrop>
@@ -273,14 +358,8 @@ function UserPublicPage () {
           <FollowersBackdropCard />
         </Grid>
         <Grid item key="Following">
-         <Link href='/following' color={"#000000"} underline="hover">
-           <Typography align="center" component="h2" variant="h5" fontWeight={600}>
-             { userProfile.num_following }
-           </Typography>
-           <Typography component="h2" variant="h5" fontWeight={300}>
-             Following
-           </Typography>
-          </Link>
+          <FollowingButton />
+          <FollowingBackdropCard />
         </Grid>
       </Grid>
       </ProfileContainer>}      
