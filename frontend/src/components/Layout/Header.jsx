@@ -171,9 +171,9 @@ function Header ({ incSearch, incButtons }) {
           </HeaderButton>
           </>}
           {incButtons && token && <>
-          <HeaderButton component={RouterLink} to="/user-profile">
+          <HeaderButton component={RouterLink} to="/dashboard">
             <AccountCircleIcon />
-            <HeaderButtonTypo>My Profile</HeaderButtonTypo>
+            <HeaderButtonTypo>Dashboard</HeaderButtonTypo>
           </HeaderButton>
           <LogoutButton />
           </>}

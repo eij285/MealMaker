@@ -2,6 +2,7 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import styled from '@emotion/styled';
 import {
+  Avatar,
   Box,
   Button,
   Divider,
@@ -18,17 +19,22 @@ import {
   ErrorAlert,
   SuccessAlert
 } from '../components/StyledNodes';
-import { backendRequest, shortDateTimeString } from '../helpers';
-import {
-  CreateEditCookbookForm
-} from '../components/Cookbook/CookbookNodes';
-import {
-  CookbookScrollerRecipeItem,
-  OwnCookbookRecipeItem
-} from '../components/Recipe/RecipeItems';
+import { backendRequest, shortDateTimeString, tokenToUserId } from '../helpers';
 
-const SubsContainer = styled(Paper)`
+const CentredContentContainer = styled(Paper)`
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  height: 100%;
+`;
 
+const SubsText = styled(CentredContentContainer)`
+  text-decoration: none;
+  text-align: center;
+  font-weight: bold;
 `;
 
 const OneNotification = ({data}) => {
@@ -56,9 +62,23 @@ const OneNotification = ({data}) => {
 
 function DashboardPage () {
   const token = React.useContext(GlobalContext).token;
+  const userId = tokenToUserId(token);
+  const [userStats, setUserStats] = React.useState({});
   const [notifications, setNotifications] = React.useState([]);
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
+
+  const loadUserStats = () => {
+    const body = {
+      user_id: userId
+    };
+    backendRequest('/user/stats', body, 'POST', token, (data) => {
+      setUserStats({...data.body});
+      console.log(data.body);
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
 
   const loadNotifications = () => {
     backendRequest('/notifications/fetch-all', {}, 'POST', token, (data) => {
@@ -69,6 +89,7 @@ function DashboardPage () {
   };
 
   React.useEffect(() => {
+    loadUserStats();
     loadNotifications();
   }, [token]);
 
@@ -87,15 +108,26 @@ function DashboardPage () {
           {responseError !== '' &&
           <ErrorAlert message={responseError} setMessage={setResponseError} />}
           <Grid container spacing={2}>
-            <Grid item xl={8} lg={6} md={5} sm={4} xs={12}>
-              <FlexColumn>
-                <SubsContainer component={RouterLink} to="/subscriptions">
-                  Subscriptions
-                </SubsContainer>
-                <SubsContainer component={RouterLink} to="/subscribers">
-                  Subscribers
-                </SubsContainer>
-              </FlexColumn>
+            <Grid container spacing={2} item xl={8} lg={6} md={5} sm={4} xs={12}>
+              <Grid item xl={6} lg={12} md={12} sm={12} xs={12}>
+                <CentredContentContainer
+                  component={RouterLink} to={`/user/${userId}`}>
+                  <Avatar sx={{ width: 128, height: 128 }} variant="circular" src={userStats.user_image} alt={userStats.display_name} />
+                  <SubPageTitle>{userStats.display_name}</SubPageTitle>
+                </CentredContentContainer>
+              </Grid>
+              <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
+                <SubsText component={RouterLink} to="/subscriptions">
+                  {userStats.num_followings} Subscriptions
+                </SubsText>
+              </Grid>
+              <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
+                <SubsText component={RouterLink} to="/subscribers">
+                  {userStats.num_followers} Subscribers
+                </SubsText>
+              </Grid>
+              <Grid item xs={12}></Grid>
+              <Grid item xs={12}></Grid>
             </Grid>
             <Grid item xl={4} lg={6} md={7} sm={8} xs={12}>
               <Paper>

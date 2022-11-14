@@ -1292,7 +1292,6 @@ def cookbooks_following(token):
             """)
         cur.execute(query, (follower_id,))
         output = cur.fetchall()
-        print(output)
         cookbook_list = []
         for cookbook in output:
             # need average but json in flask doesn't like decimal data

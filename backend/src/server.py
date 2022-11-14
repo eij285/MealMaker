@@ -10,7 +10,7 @@ from backend_helper import database_reset, database_populate
 from user import user_preferences, user_update, user_info, \
                  user_update_preferences, user_subscribe, user_unsubscribe, \
                  user_get_followers, user_get_following, user_get_profile, \
-                 get_users
+                 get_users, user_stats
 from recipe import recipe_create, recipe_publish, recipe_edit, recipe_update, \
                    recipe_clone, recipe_delete, recipes_fetch_own, \
                    recipes_user_published, recipe_details, recipe_like, \
@@ -135,14 +135,12 @@ def update_user_preferences():
 def get_user_details():
     payload = request.get_json()
     token = payload['token']
-    
     return dumps(user_info(token))
 
 @APP.route('/user/preferences', methods=['POST'])
 def get_user_preferences():
     payload = request.get_json()
     token = payload['token']
-    
     return dumps(user_preferences(token))
 
 @APP.route('/user/subscribe', methods=['PUT'])
@@ -150,7 +148,6 @@ def subscribe():
     payload = request.get_json()
     token = payload['token']
     subscribe_to = payload['id']
-    
     return dumps(user_subscribe(token, subscribe_to))
 
 @APP.route('/user/unsubscribe', methods=['POST'])
@@ -158,34 +155,48 @@ def unsubscribe():
     payload = request.get_json()
     token = payload['token']
     unsubscribe_to = payload['id']
-    
     return dumps(user_unsubscribe(token, unsubscribe_to))
 
-@APP.route('/user/get/subscribers', methods=['POST'])
+@APP.route('/user/get/subscribers', methods=['GET'])
 def get_subscribers():
-    payload = request.get_json()
-    token = payload['token']
-    
-    return dumps(user_get_followers(token))
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(user_get_followers(user_id))
 
-@APP.route('/user/get/subscriptions', methods=['POST'])
+@APP.route('/user/get/subscriptions', methods=['GET'])
 def get_subscriptions():
-    payload = request.get_json()
-    token = payload['token']
-    
-    return dumps(user_get_following(token))
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(user_get_following(user_id))
 
 @APP.route('/user/get/profile', methods=['POST'])
 def get_profile():
     payload = request.get_json()
     token = payload['token']
     id = payload['id']
-    
     return dumps(user_get_profile(token, id))
 
 @APP.route('/user/get/users', methods=['POST'])
 def users_get():    
     return dumps(get_users())
+
+@APP.route('/user/stats', methods=['GET', 'POST'])
+def stats_for_user():
+    if request.method == 'POST':
+        data = request.get_json()
+        token = data['token']
+        user_id = data['user_id']
+    else:
+        if 'user_id' in request.args:
+            user_id = request.args.get('user_id')
+        else:
+            user_id = -1
+        token = None
+    return dumps(user_stats(user_id, token))
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
@@ -551,30 +562,6 @@ def fetch_all_notifications():
     data = request.get_json()
     token = data['token']
     return notifications_fetch_all(token)
-    
-
-# @APP.route('/recipe/publish', methods=['PUT'])
-# def publish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "t"))
-
-# @APP.route('/recipe/unpublish', methods=['PUT'])
-# def unpublish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "f"))
 
 
 @APP.route('/reset', methods=['GET'])

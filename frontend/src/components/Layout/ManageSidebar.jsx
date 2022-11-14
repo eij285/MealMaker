@@ -17,9 +17,8 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import SettingsIcon from '@mui/icons-material/Settings';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
-import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import MessageIcon from '@mui/icons-material/Message';
+import SpeedIcon from '@mui/icons-material/Speed';
 import StoreIcon from '@mui/icons-material/Store';
 
 const drawerWidth = 240;
@@ -155,7 +154,7 @@ export default function ManageSidebar() {
       </SidebarToggle>
       <Divider />
       <List sx={{ paddingTop: 0 }}>
-        <SidebarItem to="/dashboard" text="Dashboard" open={open} icon={<FoodBankIcon />} />
+        <SidebarItem to="/dashboard" text="Dashboard" open={open} icon={<SpeedIcon />} />
         <SidebarItem to="/my-recipes" text="My Recipes" open={open} icon={<FoodBankIcon />} />
         <SidebarItem to="/my-cookbooks" text="Cook Books" open={open} icon={<MenuBookIcon />} />
         <SidebarItem to="/message-rooms" text="Message Rooms" open={open} icon={<MessageIcon />} />
