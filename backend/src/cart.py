@@ -145,18 +145,66 @@ def cart_add_by_id(ingr_id, token):
         u_id = token_valid
     
     # Get ingredient from recipe
-    sql_query = "SELECT ingredient_name, quantity, unit FROM recipe_ingredients WHERE ingredient_id = %s;"
+    sql_query = "SELECT ingredient_name, quantity, unit FROM \
+                 recipe_ingredients WHERE ingredient_id = %s;"
+    cur.execute(sql_query, (ingr_id,))
+
+    sql_result = cur.fetchall()
+
+    if not sql_result:
+        return {
+            'status_code': 400,
+            'error': 'Invalid recipe_ingredient_id'
+        }
+
+    name, quantity, unit = sql_result
+
+    # Check if cart is active
+    sql_query = "SELECT cart_id FROM shopping_carts WHERE cart_status = \
+                 'active' AND owner_id = $s;"
+    cur.execute(sql_query, (u_id,))
+
+    sql_result = cur.fetchall()
+
+    # If not active, activate a new cart
+    if not sql_result:
+        sql_query = "INSERT INTO shopping_carts(owner_id) VALUES (%s) \
+                     RETURNING cart_id;"
+        cur.execute(sql_query, (u_id,))
+
+        cart_id = cur.fetchone()[0]
+
+    # Otherwise, set the cart_id from sql_query results
+    else:
+        cart_id, = sql_result[0]
+
+    # Insert into cart items
+    cart_items = recipe_item_to_cart(name, quantity, unit)
+    ingredients_body_content = []
+
+    for item in cart_items:
+        sql_query = "INSERT INTO cart_items(ingredient_name, \
+                     ingredient_quantity, ingredient_cost, unit_type, cart_id) \
+                     VALUES (%s, %s, %s, %s) RETURNING item_id;"
+        cur.execute(sql_query, (item['item_name'], item['unit_quantity'], \
+                    item['item_cost'], item['unit_type'], cart_id))
+        
+        item_id = cur.fetchone()[0]
+
+        ingredients_body_content.append({
+            'item_id': item_id,
+            'item_name': item['item_name'],
+            'unit_type': item['unit_type'],
+            'unit_quantity': item['unit_quantity'],
+            'item_quantity': 1,
+            'item_cost': item['item_cost']
+        })
 
     return {
         'status_code': 200,
         'body': {
             'cart_id': 12,
-            'item_id': 4,
-            'item_name': 'D\'orsogna Middle Bacon Per Kg',
-            'unit_type': 'kg',
-            'unit_quantity': 1,
-            'item_quantity': 2,
-            'item_cost': 28.00
+            'ingredients': ingredients_body_content
         }
     }
 
