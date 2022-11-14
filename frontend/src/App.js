@@ -13,6 +13,7 @@ import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
 import PasswordResetPage from './pages/Auth/PasswordResetPage';
+import DashboardPage from './pages/DashboardPage';
 import UserProfilePage from './pages/User/UserProfilePage';
 import UpdatePasswordPage from './pages/Auth/UpdatePasswordPage';
 import UserPreferencesPage from './pages/User/UserPreferencesPage';
@@ -53,6 +54,7 @@ function App() {
             <Route path="/search" order={0} element={<SearchPage />} />
             <Route path="/search/:query" order={1} element={<SearchPage />} />
             <Route element={<AuthorisedRoute />}>
+              <Route exact path="/dashboard" element={<DashboardPage />} />
               <Route exact path="/user-profile" element={<UserProfilePage />} />
               <Route exact path="/update-password" element={<UpdatePasswordPage />} />
               <Route exact path="/user-preferences" element={<UserPreferencesPage />} />

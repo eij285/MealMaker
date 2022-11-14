@@ -72,7 +72,7 @@ const CookbookItemBottomPanel = styled(Paper)`
 `;
 
 export const OwnCookbookItem = ({data, index, setDeleteIndex, setDialogOpen,
-  setDeleteDesciption}) => {
+  setDeleteDesciption, publishToggle}) => {
   const handleDelete = () => {
     setDeleteIndex(index);
     setDialogOpen(true);
@@ -105,7 +105,7 @@ export const OwnCookbookItem = ({data, index, setDeleteIndex, setDialogOpen,
           <SmallDefaultButton component={RouterLink} to={`/cookbook/${data.cookbook_id}`}>
             View
           </SmallDefaultButton>
-          <SmallAlternateButton>
+          <SmallAlternateButton onClick={() => publishToggle(index)}>
             {data.cookbook_status === 'draft' && <>Publish</>}
             {data.cookbook_status === 'published' && <>Unpublish</>}
           </SmallAlternateButton>

@@ -89,7 +89,7 @@ def recipe_create(name, description, servings, recipe_status, token):
     }
 
 def recipe_publish(recipe_id, publish_status, token):
-    """Create a new recipe (token must be valid)
+    """Publish or unpublish recipe (token must be valid)
     
     Args:
         recipe_id   (Integer): the recipe id to publish/unpublish

@@ -26,7 +26,9 @@ from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
                         cookbook_fetch_own, cookbook_update, cookbook_view, \
                         cookbooks_user_published, cookbook_subscribe, \
                         cookbook_unsubscribe, cookbook_add_recipe, \
-                        cookbook_remove_recipe
+                        cookbook_remove_recipe, cookbook_all_recipes, \
+                        cookbook_publish
+from notifications import notifications_fetch_all
 
 APP = Flask(__name__)
 CORS(APP)
@@ -281,6 +283,13 @@ def edit_cookbook():
     cookbook_id = data['cookbook_id']
     return dumps(cookbook_edit(cookbook_id, token))
 
+@APP.route('/cookbook/all-recipes', methods=['POST'])
+def all_recipes_for_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_all_recipes(cookbook_id, token))
+
 @APP.route('/cookbook/update', methods=['POST'])
 def update_cookbook():
     data = request.get_json()
@@ -352,6 +361,20 @@ def recipe_remove_cookbook():
     cookbook_id = payload['cookbook_id']
     recipe_id = payload['recipe_id']
     return dumps(cookbook_remove_recipe(token, cookbook_id, recipe_id))
+
+@APP.route('/cookbook/publish', methods=['PUT'])
+def publish_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_publish(cookbook_id, 'published', token))
+
+@APP.route('/cookbook/unpublish', methods=['PUT'])
+def unpublish_cookbook():
+    data = request.get_json()
+    token = data['token']
+    cookbook_id = data['cookbook_id']
+    return dumps(cookbook_publish(cookbook_id, 'draft', token))
 
 @APP.route('/recipe/like', methods=['POST'])
 def like_recipe():
@@ -516,6 +539,13 @@ def message_rooms_fetch_details():
     token = data['token']
     room_id = data['room_id']
     return fetch_room_details(room_id, token)
+
+@APP.route('/notifications/fetch-all', methods=['POST'])
+def fetch_all_notifications():
+    data = request.get_json()
+    token = data['token']
+    return notifications_fetch_all(token)
+    
 
 # @APP.route('/recipe/publish', methods=['PUT'])
 # def publish_recipe():
