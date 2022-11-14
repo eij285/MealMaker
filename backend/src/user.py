@@ -1125,33 +1125,138 @@ def user_stats(user_id, token):
         cur.execute(query, (user_id,))
         num_followings, = cur.fetchone()
 
+        query = """
+            SELECT COUNT(*) FROM recipes WHERE recipe_status = 'published'
+            AND owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        num_published_recipes, = cur.fetchone()
+
+        query = "SELECT COUNT(*) FROM recipes WHERE owner_id = %s"
+        cur.execute(query, (user_id,))
+        num_recipes, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(*) FROM cookbooks WHERE cookbook_status = 'published'
+            AND owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        num_published_cookbooks, = cur.fetchone()
+
+        query = "SELECT COUNT(*) FROM cookbooks WHERE owner_id = %s"
+        cur.execute(query, (user_id,))
+        num_cookbooks, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(*) FROM cookbooks WHERE cookbook_status = 'published'
+            AND owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        num_published_cookbooks, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(DISTINCT c.cookbook_id) FROM cookbooks c
+            JOIN cookbook_followers f
+            ON (f.cookbook_id = c.cookbook_id)
+            WHERE c.owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        num_cookbooks_followed, = cur.fetchone()
+
+        query = "SELECT COUNT(*) FROM cookbook_followers WHERE follower_id = %s"
+        cur.execute(query, (user_id,))
+        num_cookbooks_following, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(v.*), AVG(v.rating) FROM recipe_reviews v 
+            JOIN recipes r ON (r.recipe_id = v.recipe_id)
+            WHERE r.owner_id = %s"""
+        cur.execute(query, (user_id,))
+        reviews_received_result = cur.fetchone()
+        reviews_received_count = reviews_received_result[0]
+        reviews_received_average = \
+            '0.0' if reviews_received_result[1] is None else reviews_received_result[1]
+
+        query = "SELECT COUNT(*), AVG(rating) FROM recipe_reviews WHERE user_id = %s"
+        cur.execute(query, (user_id,))
+        reviews_made_result = cur.fetchone()
+        reviews_made_count = reviews_made_result[0]
+        reviews_made_average = \
+            '0.0' if reviews_made_result[1] is None else reviews_made_result[1]
+
+        query = """
+            SELECT COUNT(DISTINCT recipe_id) FROM recipe_user_likes
+            WHERE user_id = %s
+            """
+        cur.execute(query, (user_id,))
+        reciped_liked_by_user, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(DISTINCT l.user_id) FROM recipe_user_likes l
+            JOIN recipes r ON (r.recipe_id = l.recipe_id)
+            WHERE r.owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        reciped_liked_by_others, = cur.fetchone()
+
         # check if current user is anonymous or another user requesting private
         # user information
         query = "SELECT id FROM users WHERE token = %s"
         cur.execute(query, (str(token),))
         cur_user_id, = cur.fetchone()
-        if not token or cur_user_id != int(user_id):
-            return {
-                'status_code': 200,
-                'body': {
-                    'display_name': display_name,
-                    'user_image': user_image,
-                    'num_followers': num_followers,
-                    'num_followings': num_followings
-                }
-            }
-        # private info only from this point forward 
 
+        stats_data = {
+            'status_code': 200,
+            'body': {
+                'display_name': display_name,
+                'user_image': user_image,
+                'num_followers': num_followers,
+                'num_followings': num_followings,
+                'num_published_recipes': num_published_recipes,
+                'num_recipes': num_recipes,
+                'num_published_cookbooks': num_published_cookbooks,
+                'num_cookbooks': num_cookbooks,
+                'num_cookbooks_followed': num_cookbooks_followed,
+                'num_cookbooks_following': num_cookbooks_following,
+                'reviews_received_count': reviews_received_count,
+                'reviews_received_average': reviews_received_average,
+                'reviews_made_count': reviews_made_count,
+                'reviews_made_average': reviews_made_average,
+                'reciped_liked_by_user': reciped_liked_by_user,
+                'reciped_liked_by_others': reciped_liked_by_others
+            }
+        }
+        if not token or cur_user_id != int(user_id):
+            cur.close()
+            conn.close()
+            return stats_data
+            
+        # private info only from this point forward
+        query = "SELECT COUNT(*) FROM message_room_owners WHERE owner_id = %s"
+        cur.execute(query, (user_id,))
+        num_message_rooms_owner, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(*) FROM message_room_members
+            WHERE member_id NOT IN (
+                SELECT owner_id FROM message_room_owners WHERE owner_id = %s
+            ) AND member_id = %s
+            """
+        cur.execute(query, (user_id, user_id))
+        num_message_rooms_member, = cur.fetchone()
+
+
+        stats_data['body']['num_message_rooms_owner'] = num_message_rooms_owner
+        stats_data['body']['num_message_rooms_member'] = num_message_rooms_member
+
+        cur.close()
+        conn.close()
     except:
         cur.close()
         conn.close()
-
-    return {
-        'status_code': 200,
-        'body': {
-            'display_name': display_name,
-            'user_image': user_image,
-            'num_followers': num_followers,
-            'num_followings': num_followings
+        return {
+            'status_code': 404,
+            'error': 'could not fetch user stats'
         }
-    }
+
+    return stats_data

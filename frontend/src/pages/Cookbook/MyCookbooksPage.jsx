@@ -46,7 +46,6 @@ function MyCookbooksPage () {
   const loadFollowingCookbooks = () => {
     backendRequest('/cookbooks/following', {}, 'POST', token, (data) => {
       setFollowingCookbooks([...data.cookbooks]);
-      console.log(data);
     }, (error) => {
       setResponseError(error);
     });
