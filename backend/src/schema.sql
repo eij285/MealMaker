@@ -8,11 +8,11 @@ DROP TABLE IF EXISTS recipe_reviews_votes;
 DROP TABLE IF EXISTS recipe_reviews;
 DROP TABLE IF EXISTS recipe_ingredients;
 DROP TABLE IF EXISTS recipes;
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS payment_methods;
 DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS shopping_carts;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS payment_methods;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -157,7 +157,7 @@ CREATE TABLE shopping_carts (
 
 CREATE TABLE cart_items (
     item_id         SERIAL,
-    ingredient_name VARCHAR(30) NOT NULL,
+    ingredient_name VARCHAR(100) NOT NULL,
     ingredient_quantity INTEGER NOT NULL,
     ingredient_cost MONEY NOT NULL,
     unit_type       VARCHAR(10) NOT NULL,
@@ -166,18 +166,6 @@ CREATE TABLE cart_items (
     FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE,
     CONSTRAINT valid_unit_type CHECK (unit_type in ('litres', 'ml', 'grams', 'kg', 'cups', 'tbsp', 'tsp', 'pieces'))
 );
-
-CREATE TABLE order_items {
-    item_id         SERIAL,
-    ingredient_name VARCHAR(30) NOT NULL,
-    ingredient_quantity INTEGER NOT NULL,
-    ingredient_cost MONEY NOT NULL,
-    unit_type       VARCHAR(10) NOT NULL,
-    order_id        INTEGER NOT NULL,
-    PRIMARY KEY (item_id),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
-    CONSTRAINT valid_unit_type CHECK (unit_type in ('litres', 'ml', 'grams', 'kg', 'cups', 'tbsp', 'tsp', 'pieces'))
-}
 
 CREATE TABLE payment_methods (
     method_id       SERIAL,
@@ -193,7 +181,6 @@ CREATE TABLE payment_methods (
 CREATE TABLE orders (
     order_id        SERIAL,
     order_number    CHAR(10) NOT NULL UNIQUE,
-    cart_id         INTEGER NOT NULL,
     placed_on       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     completed_on    TIMESTAMP,
     order_status    VARCHAR(10) NOT NULL DEFAULT ('pending'),
@@ -202,7 +189,18 @@ CREATE TABLE orders (
     delivery_address TEXT NOT NULL,
     payment_amount  MONEY NOT NULL,
     PRIMARY KEY (order_id),
-    FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE,
     FOREIGN KEY (payment_method_id) REFERENCES payment_methods(method_id) ON DELETE CASCADE,
     CONSTRAINT valid_order_status CHECK (order_status in ('pending', 'processing', 'approved', 'completed'))
+);
+
+CREATE TABLE order_items (
+    item_id         SERIAL,
+    ingredient_name VARCHAR(100) NOT NULL,
+    ingredient_quantity INTEGER NOT NULL,
+    ingredient_cost MONEY NOT NULL,
+    unit_type       VARCHAR(10) NOT NULL,
+    order_id        INTEGER NOT NULL,
+    PRIMARY KEY (item_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    CONSTRAINT valid_unit_type CHECK (unit_type in ('litres', 'ml', 'grams', 'kg', 'cups', 'tbsp', 'tsp', 'pieces'))
 );
