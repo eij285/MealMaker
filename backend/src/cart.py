@@ -651,9 +651,10 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
 
     # Create new order
     sql_query = "INSERT INTO orders(order_number, payment_method_id, \
-                 delivery_time, delivery_address, payment_amount) \
-                 VALUES (%s, %s, %s, %s, %s) RETURNING order_id;"
-    cur.execute(sql_query, (order_no, m_id, deliver_by, deliver_loc, 0))
+                 delivery_time, delivery_address, payment_amount, owner_id) \
+                 VALUES (%s, %s, %s, %s, %s, %s) RETURNING order_id;"
+    cur.execute(sql_query, (order_no, m_id, deliver_by, deliver_loc, '0', \
+                str(u_id)))
     
     order_id, = cur.fetchone()[0]
 
@@ -694,61 +695,132 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
     }
 
 def cart_fetch_past_orders_all(token):
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    # Verify token
+    token_valid = verify_token(token)
+    if not token_valid:
+        return {
+            'status_code': 401,
+            'error': 'Invalid token'
+        }
+    else:
+        u_id = token_valid
+
+    # Get all orders
+    sql_query = "SELECT order_id, order_number, placed_on, payment_amount, \
+                 order_status FROM orders WHERE owner_id = %s;"
+    cur.execute(sql_query, (str(u_id),))
+
+    sql_result = cur.fetchall()
+
+    body_content = []
+    for result in sql_result:
+        order_id, order_number, placed_on, payment_amount, order_status = result
+
+        body_content.append({
+            'order_id': order_id,
+            'order_number': order_number,
+            'placed_on': placed_on,
+            'payment_amount': payment_amount,
+            'order_status': order_status
+        })
+
     return {
         'status_code': 200,
-        'body': [
-            {
-                'order_id': 1,
-                'order_number': 'CDE_CFSsomeRandOmStr1ng',
-                'payment_amount': 120.50,
-                'order_status': 'completed'
-            },
-            {
-                'order_id': 2,
-                'order_number': 'CDE_CFSsomeRand0mStr2ng',
-                'payment_amount': 88.45,
-                'order_status': 'pending'
-            }
-        ]
+        'body': body_content
     }
 
 def cart_fetch_past_order_details(order_id, token):
-    placed = datetime.now(tz=timezone.utc)
-    completed = datetime.now(tz=timezone.utc) + timedelta(days=3)
-    delivery = datetime.now(tz=timezone.utc) + timedelta(days=14)
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    # Verify token
+    token_valid = verify_token(token)
+    if not token_valid:
+        return {
+            'status_code': 401,
+            'error': 'Invalid token'
+        }
+    else:
+        u_id = token_valid
+
+    # Get order details
+    sql_query = "SELECT * FROM orders WHERE order_id = %s AND owner_id = %s;"
+    cur.execute(sql_query, (str(order_id), str(u_id)))
+    
+    sql_result = cur.fetchall()
+
+    if not sql_result:
+        return {
+            'status_code': 400,
+            'error': 'Order does not belong to user'
+        }
+
+    _, order_number, placed_on, completed_on, order_status, payment_method_id, \
+            delivery_time, delivery_address, payment_amount = sql_result[0]
+    
+    # Get order item details
+    sql_query = "SELECT * FROM order_items WHERE order_id = %s;"
+    cur.execute(sql_query, (str(order_id),))
+
+    sql_result = cur.fetchall()
+
+    items_body_content = []
+
+    for result in sql_result:
+        item_id, ingredient_name, ingredient_quantity, ingredient_cost, \
+                unit_type, item_quantity, _ = result
+
+        items_body_content.append({
+            'item_id': item_id,
+            'item_name': ingredient_name,
+            'unit_type': unit_type,
+            'unit_quantity': ingredient_quantity,
+            'item_quantity': item_quantity,
+            'item_cost': ingredient_cost
+        })
+
+    # Get payment details
+    sql_query = "SELECT cardholder_name, card_number, expiration_date, cvv \
+                 FROM payment_methods WHERE method_id = %s;"
+    cur.execute(sql_query, (str(payment_method_id),))
+
+    card_name, card_number, card_cvv, card_exp_date = cur.fetchone()[0]
+
 
     return {
-        'order_id': 3,
-        'order_number': 'CDE_CFSsomeRand0mStr3ng',
-        # 'cart_id': 5,
-        'placed_on': placed,
-        'completed_on': completed,
-        'order_status': 'pending',
-        'payment_method_id': 3,
-        'delivery_time': delivery,
-        'payment_amount': 123.50,
-        'items': [
-            {
-                'item_id': 3,
-                'item_name': 'Apple Royal Gala',
-                'unit_type': 'pieces',
-                'unit_quantity': 1,
-                'item_quantity': 2,
-                'item_cost': 1.56
-            },
-            {
-                'item_id': 4,
-                'item_name': 'D\'orsogna Middle Bacon Per Kg',
-                'unit_type': 'kg',
-                'unit_quantity': 1,
-                'item_quantity': 2,
-                'item_cost': 28.00
-            }
-        ],
-        'card_name': 'Person A',
-        'card_number': 4023546912302424,
-        'card_cvv': 412,
-        'card_exp_date': '12/30'
+        'order_id': order_id,
+        'order_number': order_number,
+        'placed_on': placed_on,
+        'completed_on': completed_on,
+        'order_status': order_status,
+        'payment_method_id': payment_method_id,
+        'delivery_time': delivery_time,
+        'delivery_address': delivery_address,
+        'payment_amount': payment_amount,
+        'items': items_body_content,
+        'card_name': card_name,
+        'card_number': card_number,
+        'card_cvv': card_cvv,
+        'card_exp_date': card_exp_date
     }
 
 if __name__ == "__main__":

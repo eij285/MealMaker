@@ -198,6 +198,7 @@ CREATE TABLE orders (
     delivery_time   TIMESTAMP NOT NULL,
     delivery_address TEXT NOT NULL,
     payment_amount  MONEY NOT NULL,
+    owner_id        INTEGER NOT NULL,
     PRIMARY KEY (order_id),
     FOREIGN KEY (payment_method_id) REFERENCES payment_methods(method_id) ON DELETE CASCADE,
     CONSTRAINT valid_order_status CHECK (order_status in ('pending', 'processing', 'approved', 'completed'))
