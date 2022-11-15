@@ -79,6 +79,20 @@ function UserPublicPage () {
     });
   };
 
+  const unfollowUser = (user) => {
+    const reqURL = `/user/${user.is_subscribed?'unsubscribe':'subscribe'}`;
+    const reqMethod = user.is_subscribed ? 'POST' : 'PUT';
+    const body = {
+      id: user.id
+    };
+
+    backendRequest(reqURL, body, reqMethod, token, () => {
+      loadProfile();
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
   const handleCloseFollowersBackdrop = () => {
     setFollowersBackdrop(false);
   };
@@ -303,7 +317,11 @@ function UserPublicPage () {
                   {userProfile.following.map((following, index) => (
                     <ListItem
                       secondaryAction={
-                        <Button variant="outlined" color="error">
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          onClick={subscribeToUser}
+                        >
                           Unfollow
                         </Button>
                       }
