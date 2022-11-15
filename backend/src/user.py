@@ -6,7 +6,26 @@ import re
 from config import DB_CONN_STRING
 
 def user_update(token, given_names, surname, display_name, email, about_me, country, visibility, pronoun, picture):
-    """updates user details"""
+    """Updates user details
+
+    Args:
+        token               (String): token of authenticated user
+        given_name          (String)
+        surname             (String)
+        dsiplay_name        (String)
+        email               (String)
+        about_me            (String)
+        country             (String)
+        visibility          (String)
+        pronoun             (String)
+        picture             (String)
+        
+    Returns:
+        Status 200 - successful change of user details
+        Status 400 - empty fields
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
     if email is None or display_name is None:
         return {
             'status_code': 400,
@@ -26,7 +45,33 @@ def user_update(token, given_names, surname, display_name, email, about_me, coun
     return output
 
 def user_update_preferences(token, units, efficiency, breakfast, lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free, soy_free):
-    """updates user preferences"""
+    """Updates user preferences
+
+    Args:
+        token               (String): token of authenticated user
+        units               (String)
+        efficiency          (String)
+        breakfast           (Boolean)
+        lunch               (Boolean)
+        dinner              (Boolean)
+        snack               (Boolean)
+        vegetarian          (Boolean)
+        vegan               (Boolean)
+        kosher              (Boolean)
+        halal               (Boolean)
+        dairy_free          (Boolean)
+        gluten_free         (Boolean)
+        nut_free            (Boolean)
+        egg_free            (Boolean)
+        shellfish_free      (Boolean)
+        soy_free            (Boolean)
+
+    Returns:
+        Status 200 - successful change of user perferences
+        Status 400 - empty fields or invalid fields
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
     output = {}
     output["status_code"] = 200
     output["units"] = user_update_units(token, units)
@@ -36,6 +81,21 @@ def user_update_preferences(token, units, efficiency, breakfast, lunch, dinner, 
 
 def user_info(token):
     """retrieves users information for his update page
+    Args:
+        token               (String): token of authenticated user        
+    Returns:
+        Status 200 - body containing dictionary with fields
+            given_name          (String)
+            surname             (String)
+            dsiplay_name        (String)
+            email               (String)
+            about_me            (String)
+            country             (String)
+            visibility          (String)
+            pronoun             (String)
+            picture             (String)
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
@@ -65,6 +125,29 @@ def user_info(token):
 
 def user_preferences(token):
     """retrieves users preferences for his update page
+    Args:
+        token               (String): token of authenticated user
+
+    Returns:
+        Status 200 - body containing dictionary with fields
+            units               (String)
+            efficiency          (String)
+            breakfast           (Boolean)
+            lunch               (Boolean)
+            dinner              (Boolean)
+            snack               (Boolean)
+            vegetarian          (Boolean)
+            vegan               (Boolean)
+            kosher              (Boolean)
+            halal               (Boolean)
+            dairy_free          (Boolean)
+            gluten_free         (Boolean)
+            nut_free            (Boolean)
+            egg_free            (Boolean)
+            shellfish_free      (Boolean)
+            soy_free            (Boolean)
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
@@ -100,7 +183,29 @@ def user_preferences(token):
     }
 
 def user_update_preferences_booleans(token, breakfast, lunch, dinner, snack, vegetarian, vegan, kosher, halal, dairy_free, gluten_free, nut_free, egg_free, shellfish_free, soy_free):
-    """Updates all the booleans of the user preferences page
+    """Helper function that updates all the booleans of the user preferences page
+
+    Args:
+        token               (String): token of authenticated user
+        breakfast           (Boolean)
+        lunch               (Boolean)
+        dinner              (Boolean)
+        snack               (Boolean)
+        vegetarian          (Boolean)
+        vegan               (Boolean)
+        kosher              (Boolean)
+        halal               (Boolean)
+        dairy_free          (Boolean)
+        gluten_free         (Boolean)
+        nut_free            (Boolean)
+        egg_free            (Boolean)
+        shellfish_free      (Boolean)
+        soy_free            (Boolean)
+
+    Returns:
+        Status 200 - successful change of user perferences
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
     """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
@@ -557,8 +662,14 @@ def user_update_profile_picture(token, picture):
     Changes users profile picture
 
     Args:
+        token       (String): token of authenticated user
+        picture     (String): new picture url to replace old
 
+        
     Returns:
+        Status 200
+        Status 400
+        Status 401
 
     """
     try:
@@ -581,6 +692,18 @@ def user_update_profile_picture(token, picture):
     }
 
 def user_subscribe(token, subscribe_to):
+    """subscribe to a user (token must be valid)
+    
+    Args:
+        token             (String): token of authenticated user
+        unsubscribe_to    (Integer): id of user u are subscribing to
+        
+    Returns:
+        Status 200 - user subscribed to successfully
+        Status 400 - already subscribed
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
@@ -647,6 +770,18 @@ def user_subscribe(token, subscribe_to):
     }
 
 def user_unsubscribe(token, unsubscribe_to):
+    """unsubscribe to a user (token must be valid)
+    
+    Args:
+        token             (String): token of authenticated user
+        unsubscribe_to    (Integer): id of user u are subscribing to
+        
+    Returns:
+        Status 200 - user unsubscribed to successfully
+        Status 400 - not already subscribed
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
@@ -892,3 +1027,42 @@ def user_get_profile(token, id):
             'status_code': 500,
             'error': 'Problem retrieving user profile'
         }
+
+def get_users():
+    """
+    Get list of all users
+
+    Args: None
+
+    Returns:
+        Status 200 - body containing a dictionary of dictionary each containing fields:
+            id              (Integer)
+            display_name    (String)
+        Status 500 - server error (failure to connect to database)
+    """
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+    sql_search_query = """select id, display_name from users;"""
+    cur.execute(sql_search_query)
+    users = cur.fetchall()
+    user_list = []
+    for u in users:
+        dict = {
+            "id": u[0],
+            "display_name": u[1]
+        }
+        user_list.append(dict)
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {
+        'status_code': 200,
+        'body': user_list
+    }

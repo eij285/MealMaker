@@ -16,7 +16,7 @@ const config = require('./config.json');
 export const backendRequest = async (path, body, method, token, onSuccess,
   onFail = null, setStatus = null) => {
   const requestUrl = `${config.BACKEND_SERVER}${path}`;
-  console.log(requestUrl);
+  //console.log(requestUrl);
 
   const requestObject = {
     method: method,
@@ -206,6 +206,13 @@ export const longDateString = (str) => {
  */
  export const shortDateString = (str) => {
   return moment(str).format('DD/MM/YYYY');
+};
+
+/**
+ * Convert timestamp string to short format datetime string
+ */
+ export const shortDateTimeString = (str) => {
+  return moment(str).format('h:mma DD/MM/YYYY');
 };
 
 /**
@@ -399,6 +406,6 @@ export const initialCookbookData = () => {
     name: '',
     photo: '',
     description: '',
-    cookbook_status: 'draft',
+    cookbookStatus: 'draft',
   };
 };
