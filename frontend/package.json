@@ -19,6 +19,7 @@
     "ckeditor5-build-classic-base64-upload": "^27.0.2",
     "convert": "^4.6.3",
     "cypress-file-upload": "^5.0.8",
+    "dayjs": "^1.11.6",
     "html-react-parser": "^3.0.4",
     "moment": "^2.29.4",
     "react": "^18.2.0",
