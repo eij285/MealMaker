@@ -19,6 +19,8 @@ export const GlobalProvider = ({ children }) => {
   const [userPreferences, setUserPreferences] = React.useState({
     ...defaultFilterOptions()
   });
+  const [cartId, setCartId] = React.useState(-1);
+  const [cartItems, setCartItems] = React.useState([]);
 
   const login = (userToken) => {
     window.localStorage.setItem('token', userToken);
@@ -53,18 +55,40 @@ export const GlobalProvider = ({ children }) => {
           efficiency: data.efficiency,
         });
       });
+      if (cartId === -1) {
+        /*const tmpCartId = parseInt(localStorage.getItem('cartId'));
+        if (!isNaN(tmpCartId) && tmpCartId > -1) {
+          setCartId(tmpCartId);
+          const body = {
+            cart_id: tmpCartId
+          };
+          backendRequest('/cart/display/active', {}, 'POST', token, (data) => {
+            console.log(data);
+          });
+        }*/
+      }
     } else {
       // reset filter on logout
       setUserPreferences({...defaultFilterOptions()});
     }
   }, [token]);
 
+  React.useEffect(() => {
+    if (cartId !== -1) {
+      localStorage.setItem('cartId', `${cartId}`);
+    }
+  }, [cartId]);
+
   const globals = {
     token: token,
     login: login,
     logout: logout,
     userPreferences: userPreferences,
-    setUserPreferences: setUserPreferences
+    setUserPreferences: setUserPreferences,
+    cartId: cartId,
+    setCartId: setCartId,
+    cartItems: cartItems, 
+    setCartItems: setCartItems
   };
 
   return (

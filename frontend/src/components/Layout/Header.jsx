@@ -15,6 +15,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
 import GlobalContext from '../../utils/GlobalContext';
 import { backendRequest } from '../../helpers';
@@ -151,6 +152,7 @@ function BrandingComponent() {
 function Header ({ incSearch, incButtons }) {
   const globals = React.useContext(GlobalContext);
   const token = globals.token;
+  const cartItems = globals.cartItems;
 
   const toolbarStyles = {
     flexDirection: 'row',
@@ -179,6 +181,12 @@ function Header ({ incSearch, incButtons }) {
           </HeaderButton>
           </>}
           {incButtons && token && <>
+          <HeaderButton component={RouterLink} to="/cart">
+            <ShoppingCartIcon />
+            <Typography component="span" variant="span">
+              {cartItems.length}
+            </Typography>
+          </HeaderButton>
           <HeaderButton component={RouterLink} to="/dashboard">
             <AccountCircleIcon />
             <HeaderButtonTypo>Dashboard</HeaderButtonTypo>

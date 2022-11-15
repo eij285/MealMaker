@@ -19,7 +19,9 @@ import {
   IconButton,
   Link,
   Paper,
+  Slide,
   Slider,
+  Snackbar,
   Switch,
   Tooltip,
   Typography
@@ -59,6 +61,26 @@ export const SuccessAlert = ({props, message, setMessage}) => {
       setMessage={setMessage} />
   );
 };
+
+export const AlertToast = ({content, setContent, state}) => {
+  return (
+    <Snackbar
+      open={content !== ''}
+      onClose={() => setContent('')}
+      TransitionComponent={props => <Slide {...props} direction="left" />}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      autoHideDuration={5000}
+    >
+      <Alert severity={state}>
+        {content}
+        <IconButton aria-label="close" color="inherit" size="small"
+          onClick={() => { setContent(''); }}>
+          <CloseIcon fontSize="inherit" />
+        </IconButton>
+      </Alert>
+    </Snackbar>
+  );
+}
 
 export const FlexColumnNoGap = styled.div`
   display: flex;

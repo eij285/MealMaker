@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import styled from '@emotion/styled';
 import {
-  Alert,
   Badge,
   Box,
   Button,
@@ -13,8 +12,6 @@ import {
   Paper,
   Popover,
   Select,
-  Slide,
-  Snackbar,
   TextField,
   Tooltip,
   Typography 
@@ -31,7 +28,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import SendIcon from '@mui/icons-material/Send';
 import GlobalContext from '../../utils/GlobalContext';
 import { backendRequest, shortDateTimeString, tokenToUserId } from '../../helpers';
-import { ConfirmationDialog } from '../../components/StyledNodes';
+import { AlertToast, ConfirmationDialog } from '../../components/StyledNodes';
 import { MediumBlackText, SmallGreyText } from '../../components/TextNodes';
 const config = require('../../config.json');
 
@@ -61,26 +58,6 @@ export const ChatboxHeader = ({roomId, setOpen}) => {
     </Paper>
   );
 };
-
-export const AlertToast = ({content, setContent, state}) => {
-  return (
-    <Snackbar
-      open={content !== ''}
-      onClose={() => setContent('')}
-      TransitionComponent={props => <Slide {...props} direction="left" />}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      autoHideDuration={5000}
-    >
-      <Alert severity={state}>
-        {content}
-        <IconButton aria-label="close" color="inherit" size="small"
-          onClick={() => { setContent(''); }}>
-          <CloseIcon fontSize="inherit" />
-        </IconButton>
-      </Alert>
-    </Snackbar>
-  );
-}
 
 export const MessageInputComponent = ({message, setMessage, send, cancel}) => {
   return (
