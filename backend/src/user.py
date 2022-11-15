@@ -1026,9 +1026,9 @@ def user_get_profile(token, id):
             'is_subscribed': is_subscribed,
             'visitor_efficiency': visitor_efficiency,
             'num_followers': num_followers,
-            'followers': user_get_followers(token)['followers'],
+            'followers': user_get_followers(id)['followers'],
             'num_following': num_following,
-            'following': user_get_following(token)['followings'],
+            'following': user_get_following(id)['followings'],
         }
     except:
         cur.close()
