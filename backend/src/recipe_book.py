@@ -279,7 +279,6 @@ def cookbook_all_recipes(cookbook_id, token):
                 review_cnt      (Integer)
                 rating_avg      (String): JSON cannot contain decimal
                 likes_cnt       (Integer)
-                
 
         Status 400 - failure to find cookbook id
         Status 401 - invalid or no token
@@ -631,22 +630,31 @@ def cookbook_fetch_own(token):
     
     try:
         query = ("""
-            SELECT cookbook_id, cookbook_name, cookbook_photo, cookbook_status, cookbook_description
-            FROM cookbooks
-            WHERE owner_id = %s
+            SELECT c.cookbook_id, c.cookbook_name, c.cookbook_photo,
+            c.cookbook_status, c.cookbook_description, COUNT(r.*), COUNT(f.*)
+            FROM cookbooks c 
+            LEFT OUTER JOIN cookbook_recipes r
+            ON (r.cookbook_id = c.cookbook_id)
+            LEFT OUTER JOIN cookbook_followers f
+            ON (f.cookbook_id = c.cookbook_id)
+            WHERE c.owner_id = %s
+            GROUP BY c.cookbook_id
             """)
         cur.execute(query, (owner_id,))
         output = cur.fetchall()
         cookbooks_list = []
         for cookbook in output:
             # need average but json in flask doesn't like decimal data
-            cookbook_id, cookbook_name, cookbook_photo, cookbook_status, cookbook_description = cookbook
+            cookbook_id, cookbook_name, cookbook_photo, cookbook_status, \
+                cookbook_description, recipe_count, follower_count = cookbook
             cookbooks_list.append({
                 'cookbook_id': cookbook_id,
                 'cookbook_name': cookbook_name,
                 'cookbook_photo': cookbook_photo,
                 'cookbook_status': cookbook_status,
                 'cookbook_description': cookbook_description,
+                'recipe_count': recipe_count,
+                'follower_count': follower_count
             })
         cur.close()
         conn.close()
@@ -656,7 +664,7 @@ def cookbook_fetch_own(token):
         conn.close()
         return {
             'status_code':400,
-            'error': 'could not fetch recipes'
+            'error': 'could not fetch cookbook'
         }
     return {
         'status_code':200,
@@ -676,7 +684,9 @@ def cookbooks_user_published(user_id):
                         cookbook_id           (Integer)
                         cookbook_name         (String)
                         cookbook_photo        (String)
-                        cookbook_description   (String)
+                        cookbook_description  (String)
+                        recipe_count          (Integer)
+                        follower_count        (Integer)
 
         Status 400 - failure to fetch cookbook
         Status 401 - invalid or no token
@@ -698,8 +708,15 @@ def cookbooks_user_published(user_id):
             raise Exception
         
         query = ("""
-            SELECT cookbook_id, cookbook_name, cookbook_photo, cookbook_description
-            WHERE owner_id = %s AND cookbook_status = 'published'
+            SELECT c.cookbook_id, c.cookbook_name, c.cookbook_photo,
+            c.cookbook_description, COUNT(r.*), COUNT(f.*)
+            FROM cookbooks c 
+            LEFT OUTER JOIN cookbook_recipes r
+            ON (r.cookbook_id = c.cookbook_id)
+            LEFT OUTER JOIN cookbook_followers f
+            ON (f.cookbook_id = c.cookbook_id)
+            WHERE c.owner_id = %s AND c.cookbook_status = 'published'
+            GROUP BY c.cookbook_id
             """)
         cur.execute(query, (user_id,))
         output = cur.fetchall()
@@ -711,6 +728,8 @@ def cookbooks_user_published(user_id):
                 'cookbook_name': cookbook[1],
                 'cookbook_photo': cookbook[2],
                 'cookbook_description': cookbook[3],
+                'recipe_count': cookbook[4],
+                'follower_count': cookbook[5]
             })
         cur.close()
         conn.close()
@@ -792,12 +811,12 @@ def cookbook_view(cookbook_id, token):
     
     try:
         is_owner = user_id == cookbook[3]
-        subs_query = """
+        recipes_query = """
             SELECT r.recipe_id FROM cookbook_recipes c
             JOIN recipes r ON c.recipe_id = r.recipe_id
             WHERE c.cookbook_id = %s
             """
-        cur.execute(subs_query, (cookbook[4],))
+        cur.execute(recipes_query, (cookbook[4],))
         recipes = cur.fetchall()
         recipe_list = []
         for r in recipes:
@@ -813,6 +832,21 @@ def cookbook_view(cookbook_id, token):
             is_following = cur.fetchone()[0] > 0
         else:
             is_following = False
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "failed to fetch cookbook recipes"
+        }
+
+    try:
+        subs_query = """
+            SELECT COUNT(*) FROM cookbook_followers WHERE cookbook_id = %s
+            """
+        cur.execute(subs_query, (cookbook[4],))
+        subs_count, = cur.fetchone()
         cur.close()
         conn.close()
     except:
@@ -821,7 +855,7 @@ def cookbook_view(cookbook_id, token):
         conn.close()
         return {
             'status_code': 400,
-            'error': "failed to fetch cookbook recipes"
+            'error': "failed to fetch cookbook follower count"
         }
     
     return {
@@ -836,7 +870,8 @@ def cookbook_view(cookbook_id, token):
             'author_image': cookbook[7],
             'is_owner': is_owner,
             'is_following': is_following,
-            'recipes': recipe_list
+            'recipes': recipe_list,
+            'follower_count': subs_count
         }
     }
 
@@ -1182,4 +1217,106 @@ def cookbook_remove_recipe(token, cookbook_id, recipe_id):
     conn.close()
     return {
         'status_code': 200
+    }
+
+def cookbooks_following(token):
+    """
+    The cookbooks a user is following
+
+    Args:
+        token           (String): token of authenticated user
+        
+    Returns:
+        Status 200 - successful return of user's published cookbooks
+                cookbooks (list of dict)
+                        cookbook_id           (Integer)
+                        cookbook_name         (String)
+                        cookbook_photo        (String)
+                        cookbook_description  (String)
+                        recipe_count          (Integer)
+                        follower_count        (Integer)
+
+        Status 400 - failure to fetch cookbook
+        Status 401 - invalid or no token
+        Status 500 - server error (failure to connect to database)
+    """
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = ("SELECT id FROM users WHERE token = %s")
+        cur.execute(query, (str(token),))
+        follower_id, = cur.fetchone()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': "cannot find user id"
+        }
+
+    try:        
+        query = ("""
+            SELECT c.cookbook_id, c.cookbook_name, c.cookbook_photo,
+            c.cookbook_description, COUNT(r.*), COUNT(f.*), u.id,
+            u.display_name, u.base64_image
+            FROM cookbooks c
+            JOIN users u ON (u.id = c.owner_id)
+            LEFT OUTER JOIN cookbook_recipes r
+            ON (r.cookbook_id = c.cookbook_id)
+            JOIN cookbook_followers f
+            ON (f.cookbook_id = c.cookbook_id)
+            WHERE c.cookbook_status = 'published' AND f.follower_id = %s
+            GROUP BY c.cookbook_id, u.id
+            """)
+        cur.execute(query, (follower_id,))
+        output = cur.fetchall()
+        cookbook_list = []
+        for cookbook in output:
+            # need average but json in flask doesn't like decimal data
+            cookbook_list.append({
+                'cookbook_id': cookbook[0],
+                'cookbook_name': cookbook[1],
+                'cookbook_photo': cookbook[2],
+                'cookbook_description': cookbook[3],
+                'recipe_count': cookbook[4],
+                'follower_count': cookbook[5],
+                'author_id': cookbook[6],
+                'author_display_name': cookbook[7],
+                'author_image': cookbook[8]
+            })
+        cur.close()
+        conn.close()
+    except:
+        # Close connection
+        cur.close()
+        conn.close()
+        return {
+            'status_code':400,
+            'error': 'could not fetch following cookbooks'
+        }
+    return {
+        'status_code':200,
+        'cookbooks': cookbook_list
     }

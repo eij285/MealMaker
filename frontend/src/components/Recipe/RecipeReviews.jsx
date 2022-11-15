@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Box, Button, IconButton, Paper, Rating, Tooltip, Typography } from '@mui/material';
+import { Button, IconButton, Paper, Rating, Tooltip } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
@@ -14,16 +14,12 @@ import {
   FlexColumnNoGap,
   FlexColumnVCentred,
   FlexRow,
-  FlexRowNoGap,
   UserImageNameControl,
   UserImageNameLink
 } from '../StyledNodes';
 import {
-  MediumGreyText,
   MediumBlackText,
-  SmallBlackText,
   SmallGreyText,
-  SubPageTitle,
   SubPageTitleNoMargins
 } from '../TextNodes';
 import { TextInput } from '../InputFields';

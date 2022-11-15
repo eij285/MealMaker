@@ -1,12 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { AppBar, Box, IconButton, InputAdornment, Link, TextField, Toolbar, Typography } from '@mui/material';
+import {
+  AppBar,
+  Box,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Toolbar,
+  Typography
+} from '@mui/material';
 import { HeaderButton } from '../../components/Buttons';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
 import GlobalContext from '../../utils/GlobalContext';
 import { backendRequest, tokenToUserId } from '../../helpers';
@@ -143,6 +152,7 @@ function BrandingComponent() {
 function Header ({ incSearch, incButtons }) {
   const globals = React.useContext(GlobalContext);
   const token = globals.token;
+  const cartItems = globals.cartItems;
 
   const toolbarStyles = {
     flexDirection: 'row',
@@ -171,10 +181,15 @@ function Header ({ incSearch, incButtons }) {
           </HeaderButton>
           </>}
           {incButtons && token && <>
-          <HeaderButton component={RouterLink}
-                to={`/user/${tokenToUserId(token)}`}>
+          <HeaderButton component={RouterLink} to="/cart">
+            <ShoppingCartIcon />
+            <Typography component="span" variant="span">
+              {cartItems.length}
+            </Typography>
+          </HeaderButton>
+          <HeaderButton component={RouterLink} to="/dashboard">
             <AccountCircleIcon />
-            <HeaderButtonTypo>My Profile</HeaderButtonTypo>
+            <HeaderButtonTypo>Dashboard</HeaderButtonTypo>
           </HeaderButton>
           <LogoutButton />
           </>}

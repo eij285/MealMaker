@@ -16,7 +16,7 @@ import {
 } from '../../components/StyledNodes';
 import { PageTitle, SubPageTitle } from '../../components/TextNodes';
 import { MiniMessageBox } from '../../components/Message/MessageNodes';
-import { backendRequest } from '../../helpers';
+import { backendRequest, tokenToUserId } from '../../helpers';
 
 function SubscriptionsPage () {
   const token = React.useContext(GlobalContext).token;
@@ -36,7 +36,8 @@ function SubscriptionsPage () {
   };
 
   const loadSubscriptions = () => {
-    backendRequest('/user/get/subscriptions', {}, 'POST', token, (data) => {
+    const reqURL = `/user/get/subscriptions?user_id=${tokenToUserId(token)}`;
+    backendRequest(reqURL, null, 'GET', null, (data) => {
       setFollowings([...data.followings]);
       updateFollowMessage(data.followings.length);
     }, (error) => {

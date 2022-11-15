@@ -841,23 +841,28 @@ def user_unsubscribe(token, unsubscribe_to):
         'status_code': 200
     }
 
-def user_get_subs(token, query, error_msg, dict_key):
+def user_get_subs(user_id, query, error_msg, dict_key):
     """
     Get followers or following list, depending on query. Query must select three
     columns (id, display_name, base64_image) from users table.
 
     Args:
-        token       (String): token of authenticated user
+        user_id     (Integer): user id of user requesting data for
         query       (String): select query to execute
+        error_msg   (String): error message to show if there's an error
+        dict_key    (String): dictionary key to use for 
 
     Returns:
         subs        (list): list of following or followers (id, name, image)
-
     """
+    if not re.match(r'^[0-9]+$', str(user_id)):
+        return {
+            'status_code': 404,
+            'error': 'User with given id does not exist'
+        }
     try:
         conn = psycopg2.connect(DB_CONN_STRING)
         cur = conn.cursor()
-        print(conn)
     except:
         return {
             'status_code': 500,
@@ -866,7 +871,7 @@ def user_get_subs(token, query, error_msg, dict_key):
     try:
         # subscriptions is a graph of outbound links (following) and inbound
         # links (following), thus use same logic for both
-        cur.execute(query, (str(token),))
+        cur.execute(query, (str(user_id),))
         subs_array = []
         subs = cur.fetchall()
         for id, display_name, base64_image in subs:
@@ -889,16 +894,16 @@ def user_get_subs(token, query, error_msg, dict_key):
         dict_key: subs_array
     }
 
-def user_get_followers(token):
+def user_get_followers(user_id):
     query = """
         SELECT u.id, u.display_name, u.base64_image FROM users u
         INNER JOIN subscriptions s ON (u.id = s.follower_id)
         INNER JOIN users v ON (s.following_id = v.id)
-        WHERE v.token IS NOT NULL AND v.token = %s AND v.visibility = 'public'
+        WHERE v.id = %s AND v.visibility = 'public'
         """
     error_msg = 'Unable to get followers list (subscribers)'
     dict_key = 'followers'
-    followers_list = user_get_subs(token, query, error_msg, dict_key)
+    followers_list = user_get_subs(user_id, query, error_msg, dict_key)
 
     if 'error' in followers_list:
         return followers_list
@@ -909,9 +914,9 @@ def user_get_followers(token):
             cur = conn.cursor()
             visibility_query = """
                 SELECT visibility FROM users
-                WHERE token IS NOT NULL AND token = %s
+                WHERE id = %s
                 """
-            cur.execute(visibility_query, (token,))
+            cur.execute(visibility_query, (user_id,))
             followers_list['visibility'] = cur.fetchone()[0]
             cur.close()
             conn.close()
@@ -926,16 +931,15 @@ def user_get_followers(token):
         followers_list['visibility'] = 'public'
     return followers_list
 
-def user_get_following(token):
+def user_get_following(user_id):
     query = """
         SELECT u.id, u.display_name, u.base64_image FROM users u
         INNER JOIN subscriptions s ON (u.id = s.following_id)
-        INNER JOIN users v ON (s.follower_id = v.id)
-        WHERE v.token IS NOT NULL AND v.token = %s
+        WHERE s.follower_id = %s
         """
     error_msg = 'Unable to get following list (subscriptions)'
     dict_key = 'followings'
-    return user_get_subs(token, query, error_msg, dict_key)
+    return user_get_subs(user_id, query, error_msg, dict_key)
 
 def user_get_profile(token, id):
     try:
@@ -1072,3 +1076,193 @@ def get_users():
         'status_code': 200,
         'body': user_list
     }
+
+def user_stats(user_id, token):
+    """
+    Get user stats
+
+    Args:
+        user_id    (Integer): id of user to get stats for
+
+    Returns:
+        Status 200 - dictionary of user stats
+        Status 400 - failed to fetch user info
+        Status 404 - invalid user id or user doesn't exist
+        Status 500 - server error (failure to connect to database)
+    """
+    if not re.match(r'^[0-9]+$', str(user_id)):
+        return {
+            'status_code': 404,
+            'error': 'User with given id does not exist'
+        }
+
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+        print(conn)
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    try:
+        query = "SELECT COUNT(*) FROM users WHERE id = %s"
+        cur.execute(query, (user_id,))
+        if cur.fetchone()[0] == 0:
+            raise Exception
+    except:
+        return {
+            'status_code': 404,
+            'error': 'User with given id does not exist'
+        }
+
+    try:
+        # public user info
+        query = "SELECT display_name, base64_image FROM users WHERE id = %s"
+        cur.execute(query, (user_id,))
+        display_name, user_image = cur.fetchone()
+
+        query = "SELECT COUNT(*) FROM subscriptions WHERE following_id = %s"
+        cur.execute(query, (user_id,))
+        num_followers, = cur.fetchone()
+
+        query = "SELECT COUNT(*) FROM subscriptions WHERE follower_id = %s"
+        cur.execute(query, (user_id,))
+        num_followings, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(*) FROM recipes WHERE recipe_status = 'published'
+            AND owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        num_published_recipes, = cur.fetchone()
+
+        query = "SELECT COUNT(*) FROM recipes WHERE owner_id = %s"
+        cur.execute(query, (user_id,))
+        num_recipes, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(*) FROM cookbooks WHERE cookbook_status = 'published'
+            AND owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        num_published_cookbooks, = cur.fetchone()
+
+        query = "SELECT COUNT(*) FROM cookbooks WHERE owner_id = %s"
+        cur.execute(query, (user_id,))
+        num_cookbooks, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(*) FROM cookbooks WHERE cookbook_status = 'published'
+            AND owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        num_published_cookbooks, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(DISTINCT c.cookbook_id) FROM cookbooks c
+            JOIN cookbook_followers f
+            ON (f.cookbook_id = c.cookbook_id)
+            WHERE c.owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        num_cookbooks_followed, = cur.fetchone()
+
+        query = "SELECT COUNT(*) FROM cookbook_followers WHERE follower_id = %s"
+        cur.execute(query, (user_id,))
+        num_cookbooks_following, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(v.*), AVG(v.rating) FROM recipe_reviews v 
+            JOIN recipes r ON (r.recipe_id = v.recipe_id)
+            WHERE r.owner_id = %s"""
+        cur.execute(query, (user_id,))
+        reviews_received_result = cur.fetchone()
+        reviews_received_count = reviews_received_result[0]
+        reviews_received_average = \
+            '0.0' if reviews_received_result[1] is None else reviews_received_result[1]
+
+        query = "SELECT COUNT(*), AVG(rating) FROM recipe_reviews WHERE user_id = %s"
+        cur.execute(query, (user_id,))
+        reviews_made_result = cur.fetchone()
+        reviews_made_count = reviews_made_result[0]
+        reviews_made_average = \
+            '0.0' if reviews_made_result[1] is None else reviews_made_result[1]
+
+        query = """
+            SELECT COUNT(DISTINCT recipe_id) FROM recipe_user_likes
+            WHERE user_id = %s
+            """
+        cur.execute(query, (user_id,))
+        reciped_liked_by_user, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(DISTINCT l.user_id) FROM recipe_user_likes l
+            JOIN recipes r ON (r.recipe_id = l.recipe_id)
+            WHERE r.owner_id = %s
+            """
+        cur.execute(query, (user_id,))
+        reciped_liked_by_others, = cur.fetchone()
+
+        # check if current user is anonymous or another user requesting private
+        # user information
+        query = "SELECT id FROM users WHERE token = %s"
+        cur.execute(query, (str(token),))
+        cur_user_id, = cur.fetchone()
+
+        stats_data = {
+            'status_code': 200,
+            'body': {
+                'display_name': display_name,
+                'user_image': user_image,
+                'num_followers': num_followers,
+                'num_followings': num_followings,
+                'num_published_recipes': num_published_recipes,
+                'num_recipes': num_recipes,
+                'num_published_cookbooks': num_published_cookbooks,
+                'num_cookbooks': num_cookbooks,
+                'num_cookbooks_followed': num_cookbooks_followed,
+                'num_cookbooks_following': num_cookbooks_following,
+                'reviews_received_count': reviews_received_count,
+                'reviews_received_average': reviews_received_average,
+                'reviews_made_count': reviews_made_count,
+                'reviews_made_average': reviews_made_average,
+                'reciped_liked_by_user': reciped_liked_by_user,
+                'reciped_liked_by_others': reciped_liked_by_others
+            }
+        }
+        if not token or cur_user_id != int(user_id):
+            cur.close()
+            conn.close()
+            return stats_data
+            
+        # private info only from this point forward
+        query = "SELECT COUNT(*) FROM message_room_owners WHERE owner_id = %s"
+        cur.execute(query, (user_id,))
+        num_message_rooms_owner, = cur.fetchone()
+
+        query = """
+            SELECT COUNT(*) FROM message_room_members
+            WHERE member_id NOT IN (
+                SELECT owner_id FROM message_room_owners WHERE owner_id = %s
+            ) AND member_id = %s
+            """
+        cur.execute(query, (user_id, user_id))
+        num_message_rooms_member, = cur.fetchone()
+
+
+        stats_data['body']['num_message_rooms_owner'] = num_message_rooms_owner
+        stats_data['body']['num_message_rooms_member'] = num_message_rooms_member
+
+        cur.close()
+        conn.close()
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 404,
+            'error': 'could not fetch user stats'
+        }
+
+    return stats_data

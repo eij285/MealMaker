@@ -10,7 +10,7 @@ from backend_helper import database_reset, database_populate
 from user import user_preferences, user_update, user_info, \
                  user_update_preferences, user_subscribe, user_unsubscribe, \
                  user_get_followers, user_get_following, user_get_profile, \
-                 get_users
+                 get_users, user_stats
 from recipe import recipe_create, recipe_publish, recipe_edit, recipe_update, \
                    recipe_clone, recipe_delete, recipes_fetch_own, \
                    recipes_user_published, recipe_details, recipe_like, \
@@ -20,6 +20,13 @@ from review import reviews_all_for_recipe, review_create, review_delete, \
 from feed import feed_fetch_discover, feed_fetch_subscription, \
                  feed_fetch_trending
 from search import search
+from cart import cart_add_all_ingredients, cart_remove_ingredient, \
+                 cart_add_by_id, cart_add_by_name, cart_set_saved, \
+                 cart_load_saved, cart_save_payment_method, \
+                 cart_update_payment_method, cart_get_payment_method, \
+                 cart_list_payment_methods, cart_display_details, \
+                 cart_display_all_details, cart_make_order, \
+                 cart_fetch_past_orders_all, cart_fetch_past_order_details
 from message import message_send, message_edit, message_delete, message_react
 from message_room import *
 from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
@@ -27,7 +34,7 @@ from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
                         cookbooks_user_published, cookbook_subscribe, \
                         cookbook_unsubscribe, cookbook_add_recipe, \
                         cookbook_remove_recipe, cookbook_all_recipes, \
-                        cookbook_publish
+                        cookbook_publish, cookbooks_following
 from notifications import notifications_fetch_all
 
 APP = Flask(__name__)
@@ -135,14 +142,12 @@ def update_user_preferences():
 def get_user_details():
     payload = request.get_json()
     token = payload['token']
-    
     return dumps(user_info(token))
 
 @APP.route('/user/preferences', methods=['POST'])
 def get_user_preferences():
     payload = request.get_json()
     token = payload['token']
-    
     return dumps(user_preferences(token))
 
 @APP.route('/user/subscribe', methods=['PUT'])
@@ -150,7 +155,6 @@ def subscribe():
     payload = request.get_json()
     token = payload['token']
     subscribe_to = payload['id']
-    
     return dumps(user_subscribe(token, subscribe_to))
 
 @APP.route('/user/unsubscribe', methods=['POST'])
@@ -158,34 +162,48 @@ def unsubscribe():
     payload = request.get_json()
     token = payload['token']
     unsubscribe_to = payload['id']
-    
     return dumps(user_unsubscribe(token, unsubscribe_to))
 
-@APP.route('/user/get/subscribers', methods=['POST'])
+@APP.route('/user/get/subscribers', methods=['GET'])
 def get_subscribers():
-    payload = request.get_json()
-    token = payload['token']
-    
-    return dumps(user_get_followers(token))
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(user_get_followers(user_id))
 
-@APP.route('/user/get/subscriptions', methods=['POST'])
+@APP.route('/user/get/subscriptions', methods=['GET'])
 def get_subscriptions():
-    payload = request.get_json()
-    token = payload['token']
-    
-    return dumps(user_get_following(token))
+    if 'user_id' in request.args:
+        user_id = request.args.get('user_id')
+    else:
+        user_id = -1
+    return dumps(user_get_following(user_id))
 
 @APP.route('/user/get/profile', methods=['POST'])
 def get_profile():
     payload = request.get_json()
     token = payload['token']
     id = payload['id']
-    
     return dumps(user_get_profile(token, id))
 
 @APP.route('/user/get/users', methods=['POST'])
 def users_get():    
     return dumps(get_users())
+
+@APP.route('/user/stats', methods=['GET', 'POST'])
+def stats_for_user():
+    if request.method == 'POST':
+        data = request.get_json()
+        token = data['token']
+        user_id = data['user_id']
+    else:
+        if 'user_id' in request.args:
+            user_id = request.args.get('user_id')
+        else:
+            user_id = -1
+        token = None
+    return dumps(user_stats(user_id, token))
 
 @APP.route('/recipe/create', methods=['POST'])
 def create_recipe():
@@ -376,6 +394,12 @@ def unpublish_cookbook():
     cookbook_id = data['cookbook_id']
     return dumps(cookbook_publish(cookbook_id, 'draft', token))
 
+@APP.route('/cookbooks/following', methods=['POST'])
+def following_cookbooks():
+    data = request.get_json()
+    token = data['token']
+    return dumps(cookbooks_following(token))
+
 @APP.route('/recipe/like', methods=['POST'])
 def like_recipe():
     data = request.get_json()
@@ -465,6 +489,302 @@ def feed_subscription():
 def feed_trending():
     return dumps(feed_fetch_trending())
 
+@APP.route('/cart/add-all', methods=['POST'])
+def cart_add_all():
+    # Starts a cart using current recipe
+    # 
+    # Don't forget conversions
+    data = request.get_json()
+    r_id = data['recipe_id']
+    servings = data['servings']
+    token = data['token']
+
+    return dumps(cart_add_all_ingredients(r_id, servings, token))
+
+    # return {
+    #   'body': {
+    #       'cart_id': 2
+    #       'ingredients: [
+    #           {
+    #               'item_id': 3
+    #               'item_name':
+    #               'item_quantity':
+    #               'item_cost':
+    #           },
+    #           {
+    #               'item_id': 2
+    #               'item_name':
+    #               'item_quantity':
+    #               'item_cost':
+    #           },
+    #       ]
+    #   }
+    # }
+
+@APP.route('/cart/rmv-ingredient', methods=['POST'])
+def cart_rmv_ingredient():
+    # Removes ingredient from active cart
+    data = request.get_json()
+    ing_id = data['cart_ingredient_id']
+    token = data['token']
+
+    return dumps(cart_remove_ingredient(ing_id, token))
+
+    # return {
+    #   'body': {}
+    # }
+
+@APP.route('/cart/add-ingredient/id', methods=['POST'])
+def cart_add_ingredient_id():
+    # Adds ingredient from a recipe's ingredients (individual)
+    data = request.get_json()
+    ing_id = data['recipe_ingredient_id']
+    token = data['token']
+
+    return dumps(cart_add_by_id(ing_id, token))
+
+    # return {
+    #   'body': {
+    #       'cart_id': id of new cart (if previously inactive)
+    #       'item_id': 3
+    #       'item_name':
+    #       'item_quantity':
+    #       'item_cost':
+    #   }
+    # }
+
+@APP.route('/cart/add-ingredient/name', methods=['POST'])
+def cart_add_ingredient_name():
+    # Adds ingredient by search term
+    data = request.get_json()
+    ing_name = data['ingredient_name']
+    ing_unit = data['ingredient_unit']
+    ing_quantity = data['ingredient_quantity']
+    token = data['token']
+
+    return dumps(cart_add_by_name(ing_name, ing_unit, ing_quantity, token))
+
+    # return {
+    #   'body': {
+    #       'cart_id': id of new cart (if previously inactive)
+    #       'item_id': 3
+    #       'item_name':
+    #       'item_quantity':
+    #       'item_cost':
+    #   }
+    # }
+
+
+@APP.route('/cart/save', methods=['POST'])
+def cart_save():
+# Saves cart so an order can be made in the future
+    data = request.get_json()
+    token = data['token']
+    return dumps(cart_set_saved(token))
+
+@APP.route('/cart/load', methods=['POST'])
+def cart_load():
+# Loads a saved cart so the order can be made
+    data = request.get_json()
+    cart_id = data['cart_id']
+    token = data['token']
+    return dumps(cart_load_saved(cart_id, token))
+
+@APP.route('/cart/payment-method/save', methods=['POST'])
+def cart_payment_method_save():
+    data = request.get_json()
+    name = data['card_name']
+    number = data['card_number']
+    exp_date = data['card_exp_date']
+    cvv = data['card_cvv']
+    token = data['token']
+
+    return dumps(cart_save_payment_method(name, number, exp_date, cvv, token))
+
+    # return {
+    #   'body': {
+    #       'method_id': 2
+    #   }
+    # }
+
+@APP.route('/cart/payment-method/update', methods=['POST'])
+def cart_payment_method_update():
+    # Returns details of specific updated payment method (individual)
+    data = request.get_json()
+    name = data['card_name']
+    number = data['card_number']
+    exp_date = data['card_exp_date']
+    cvv = data['card_cvv']
+    token = data['token']
+
+    return dumps(cart_update_payment_method(name, number, exp_date, cvv, token))
+
+    # return {
+    #   'body': {
+    #       'method_id': 2
+    #   }
+    # }
+
+@APP.route('/cart/payment-method/get', methods=['POST'])
+def cart_payment_method_get():
+    # Returns details of specific payment method (individual)
+    data = request.get_json()
+    method_id = data['method_id']
+    token = data['token']
+
+    return dumps(cart_get_payment_method(method_id, token))
+
+    # return {
+    #   'body': {
+    #       'card_name': 
+    #       'card_number': 
+    #       'card_cvv':
+    #       'card_exp_date':
+    #   }
+    # }
+
+@APP.route('/cart/payment-method/list', methods=['POST'])
+def cart_payment_method_list():
+# Returns list of payment methods
+    data = request.get_json()
+    token = data['token']
+
+    return dumps(cart_list_payment_methods(token))
+    # return {
+    #   'body': [
+    #       {
+    #           'method_id': 2
+    #           'card_name': 
+    #           'card_number': 
+    #           'card_cvv':
+    #           'card_exp_date':
+    #       },
+    #       {
+    #           'method_id': 3
+    #           'card_name': 
+    #           'card_number': 
+    #           'card_cvv':
+    #           'card_exp_date':
+    #       },
+    #   ]
+    # }
+
+@APP.route('/cart/display', methods=['POST'])
+def cart_display():
+    data = request.get_json()
+    cart_id = data['cart_id']
+    token = data['token']
+    return dumps(cart_display_details(cart_id, token))
+# Displays cart given id
+
+# @APP.route('/cart/display/active', methods=['POST'])
+# def cart_display():
+#     data = request.get_json()
+#     token = data['token']
+#     return dumps(cart_display_details(token))
+# # Displays currently active cart
+
+@APP.route('/cart/display/all')
+def cart_display_all():
+    data = request.get_json()
+    token = data['token']
+# Gets list of all carts given user id
+    return dumps(cart_display_all_details(token))
+
+@APP.route('/cart/order', methods=['POST'])
+def cart_order():
+    # Places order using stored data in db
+    # Post request so we have the option to send token for emails?
+    # Get request will also need email supplied
+    data = request.get_json()
+    method_id = data['method_id']
+    deliver_by = data['deliver_by']
+    deliver_loc = data['delivery_address']
+    token = data['token']
+
+    return dumps(cart_make_order(method_id, deliver_by, deliver_loc, token))
+
+@APP.route('/cart/past-orders', methods=['POST'])
+def cart_past_orders():
+    data = request.get_json()
+    token = data['token']
+
+    return dumps(cart_fetch_past_orders_all(token))
+
+    # return {
+    #   'body': [
+    #       {
+    #           'order_id': ,
+    #           'order_number': ,
+    #           'payment_amount': ,
+    #           'order_status': ,
+    #       },
+    #       {
+    #           'order_id': ,
+    #           'order_number': ,
+    #           'payment_amount': ,
+    #           'order_status': ,
+    #       },
+    #   ]
+    # }
+
+@APP.route('/cart/past-orders/get', methods=['POST'])
+def cart_past_orders_get():
+    data = request.get_json()
+    order_id = data['order_id']
+    token = data['token']
+
+    return dumps(cart_fetch_past_order_details(order_id, token))
+
+    # return {
+    #   'body': {
+    #       order_id        SERIAL,
+    #       order_number    CHAR(10) NOT NULL UNIQUE,
+    #       cart_id         INTEGER NOT NULL,
+    #       placed_on       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    #       completed_on    TIMESTAMP,
+    #       order_status    VARCHAR(10) NOT NULL DEFAULT ('pending'),
+    #       payment_method_id INTEGER NOT NULL,
+    #       delivery_time   TIMESTAMP NOT NULL,
+    #       delivery_address TEXT NOT NULL,
+    #       payment_amount  MONEY NOT NULL,
+    #       'items': [
+    #           {
+    #               'item_id': 3
+    #               'item_name':
+    #               'item_quantity':
+    #               'item_cost':
+    #           },
+    #           {
+    #               'item_id': 2
+    #               'item_name':
+    #               'item_quantity':
+    #               'item_cost':
+    #           },
+    #       ],
+    #       'card_name': 
+    #       'card_number': 
+    #       'card_cvv':
+    #       'card_exp_date':
+    #   },
+    # }
+
+# 
+
+# TODO:
+# Update user stories to allow only authenticated
+# 
+# JSON File containing ingredients (substitute for grocery store integration or
+#   web scraping)
+# 
+
+# @APP.route('/recipe/publish', methods=['PUT'])
+# def publish_recipe():
+#     data = request.get_json()
+#     # Verify token
+#     token = data['token']
+#     if not verify_token(token):
+#         return dumps({'status_code': 401, 'error': None})
 
 @APP.route('/message/send', methods=['POST'])
 def send_message():
@@ -545,30 +865,6 @@ def fetch_all_notifications():
     data = request.get_json()
     token = data['token']
     return notifications_fetch_all(token)
-    
-
-# @APP.route('/recipe/publish', methods=['PUT'])
-# def publish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "t"))
-
-# @APP.route('/recipe/unpublish', methods=['PUT'])
-# def unpublish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-    
-#     recipe_id = data['recipe_id']
-#     return dumps(publish_recipe(recipe_id, "f"))
 
 
 @APP.route('/reset', methods=['GET'])

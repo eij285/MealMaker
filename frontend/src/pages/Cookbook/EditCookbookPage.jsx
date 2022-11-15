@@ -12,9 +12,7 @@ import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
 import { PageTitle, SubPageTitle } from '../../components/TextNodes';
 import {
-  ConfirmationDialog,
   FlexColumn,
-  FlexRow,
   ErrorAlert,
   SuccessAlert
 } from '../../components/StyledNodes';
@@ -49,7 +47,7 @@ const RecipeAdder = ({recipesInCookbook, ownRecipes, setAddRecipeIds}) => {
         setIds([...ids, selectedId]);
       }
     } else {
-      setIds([...ids.filter((id) => id != selectedId)]);
+      setIds([...ids.filter((id) => id !== selectedId)]);
     }
   };
   const innerBoxStyles = {
