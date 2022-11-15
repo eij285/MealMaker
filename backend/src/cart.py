@@ -121,6 +121,32 @@ def cart_load_saved(cart_id, token):
     }
 
 def cart_save_payment_method(name, number, exp_date, cvv, token):
+    
+     # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
+    if not verify_token(token):
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    # Start connection to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+        
+    query = ("SELECT owner_id FROM payment_methods WHERE owner_id = u_id")
+    
     return {
         'status_code': 200,
         'body': {
