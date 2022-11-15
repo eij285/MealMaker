@@ -20,7 +20,7 @@ from review import reviews_all_for_recipe, review_create, review_delete, \
 from feed import feed_fetch_discover, feed_fetch_subscription, \
                  feed_fetch_trending
 from search import search
-<<<<<<< HEAD
+
 from cart import cart_add_all_ingredients, cart_remove_ingredient, \
                  cart_add_by_id, cart_add_by_name, cart_set_saved, \
                  cart_load_saved, cart_save_payment_method, \
@@ -28,7 +28,7 @@ from cart import cart_add_all_ingredients, cart_remove_ingredient, \
                  cart_list_payment_methods, cart_display_details, \
                  cart_display_all_details, cart_make_order, \
                  cart_fetch_past_orders_all, cart_fetch_past_order_details
-=======
+
 from message import message_send, message_edit, message_delete, message_react
 from message_room import *
 from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
@@ -36,7 +36,7 @@ from recipe_book import cookbook_create, cookbook_delete, cookbook_edit, \
                         cookbooks_user_published, cookbook_subscribe, \
                         cookbook_unsubscribe, cookbook_add_recipe, \
                         cookbook_remove_recipe
->>>>>>> main
+
 
 APP = Flask(__name__)
 CORS(APP)
