@@ -33,6 +33,8 @@ import MessageRoomsPage from './pages/Message/MessageRoomsPage';
 import SingleMessageRoomPage from './pages/Message/SingleMessageRoomPage';
 import ManageShoppingPage from './pages/Shopping/ManageShoppingPage';
 import AddEditPaymentMethodPage from './pages/Shopping/AddEditPaymentMethodPage';
+import ViewCartPage from './pages/Shopping/ViewCartPage';
+import CheckoutPage from './pages/Shopping/CheckoutPage';
 import Forbidden403Page from './pages/Error/Forbidden403Page';
 import NotFound404Page from './pages/Error/NotFound404Page';
 import './App.css';
@@ -71,6 +73,8 @@ function App() {
               <Route exact path="/manage-shopping" element={<ManageShoppingPage />} />
               <Route exact path="/add-payment-method" element={<AddEditPaymentMethodPage />} />
               <Route path="/edit-payment-method/:methodId" element={<AddEditPaymentMethodPage />} />
+              <Route path="/cart" element={<ViewCartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
             </Route>
             <Route exact path="/forbidden-403" element={<Forbidden403Page />} />
             <Route path="*" element={<NotFound404Page />} />

@@ -229,7 +229,7 @@ function ViewRecipePage () {
                 setServings={setServings} />
             </Box>
             <MealSuitabilityTags data={recipeData} />
-            <IngredientsListing data={currData}
+            <IngredientsListing data={currData} recipeId={parseInt(recipeId)}
               reqImperial={recipeData.units === 'Imperial'} />
             <Box>
               <SubPageTitleNoMargins>Method</SubPageTitleNoMargins>
