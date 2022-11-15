@@ -14,10 +14,10 @@ DROP TABLE IF EXISTS message_room_members;
 DROP TABLE IF EXISTS message_room_owners;
 DROP TABLE IF EXISTS message_emojis;
 DROP TABLE IF EXISTS recipes;
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS payment_methods;
 DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS payment_methods;
 DROP TABLE IF EXISTS shopping_carts;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS message_rooms;
@@ -173,16 +173,6 @@ CREATE TABLE cart_items (
     FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE
 );
 
-CREATE TABLE order_items (
-    item_id         SERIAL,
-    ingredient_name VARCHAR(30) NOT NULL,
-    ingredient_quantity INTEGER NOT NULL,
-    ingredient_cost MONEY NOT NULL,
-    order_id        INTEGER NOT NULL,
-    PRIMARY KEY (item_id),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
-)
-
 CREATE TABLE payment_methods (
     method_id       SERIAL,
     owner_id        INTEGER NOT NULL,
@@ -211,6 +201,15 @@ CREATE TABLE orders (
     CONSTRAINT valid_order_status CHECK (order_status in ('pending', 'processing', 'approved', 'completed'))
 );
 
+CREATE TABLE order_items (
+    item_id         SERIAL,
+    ingredient_name VARCHAR(30) NOT NULL,
+    ingredient_quantity INTEGER NOT NULL,
+    ingredient_cost MONEY NOT NULL,
+    order_id        INTEGER NOT NULL,
+    PRIMARY KEY (item_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
 
 CREATE TABLE message_rooms (
     room_id SERIAL,

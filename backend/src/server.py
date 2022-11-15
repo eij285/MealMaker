@@ -572,8 +572,7 @@ def cart_payment_method_save():
     # }
 
 @APP.route('/cart/payment-method/update', methods=['POST'])
-def cart_payment_method_update():
-    # Returns details of specific updated payment method (individual)
+def cart_payment_method_save():
     data = request.get_json()
     name = data['card_name']
     number = data['card_number']
@@ -600,10 +599,10 @@ def cart_payment_method_get():
 
     # return {
     #   'body': {
-    #       'card_name': 
+    #       'cardholder_name': 
     #       'card_number': 
-    #       'card_cvv':
-    #       'card_exp_date':
+    #       'cvv':
+    #       'expiration_date':
     #   }
     # }
 
@@ -618,17 +617,17 @@ def cart_payment_method_list():
     #   'body': [
     #       {
     #           'method_id': 2
-    #           'card_name': 
+    #           'cardholder_name': 
     #           'card_number': 
-    #           'card_cvv':
-    #           'card_exp_date':
+    #           'cvv':
+    #           'expiration_date':
     #       },
     #       {
-    #           'method_id': 3
-    #           'card_name': 
+    #           'method_id': 2
+    #           'cardholder_name': 
     #           'card_number': 
-    #           'card_cvv':
-    #           'card_exp_date':
+    #           'cvv':
+    #           'expiration_date':
     #       },
     #   ]
     # }
