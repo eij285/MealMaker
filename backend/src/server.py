@@ -557,10 +557,10 @@ def cart_load():
 @APP.route('/cart/payment-method/save', methods=['POST'])
 def cart_payment_method_save():
     data = request.get_json()
-    name = data['card_name']
+    name = data['cardholder_name']
     number = data['card_number']
-    exp_date = data['card_exp_date']
-    cvv = data['card_cvv']
+    exp_date = data['expiration_date']
+    cvv = data['cvv']
     token = data['token']
 
     return dumps(cart_save_payment_method(name, number, exp_date, cvv, token))
@@ -574,10 +574,10 @@ def cart_payment_method_save():
 @APP.route('/cart/payment-method/update', methods=['POST'])
 def cart_payment_method_save():
     data = request.get_json()
-    name = data['card_name']
+    name = data['cardholder_name']
     number = data['card_number']
-    exp_date = data['card_exp_date']
-    cvv = data['card_cvv']
+    exp_date = data['expiration_date']
+    cvv = data['cvv']
     token = data['token']
 
     return dumps(cart_update_payment_method(name, number, exp_date, cvv, token))
