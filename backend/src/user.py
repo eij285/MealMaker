@@ -1175,14 +1175,14 @@ def user_stats(user_id, token):
         reviews_received_result = cur.fetchone()
         reviews_received_count = reviews_received_result[0]
         reviews_received_average = \
-            '0.0' if reviews_received_result[1] is None else reviews_received_result[1]
+            '0.0' if reviews_received_result[1] is None else str(reviews_received_result[1])
 
         query = "SELECT COUNT(*), AVG(rating) FROM recipe_reviews WHERE user_id = %s"
         cur.execute(query, (user_id,))
         reviews_made_result = cur.fetchone()
         reviews_made_count = reviews_made_result[0]
         reviews_made_average = \
-            '0.0' if reviews_made_result[1] is None else reviews_made_result[1]
+            '0.0' if reviews_made_result[1] is None else str(reviews_made_result[1])
 
         query = """
             SELECT COUNT(DISTINCT recipe_id) FROM recipe_user_likes
@@ -1198,12 +1198,16 @@ def user_stats(user_id, token):
             """
         cur.execute(query, (user_id,))
         reciped_liked_by_others, = cur.fetchone()
-
+        
         # check if current user is anonymous or another user requesting private
         # user information
-        query = "SELECT id FROM users WHERE token = %s"
-        cur.execute(query, (str(token),))
-        cur_user_id, = cur.fetchone()
+        if token:
+            query = "SELECT id FROM users WHERE token = %s"
+            cur.execute(query, (str(token),))
+            cur_user_id, = cur.fetchone()
+        else:
+            # not authenticated, assume user_id = -1
+            cur_user_id = -1
 
         stats_data = {
             'status_code': 200,

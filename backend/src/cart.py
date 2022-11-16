@@ -1,8 +1,7 @@
 from config import DB_CONN_STRING
-from backend_helper import verify_token
+from backend_helper import verify_token, fetch_all_with_condition, connect
 from datetime import datetime, timezone, timedelta
 from store import recipe_item_to_cart
-
 import psycopg2
 import uuid
 import random
@@ -453,52 +452,185 @@ def cart_load_saved(cart_id, token):
     }
 
 def cart_save_payment_method(name, number, exp_date, cvv, token):
-    return {
-        'status_code': 200,
-        'body': {
-            'method_id': 2
+    
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
         }
-    }
+    
+    u_id = verify_token(token)
+    if not u_id:
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    conn = connect()
+    cur = conn.cursor()
+    
+    try:
+        query = ("SELECT card_number FROM payment_methods WHERE owner_id = %s")
+        cur.execute(query, (u_id,))
+        out = cur.fetchall()
+        if len(out) != 0:
+            for elem in out[0]:
+                if int(elem) == int(number):
+                    cur.close()
+                    conn.close()
+                    return {
+                        'status_code': 400,
+                        'error': 'This card already exist in your saved payment list',
+                    }
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': 'failed to check if card exist'
+        }
+    try:
+        query = ("INSERT INTO payment_methods (owner_id, cardholder_name, card_number, expiration_date, cvv) VALUES (%s, %s, %s, %s, %s) RETURNING method_id")
+        cur.execute(query, (u_id, name, number, exp_date, cvv))
+        conn.commit()
+        method_id = cur.fetchone()
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 200,
+            'body': {
+                'method_id': method_id[0]
+            }
+        }
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': 'failed to add payment methods'
+        }
 
 def cart_update_payment_method(name, number, exp_date, cvv, token):
-    return {
-        'status_code': 200,
-        'body': {
-            'method_id': 2
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
         }
-    }
+    
+    u_id = verify_token(token)
+    if not u_id:
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+    
+    conn = connect()
+    cur = conn.cursor()
+    
+    try:
+        query = ("SELECT method_id FROM payment_methods WHERE card_number = %s AND owner_id = %s")
+        cur.execute(query, (str(number), str(u_id),))
+        out = cur.fetchone()
+        if out == None:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'Access Denied'
+            }
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': 'failed to check user access'
+        }
+        
+    try:
+        query = ("UPDATE payment_methods SET cardholder_name = %s, card_number = %s, expiration_date = %s, cvv = %s WHERE owner_id = %s RETURNING method_id")
+        cur.execute(query, (name, str(number), str(exp_date), str(cvv), str(u_id), ))
+        conn.commit()
+        method_id = cur.fetchone()[0]
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 200,
+            'body': {
+                'method_id': method_id
+            }
+        }
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': 'failed to update payment methods'
+        }
 
 def cart_get_payment_method(method_id, token):
-    return {
-        'status_code': 200,
-        'body': {
-            'card_name': 'Person A',
-            'card_number': 4023546912302424,
-            'card_cvv': 412,
-            'card_exp_date': '12/30'
+     # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
         }
-    }
+    
+    u_id = verify_token(token)
+    if not u_id:
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+        
+    conn = connect()
+    cur = conn.cursor()
+    
+    try:
+        out = fetch_all_with_condition('payment_methods', 'method_id', method_id)[0]
+        if out['owner_id'] != u_id:
+            cur.close()
+            conn.close()
+            return {
+                'status_code': 400,
+                'error': 'Access denied'
+            }
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 200,
+            'body': out
+        }
+    except:
+        cur.close()
+        conn.close()
+        return {
+            'status_code': 400,
+            'error': 'Failed to get payment methods'
+        }
 
 def cart_list_payment_methods(token):
+    # error if no token
+    if not token:
+        return {
+            'status_code': 401,
+            'error': "No token"
+        }
+    
+    u_id = verify_token(token)
+    if not u_id:
+        return {
+            'status_code': 401,
+            'error': "Invalid token"
+        }
+        
+    out = fetch_all_with_condition('payment_methods', 'owner_id', u_id)
     return {
         'status_code': 200,
-        'body': [
-            {
-                'method_id': 2,
-                'card_name': 'Person A',
-                'card_number': 4023546912302424,
-                'card_cvv': 412,
-                'card_exp_date': '12/30'
-            },
-            {
-                'method_id': 3,
-                'card_name': 'Person A\'s Business Card',
-                'card_number': 4098877212341234,
-                'card_cvv': 412,
-                'card_exp_date': '12/25'
-            }
-        ]
+        'body': out
     }
+
 
 def cart_display_details(cart_id, token):
 
