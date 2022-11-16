@@ -11,6 +11,7 @@ import {
   ListItemText,
   MenuItem,
   MenuList,
+  SpeedDialIcon,
   TextField,
   Toolbar,
   Typography
@@ -33,6 +34,8 @@ import Message from '@mui/icons-material/Message';
 import Divider from '@mui/material/Divider';
 import Menu from '@mui/material/Menu';
 import Tooltip from '@mui/material/Tooltip';
+
+import SpeedIcon from '@mui/icons-material/Speed';
 
 
 const HeaderButtonTypo = ({children}) => {
@@ -251,7 +254,10 @@ function Header ({ incSearch, incButtons }) {
             <Avatar /> Profile
           </MenuItem>
           <MenuItem component={RouterLink} to={'/user-profile'}>
-            <Avatar /> My account
+            <ListItemIcon>
+              <SpeedIcon />
+            </ListItemIcon>
+          Dashboard
           </MenuItem>
           <Divider />
           <MenuItem component={RouterLink} to={'/user-preferences'}>

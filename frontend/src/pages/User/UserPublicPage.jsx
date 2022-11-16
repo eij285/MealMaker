@@ -375,9 +375,11 @@ function UserPublicPage () {
       </Grid>
       </ProfileContainer>}      
       <Grid container direction={"row"}>
+        {isOwnProfile && <>
         <IconButton component={RouterLink} to={'/create-recipe'} disableRipple={true} sx={{"&:hover": {color: "#000000"} }}>
           <AddIcon />
         </IconButton>
+        </>}
         <SubPageTitle>Recipes</SubPageTitle>
       </Grid>
       {userProfile.hasOwnProperty('visitor_efficiency') &&
@@ -390,18 +392,21 @@ function UserPublicPage () {
         </Grid>))}
       </Grid>
       </>}
+      <Grid container direction={"row"}>
+        {isOwnProfile && <>
+        <IconButton component={RouterLink} to={'/create-cookbook'} disableRipple={true} sx={{"&:hover": {color: "#000000"} }}>
+          <AddIcon />
+        </IconButton>
+        </>}
+        <SubPageTitle>Cook Books</SubPageTitle>
+      </Grid>
       {cookbooksList.length > 0 && <>
-      <SubPageTitle>Cook Books</SubPageTitle>
       <Grid container spacing={2}>
         {cookbooksList.map((cookbook, index) => (
         <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
           <CookbookItem cookbook={cookbook} />
         </Grid>))}
-      </Grid>
-      <Grid container direction={"row"}>
-        
-      </Grid>
-    
+      </Grid>    
     </>}
     </ExploreLayout>
   );
