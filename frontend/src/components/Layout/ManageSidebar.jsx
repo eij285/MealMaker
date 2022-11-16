@@ -154,9 +154,6 @@ export default function ManageSidebar() {
       </SidebarToggle>
       <Divider />
       <List sx={{ paddingTop: 0 }}>
-        <SidebarItem to="/dashboard" text="Dashboard" open={open} icon={<SpeedIcon />} />
-        <SidebarItem to="/my-recipes" text="Recipes" open={open} icon={<Restaurant />} />
-        <SidebarItem to="/my-cookbooks" text="Cook Books" open={open} icon={<MenuBookIcon />} />
         <SidebarItem to="/manage-shopping" text="Shopping" open={open} icon={<StoreIcon />} />
         <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />
         <SidebarItem to="/user-preferences" text="Settings" open={open} icon={<SettingsIcon />} />

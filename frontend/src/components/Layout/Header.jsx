@@ -37,7 +37,8 @@ import Tooltip from '@mui/material/Tooltip';
 
 import SpeedIcon from '@mui/icons-material/Speed';
 
-
+import { Restaurant } from '@mui/icons-material';
+import MenuBook from '@mui/icons-material/MenuBook';
 const HeaderButtonTypo = ({children}) => {
   const styles = {
     paddingLeft: '6px',
@@ -253,7 +254,19 @@ function Header ({ incSearch, incButtons }) {
           <MenuItem component={RouterLink} to={`/user/${tokenToUserId(token)}`}>
             <Avatar /> Profile
           </MenuItem>
-          <MenuItem component={RouterLink} to={'/user-profile'}>
+          <MenuItem component={RouterLink} to={`/my-recipes`}>
+            <ListItemIcon>
+              <Restaurant />
+            </ListItemIcon>
+            Recipes
+          </MenuItem>
+          <MenuItem component={RouterLink} to={'/my-cookbooks'}>
+            <ListItemIcon>
+              <MenuBook />
+            </ListItemIcon>
+            Cook Books
+          </MenuItem>
+          <MenuItem component={RouterLink} to={'/dashboard'}>
             <ListItemIcon>
               <SpeedIcon />
             </ListItemIcon>
