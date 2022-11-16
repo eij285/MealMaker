@@ -6,13 +6,16 @@ import {
   Button,
   Divider,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
+  Tooltip,
   Typography 
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
@@ -41,6 +44,7 @@ function ViewCartPage () {
   const [quantity, setQuantity] = React.useState('');
   const [ingredientUnit, setIngredientUnit] = React.useState(config.METRIC_UNITS[0]);
   const [ingredientName, setIngredientName] = React.useState(config.INGREDIENTS[0]);
+  const [validIngredient, setValidIngredient] = React.useState(false);
 
   const [ingredientMessage, setIngredientMessage] = React.useState('');
 
@@ -55,13 +59,28 @@ function ViewCartPage () {
     height: 'calc(100vh - 600px)',
   };
 
+  React.useEffect(() => {
+    setValidIngredient(ingredientName && quantity && ingredientUnit &&
+      isPositiveInteger(`${quantity}`));
+  }, [ingredientName, quantity, ingredientUnit]);
+
   const addIngredientToCart = () => {
-    if(!ingredientName || !quantity || !ingredientUnit ||
-      !isPositiveInteger(`${quantity}`)) {
+    if(!validIngredient) {
       setIngredientMessage('All ingredients must have size, unit and name');
+      return;
     }
+    const body = {
+      ingredient_name: ingredientName,
+      ingredient_unit: ingredientUnit,
+      ingredient_quantity: parseInt(quantity)
+    };
+    backendRequest('/cart/add-ingredient/name', body, 'POST', token, (data) => {
+      //setCartId(data.body.cart_id);
+      //setCartItems([...cartItems, ...data.body.ingredients]);
+    }, (error) => {
+      setIngredientMessage(error);
+    });
   };
-  console.log(cartItems);
   
   const navigate = useNavigate();
 
@@ -157,25 +176,24 @@ function ViewCartPage () {
               value={ingredientName}
               onChange={(e, newVal) => setIngredientName(newVal)}
               renderInput={(params) => (
-                <TextInput
-                  label="Ingredient"
-                  {...params}
-                />
+                <TextInput label="Ingredient" {...params} />
               )}
             />
+            <Tooltip title="Add ingredient to cart" placement="right" arrow>
+              <Box>
+                <IconButton size="small" onClick={addIngredientToCart}
+                  disabled={!validIngredient}>
+                  <AddShoppingCartIcon sx={{fontSize: '2.4em'}} />
+                </IconButton>
+              </Box>
+            </Tooltip>
           </FlexRow>
           {ingredientMessage !== '' &&
-          <ErrorAlert message={ingredientMessage} setMessage={setIngredientMessage} />}
+          <Box mt={2}>
+            <ErrorAlert message={ingredientMessage}
+              setMessage={setIngredientMessage} />
+          </Box>}
         </Box>
-        <FlexRow>
-          <Button color="success"
-            size="large"
-            onClick={addIngredientToCart}
-            sx={{textTransform: 'none'}}
-            startIcon={<AddCircleIcon />}>
-            Add ingredient to cart
-          </Button>
-        </FlexRow>
         <Divider />
         <FlexRow>
           <LeftAlignedButton component={RouterLink} to="/checkout">

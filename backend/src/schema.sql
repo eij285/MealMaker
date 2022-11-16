@@ -17,9 +17,9 @@ DROP TABLE IF EXISTS message_emojis;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS order_items;
-DROP TABLE IF EXISTS shopping_carts;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS payment_methods;
+DROP TABLE IF EXISTS shopping_carts;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS message_rooms;
 DROP TABLE IF EXISTS users;
@@ -170,6 +170,7 @@ CREATE TABLE cart_items (
     ingredient_quantity INTEGER NOT NULL,
     ingredient_cost MONEY NOT NULL,
     unit_type       VARCHAR(10) NOT NULL,
+    item_quantity   INTEGER NOT NULL DEFAULT 1,
     cart_id         INTEGER NOT NULL,
     PRIMARY KEY (item_id),
     FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE,
@@ -181,7 +182,7 @@ CREATE TABLE payment_methods (
     owner_id        INTEGER NOT NULL,
     cardholder_name VARCHAR(30) NOT NULL,
     card_number     VARCHAR(20) NOT NULL,
-    expiration_date DATE NOT NULL,
+    expiration_date TEXT,
     cvv             VARCHAR(4) NOT NULL,
     PRIMARY KEY (method_id),
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
@@ -190,6 +191,7 @@ CREATE TABLE payment_methods (
 CREATE TABLE orders (
     order_id        SERIAL,
     order_number    CHAR(10) NOT NULL UNIQUE,
+    cart_id         INTEGER NOT NULL,
     placed_on       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     completed_on    TIMESTAMP,
     order_status    VARCHAR(10) NOT NULL DEFAULT ('pending'),
@@ -197,7 +199,9 @@ CREATE TABLE orders (
     delivery_time   TIMESTAMP NOT NULL,
     delivery_address TEXT NOT NULL,
     payment_amount  MONEY NOT NULL,
+    owner_id        INTEGER NOT NULL,
     PRIMARY KEY (order_id),
+    FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE,
     FOREIGN KEY (payment_method_id) REFERENCES payment_methods(method_id) ON DELETE CASCADE,
     CONSTRAINT valid_order_status CHECK (order_status in ('pending', 'processing', 'approved', 'completed'))
 );
@@ -208,6 +212,7 @@ CREATE TABLE order_items (
     ingredient_quantity INTEGER NOT NULL,
     ingredient_cost MONEY NOT NULL,
     unit_type       VARCHAR(10) NOT NULL,
+    item_quantity   INTEGER NOT NULL DEFAULT 1,
     order_id        INTEGER NOT NULL,
     PRIMARY KEY (item_id),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
