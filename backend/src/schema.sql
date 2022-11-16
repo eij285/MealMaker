@@ -191,7 +191,6 @@ CREATE TABLE payment_methods (
 CREATE TABLE orders (
     order_id        SERIAL,
     order_number    CHAR(10) NOT NULL UNIQUE,
-    cart_id         INTEGER NOT NULL,
     placed_on       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     completed_on    TIMESTAMP,
     order_status    VARCHAR(10) NOT NULL DEFAULT ('pending'),
@@ -201,7 +200,6 @@ CREATE TABLE orders (
     payment_amount  MONEY NOT NULL,
     owner_id        INTEGER NOT NULL,
     PRIMARY KEY (order_id),
-    FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE,
     FOREIGN KEY (payment_method_id) REFERENCES payment_methods(method_id) ON DELETE CASCADE,
     CONSTRAINT valid_order_status CHECK (order_status in ('pending', 'processing', 'approved', 'completed'))
 );
