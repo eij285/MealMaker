@@ -181,7 +181,7 @@ CREATE TABLE payment_methods (
     owner_id        INTEGER NOT NULL,
     cardholder_name VARCHAR(30) NOT NULL,
     card_number     VARCHAR(20) NOT NULL,
-    expiration_date DATE NOT NULL,
+    expiration_date TEXT,
     cvv             VARCHAR(4) NOT NULL,
     PRIMARY KEY (method_id),
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
