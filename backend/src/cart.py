@@ -772,7 +772,7 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
     if not sql_result:
         seed = 1
     else:
-        seed, = sql_result[0]
+        seed = sql_result
         seed = int(seed)
 
     # Generate order number
@@ -789,14 +789,14 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
     cur.execute(sql_query, (order_no, m_id, deliver_by, deliver_loc, '0', \
                 str(u_id)))
     
-    order_id, = cur.fetchone()[0]
+    order_id = cur.fetchone()[0]
 
     # Get active cart and its ingredients
     sql_query = "SELECT i.ingredient_name, i.ingredient_quantity, \
                  i.ingredient_cost, i.unit_type, i.item_quantity \
-                 FROM shopping_cart c LEFT JOIN cart_items i \
-                 ON s.cart_id = i.cart_id \
-                 WHERE s.owner_id = %s AND s.cart_status = 'active';"
+                 FROM shopping_carts c LEFT JOIN cart_items i \
+                 ON c.cart_id = i.cart_id \
+                 WHERE c.owner_id = %s AND c.cart_status = 'active';"
     cur.execute(sql_query, (str(u_id),))
 
     sql_result = cur.fetchall()
@@ -805,7 +805,7 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
     # Insert all results into order_items and add cost to order
     for result in sql_result:
         ing_name, ing_quantity, ing_cost, unit_type, item_quantity = result
-        total_cost += float(ing_cost) * int(item_quantity)
+        total_cost += float(ing_cost[1:]) * int(item_quantity)
 
         # Add items to order_items
         sql_query = "INSERT INTO order_items(ingredient_name, \
@@ -816,7 +816,7 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
                     item_quantity, order_id))
         
     sql_query = "UPDATE orders SET payment_amount = %s WHERE order_id = %s;"
-    cur.execute(sql_query, (str(total_cost), str(u_id)))
+    cur.execute(sql_query, (str(total_cost), str(order_id)))
 
     conn.commit()
     cur.close()
@@ -908,7 +908,7 @@ def cart_fetch_past_order_details(order_id, token):
         }
 
     _, order_number, placed_on, completed_on, order_status, payment_method_id, \
-            delivery_time, delivery_address, payment_amount = sql_result[0]
+            delivery_time, delivery_address, payment_amount, _ = sql_result[0]
     
     # Get order item details
     sql_query = "SELECT * FROM order_items WHERE order_id = %s;"
@@ -936,7 +936,7 @@ def cart_fetch_past_order_details(order_id, token):
                  FROM payment_methods WHERE method_id = %s;"
     cur.execute(sql_query, (str(payment_method_id),))
 
-    card_name, card_number, card_cvv, card_exp_date = cur.fetchone()[0]
+    card_name, card_number, card_cvv, card_exp_date = cur.fetchone()
 
 
     return {
@@ -956,5 +956,9 @@ def cart_fetch_past_order_details(order_id, token):
         'card_exp_date': card_exp_date
     }
 
-if __name__ == "__main__":
-    pprint(cart_make_order(3, datetime.now(), datetime.now(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTA3NzJ9.rhh0O0fVKrKOY0DiQplEaBDg6_xknlWhO8XC9qB-txE"))
+# if __name__ == "__main__":
+#     pprint(cart_add_all_ingredients(1, 10, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+#     pprint(cart_save_payment_method('Elijah', '3131232301010002', datetime.now(), '323', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+#     pprint(cart_make_order(1, datetime.now(), datetime.now(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+#     pprint(cart_fetch_past_orders_all("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+#     pprint(cart_fetch_past_order_details(15, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))

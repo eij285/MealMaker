@@ -28,7 +28,6 @@ def recipe_item_to_cart(classification, req_quantity, unit_type):
         # Sort by highest quantity to least quantity
         valid_items.sort(key=take_second, reverse=True)
         valid_items = [x[0] for x in valid_items]
-        print(valid_items)
 
         # Add as many items from the shop needed to reach the required quantity
         for item in valid_items:
