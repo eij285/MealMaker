@@ -16,6 +16,18 @@ function ManageShoppingPage () {
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
 
+  const loadPaymentMethod = () => {
+    
+    const body = {
+      
+    };
+    backendRequest('/cart/payment-method/get', body, 'POST', token, (data) => {
+      
+    }, (error) => {
+      
+    });
+  };
+
   return (
     <ManageLayout>
       <Grid item xl={6} lg={8} md={10} sm={12} xs={12}>
