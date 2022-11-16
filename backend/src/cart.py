@@ -544,13 +544,14 @@ def cart_display_details(cart_id, token):
     # Loop through all items in result
     items_body_content = []
     for item in sql_result:
-        item_id, item_name, item_quantity, item_cost, unit_type, \
+        item_id, item_name, ing_quantity, item_cost, unit_type, \
                 item_quantity, _ = item
         
         items_body_content.append({
             'item_id': item_id,
             'item_name': item_name,
             'unit_type': unit_type,
+            'unit_quantity': ing_quantity,
             'item_quantity': item_quantity,
             'item_cost': item_cost
         })
@@ -824,4 +825,4 @@ def cart_fetch_past_order_details(order_id, token):
     }
 
 if __name__ == "__main__":
-    pprint(cart_add_all_ingredients(1, 10, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxMjI1ODh9.IMGG_S8l6vHZBKFvmPy2JSsIGSSgfr0OTisV2C1wwwc"))
+    pprint(cart_display_details(1, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTA3NzJ9.rhh0O0fVKrKOY0DiQplEaBDg6_xknlWhO8XC9qB-txE"))
