@@ -8,25 +8,27 @@ import { backendRequest } from '../../helpers';
 import { ErrorAlert, FlexColumn, FlexRow, SuccessAlert } from '../../components/StyledNodes';
 import { PageTitle, SubPageTitle } from '../../components/TextNodes';
 import { TextInput } from '../../components/InputFields';
+import { SinglePaymentMethod } from '../../components/Shopping/ShoppingNodes';
 
 function ManageShoppingPage () {
   // TODO: complete this page
   const token = React.useContext(GlobalContext).token;
   const [deliveryAddress, setDeliveryAddress] = React.useState('');
+  const [paymentMethods, setPaymentMethods] = React.useState([]);
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
 
-  const loadPaymentMethod = () => {
-    
-    const body = {
-      
-    };
-    backendRequest('/cart/payment-method/get', body, 'POST', token, (data) => {
-      
+  const loadPaymentMethods = () => {
+    backendRequest('/cart/payment-method/list', {}, 'POST', token, (data) => {
+      console.log(data);
     }, (error) => {
-      
+      setResponseError(error);
     });
   };
+
+  React.useEffect(() => {
+    loadPaymentMethods();
+  }, [token]);
 
   return (
     <ManageLayout>
