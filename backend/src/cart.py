@@ -214,7 +214,8 @@ def cart_add_by_id(ing_id, token):
 
     # Map each item to its count value and aggregate
     cart_items = [(x, cart_items.count(x)) for x in cart_items]
-    cart_items = list(set(cart_items))
+    cart_items = \
+            [x for i, x in enumerate(cart_items) if x not in cart_items[i + 1:]]
 
     ingredients_body_content = []
 
@@ -296,7 +297,8 @@ def cart_add_by_name(ing_name, ing_unit, ing_quantity, token):
 
     # Map each item to its count value and aggregate
     cart_items = [(x, cart_items.count(x)) for x in cart_items]
-    cart_items = list(set(cart_items))
+    cart_items = \
+            [x for i, x in enumerate(cart_items) if x not in cart_items[i + 1:]]
 
     ingredients_body_content = []
 
@@ -956,9 +958,46 @@ def cart_fetch_past_order_details(order_id, token):
         'card_exp_date': card_exp_date
     }
 
-# if __name__ == "__main__":
-#     pprint(cart_add_all_ingredients(1, 10, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
-#     pprint(cart_save_payment_method('Elijah', '3131232301010002', datetime.now(), '323', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
-#     pprint(cart_make_order(1, datetime.now(), datetime.now(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
-#     pprint(cart_fetch_past_orders_all("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
-#     pprint(cart_fetch_past_order_details(15, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+def cart_delete_id(cart_id, token):
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    # Verify token
+    token_valid = verify_token(token)
+    if not token_valid:
+        return {
+            'status_code': 401,
+            'error': 'Invalid token'
+        }
+    else:
+        u_id = token_valid
+
+    sql_query = "DELETE FROM shopping_carts WHERE cart_id = %s \
+                 AND owner_id = %s;"
+    cur.execute(sql_query, (str(cart_id), str(u_id)))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {}
+    }
+
+if __name__ == "__main__":
+    pprint(cart_delete_id(1, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_add_by_id(1, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_add_all_ingredients(1, 10, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_save_payment_method('Elijah', '3131232301010002', datetime.now(), '323', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_make_order(1, datetime.now(), datetime.now(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_fetch_past_orders_all("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_fetch_past_order_details(15, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
