@@ -634,7 +634,7 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
 
     # Generate order number
     cur.execute("SELECT MAX(order_id) FROM orders;")
-    sql_result = cur.fetchall()
+    sql_result = cur.fetchone()[0]
 
     # Using order_id for seed
     if not sql_result:
@@ -825,4 +825,4 @@ def cart_fetch_past_order_details(order_id, token):
     }
 
 if __name__ == "__main__":
-    pprint(cart_display_details(1, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTA3NzJ9.rhh0O0fVKrKOY0DiQplEaBDg6_xknlWhO8XC9qB-txE"))
+    pprint(cart_make_order(3, datetime.now(), datetime.now(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTA3NzJ9.rhh0O0fVKrKOY0DiQplEaBDg6_xknlWhO8XC9qB-txE"))
