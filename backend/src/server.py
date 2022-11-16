@@ -774,302 +774,302 @@ def cart_past_orders_get():
 
 # 
 
-# TODO:
-# Update user stories to allow only authenticated
-# 
-# JSON File containing ingredients (substitute for grocery store integration or
-#   web scraping)
-# 
-
-# @APP.route('/recipe/publish', methods=['PUT'])
-# def publish_recipe():
-#     data = request.get_json()
-#     # Verify token
-#     token = data['token']
-#     if not verify_token(token):
-#         return dumps({'status_code': 401, 'error': None})
-
-@APP.route('/cart/add-all', methods=['POST'])
-def cart_add_all():
-    # Starts a cart using current recipe
-    # 
-    # Don't forget conversions
-    data = request.get_json()
-    r_id = data['recipe_id']
-    servings = data['servings']
-    token = data['token']
-
-    return dumps(cart_add_all_ingredients(r_id, servings, token))
-
-    # return {
-    #   'body': {
-    #       'cart_id': 2
-    #       'ingredients: [
-    #           {
-    #               'item_id': 3
-    #               'item_name':
-    #               'item_quantity':
-    #               'item_cost':
-    #           },
-    #           {
-    #               'item_id': 2
-    #               'item_name':
-    #               'item_quantity':
-    #               'item_cost':
-    #           },
-    #       ]
-    #   }
-    # }
-
-@APP.route('/cart/rmv-ingredient', methods=['POST'])
-def cart_rmv_ingredient():
-    # Removes ingredient from active cart
-    data = request.get_json()
-    ing_id = data['ingredient_id']
-    token = data['token']
-
-    return dumps(cart_remove_ingredient(ing_id, token))
-
-    # return {
-    #   'body': {}
-    # }
-
-@APP.route('/cart/add-ingredient/id', methods=['POST'])
-def cart_add_ingredient_id():
-    # Adds ingredient from a recipe's ingredients (individual)
-    data = request.get_json()
-    ing_id = data['ingredient_id']
-    token = data['token']
-
-    return dumps(cart_add_by_id(ing_id, token))
-
-    # return {
-    #   'body': {
-    #       'cart_id': id of new cart (if previously inactive)
-    #       'item_id': 3
-    #       'item_name':
-    #       'item_quantity':
-    #       'item_cost':
-    #   }
-    # }
-
-@APP.route('/cart/add-ingredient/name', methods=['POST'])
-def cart_add_ingredient_name():
-    # Adds ingredient by search term
-    data = request.get_json()
-    ing_name = data['ingredient_name']
-    ing_unit = data['ingredient_unit']
-    ing_quantity = data['ingredient_quantity']
-    token = data['token']
-
-    return dumps(cart_add_by_name(ing_name, ing_unit, ing_quantity, token))
-
-    # return {
-    #   'body': {
-    #       'cart_id': id of new cart (if previously inactive)
-    #       'item_id': 3
-    #       'item_name':
-    #       'item_quantity':
-    #       'item_cost':
-    #   }
-    # }
-
-
-@APP.route('/cart/save', methods=['POST'])
-def cart_save():
-# Saves cart so an order can be made in the future
-    data = request.get_json()
-    token = data['token']
-    return dumps(cart_set_saved(token))
-
-@APP.route('/cart/load', methods=['POST'])
-def cart_load():
-# Loads a saved cart so the order can be made
-    data = request.get_json()
-    cart_id = data['cart_id']
-    token = data['token']
-    return dumps(cart_load_saved(cart_id, token))
-
-@APP.route('/cart/payment-method/save', methods=['POST'])
-def cart_payment_method_save():
-    data = request.get_json()
-    name = data['cardholder_name']
-    number = data['card_number']
-    exp_date = data['expiration_date']
-    cvv = data['cvv']
-    token = data['token']
-
-    return dumps(cart_save_payment_method(name, number, exp_date, cvv, token))
-
-    # return {
-    #   'body': {
-    #       'method_id': 2
-    #   }
-    # }
-
-@APP.route('/cart/payment-method/update', methods=['POST'])
-def cart_payment_method_save():
-    data = request.get_json()
-    name = data['cardholder_name']
-    number = data['card_number']
-    exp_date = data['expiration_date']
-    cvv = data['cvv']
-    token = data['token']
-
-    return dumps(cart_update_payment_method(name, number, exp_date, cvv, token))
-
-    # return {
-    #   'body': {
-    #       'method_id': 2
-    #   }
-    # }
-
-@APP.route('/cart/payment-method/get', methods=['POST'])
-def cart_payment_method_get():
-    # Returns details of specific payment method (individual)
-    data = request.get_json()
-    method_id = data['method_id']
-    token = data['token']
-
-    return dumps(cart_get_payment_method(method_id, token))
-
-    # return {
-    #   'body': {
-    #       'cardholder_name': 
-    #       'card_number': 
-    #       'cvv':
-    #       'expiration_date':
-    #   }
-    # }
-
-@APP.route('/cart/payment-method/list', methods=['POST'])
-def cart_payment_method_list():
-# Returns list of payment methods
-    data = request.get_json()
-    token = data['token']
-
-    return dumps(cart_list_payment_methods(token))
-    # return {
-    #   'body': [
-    #       {
-    #           'method_id': 2
-    #           'cardholder_name': 
-    #           'card_number': 
-    #           'cvv':
-    #           'expiration_date':
-    #       },
-    #       {
-    #           'method_id': 2
-    #           'cardholder_name': 
-    #           'card_number': 
-    #           'cvv':
-    #           'expiration_date':
-    #       },
-    #   ]
-    # }
-
-@APP.route('/cart/display', methods=['POST'])
-def cart_display():
-    data = request.get_json()
-    cart_id = data['cart_id']
-    token = data['token']
-    return dumps(cart_display_details(cart_id, token))
-# Displays cart given id
-
-# @APP.route('/cart/display/active', methods=['POST'])
-# def cart_display():
-#     data = request.get_json()
-#     token = data['token']
-#     return dumps(cart_display_details(token))
-# # Displays currently active cart
-
-@APP.route('/cart/display/all')
-def cart_display_all():
-    data = request.get_json()
-    token = data['token']
-# Gets list of all carts given user id
-    return dumps(cart_display_all_details(token))
-
-@APP.route('/cart/order', methods=['POST'])
-def cart_order():
-    # Places order using stored data in db
-    # Post request so we have the option to send token for emails?
-    # Get request will also need email supplied
-    data = request.get_json()
-    method_id = data['method_id']
-    deliver_by = data['deliver_by']
-    deliver_loc = data['delivery_address']
-    token = data['token']
-
-    return dumps(cart_make_order(method_id, deliver_by, deliver_loc, token))
-
-@APP.route('/cart/past-orders', methods=['POST'])
-def cart_past_orders():
-    data = request.get_json()
-    token = data['token']
-
-    return dumps(cart_fetch_past_orders_all(token))
-
-    # return {
-    #   'body': [
-    #       {
-    #           'order_id': ,
-    #           'order_number': ,
-    #           'payment_amount': ,
-    #           'order_status': ,
-    #       },
-    #       {
-    #           'order_id': ,
-    #           'order_number': ,
-    #           'payment_amount': ,
-    #           'order_status': ,
-    #       },
-    #   ]
-    # }
-
-@APP.route('/cart/past-orders/get', methods=['POST'])
-def cart_past_orders_get():
-    data = request.get_json()
-    order_id = data['order_id']
-    token = data['token']
-
-    return dumps(cart_fetch_past_order_details(order_id, token))
-
-    # return {
-    #   'body': {
-    #       order_id        SERIAL,
-    #       order_number    CHAR(10) NOT NULL UNIQUE,
-    #       cart_id         INTEGER NOT NULL,
-    #       placed_on       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    #       completed_on    TIMESTAMP,
-    #       order_status    VARCHAR(10) NOT NULL DEFAULT ('pending'),
-    #       payment_method_id INTEGER NOT NULL,
-    #       delivery_time   TIMESTAMP NOT NULL,
-    #       delivery_address TEXT NOT NULL,
-    #       payment_amount  MONEY NOT NULL,
-    #       'items': [
-    #           {
-    #               'item_id': 3
-    #               'item_name':
-    #               'item_quantity':
-    #               'item_cost':
-    #           },
-    #           {
-    #               'item_id': 2
-    #               'item_name':
-    #               'item_quantity':
-    #               'item_cost':
-    #           },
-    #       ],
-    #       'card_name': 
-    #       'card_number': 
-    #       'card_cvv':
-    #       'card_exp_date':
-    #   },
-    # }
-
-# 
-
+## TODO:
+## Update user stories to allow only authenticated
+## 
+## JSON File containing ingredients (substitute for grocery store integration or
+##   web scraping)
+## 
+#
+## @APP.route('/recipe/publish', methods=['PUT'])
+## def publish_recipe():
+##     data = request.get_json()
+##     # Verify token
+##     token = data['token']
+##     if not verify_token(token):
+##         return dumps({'status_code': 401, 'error': None})
+#
+#@APP.route('/cart/add-all', methods=['POST'])
+#def cart_add_all():
+#    # Starts a cart using current recipe
+#    # 
+#    # Don't forget conversions
+#    data = request.get_json()
+#    r_id = data['recipe_id']
+#    servings = data['servings']
+#    token = data['token']
+#
+#    return dumps(cart_add_all_ingredients(r_id, servings, token))
+#
+#    # return {
+#    #   'body': {
+#    #       'cart_id': 2
+#    #       'ingredients: [
+#    #           {
+#    #               'item_id': 3
+#    #               'item_name':
+#    #               'item_quantity':
+#    #               'item_cost':
+#    #           },
+#    #           {
+#    #               'item_id': 2
+#    #               'item_name':
+#    #               'item_quantity':
+#    #               'item_cost':
+#    #           },
+#    #       ]
+#    #   }
+#    # }
+#
+#@APP.route('/cart/rmv-ingredient', methods=['POST'])
+#def cart_rmv_ingredient():
+#    # Removes ingredient from active cart
+#    data = request.get_json()
+#    ing_id = data['ingredient_id']
+#    token = data['token']
+#
+#    return dumps(cart_remove_ingredient(ing_id, token))
+#
+#    # return {
+#    #   'body': {}
+#    # }
+#
+#@APP.route('/cart/add-ingredient/id', methods=['POST'])
+#def cart_add_ingredient_id():
+#    # Adds ingredient from a recipe's ingredients (individual)
+#    data = request.get_json()
+#    ing_id = data['ingredient_id']
+#    token = data['token']
+#
+#    return dumps(cart_add_by_id(ing_id, token))
+#
+#    # return {
+#    #   'body': {
+#    #       'cart_id': id of new cart (if previously inactive)
+#    #       'item_id': 3
+#    #       'item_name':
+#    #       'item_quantity':
+#    #       'item_cost':
+#    #   }
+#    # }
+#
+#@APP.route('/cart/add-ingredient/name', methods=['POST'])
+#def cart_add_ingredient_name():
+#    # Adds ingredient by search term
+#    data = request.get_json()
+#    ing_name = data['ingredient_name']
+#    ing_unit = data['ingredient_unit']
+#    ing_quantity = data['ingredient_quantity']
+#    token = data['token']
+#
+#    return dumps(cart_add_by_name(ing_name, ing_unit, ing_quantity, token))
+#
+#    # return {
+#    #   'body': {
+#    #       'cart_id': id of new cart (if previously inactive)
+#    #       'item_id': 3
+#    #       'item_name':
+#    #       'item_quantity':
+#    #       'item_cost':
+#    #   }
+#    # }
+#
+#
+#@APP.route('/cart/save', methods=['POST'])
+#def cart_save():
+## Saves cart so an order can be made in the future
+#    data = request.get_json()
+#    token = data['token']
+#    return dumps(cart_set_saved(token))
+#
+#@APP.route('/cart/load', methods=['POST'])
+#def cart_load():
+## Loads a saved cart so the order can be made
+#    data = request.get_json()
+#    cart_id = data['cart_id']
+#    token = data['token']
+#    return dumps(cart_load_saved(cart_id, token))
+#
+#@APP.route('/cart/payment-method/save', methods=['POST'])
+#def cart_payment_method_save():
+#    data = request.get_json()
+#    name = data['cardholder_name']
+#    number = data['card_number']
+#    exp_date = data['expiration_date']
+#    cvv = data['cvv']
+#    token = data['token']
+#
+#    return dumps(cart_save_payment_method(name, number, exp_date, cvv, token))
+#
+#    # return {
+#    #   'body': {
+#    #       'method_id': 2
+#    #   }
+#    # }
+#
+#@APP.route('/cart/payment-method/update', methods=['POST'])
+#def cart_payment_method_save():
+#    data = request.get_json()
+#    name = data['cardholder_name']
+#    number = data['card_number']
+#    exp_date = data['expiration_date']
+#    cvv = data['cvv']
+#    token = data['token']
+#
+#    return dumps(cart_update_payment_method(name, number, exp_date, cvv, token))
+#
+#    # return {
+#    #   'body': {
+#    #       'method_id': 2
+#    #   }
+#    # }
+#
+#@APP.route('/cart/payment-method/get', methods=['POST'])
+#def cart_payment_method_get():
+#    # Returns details of specific payment method (individual)
+#    data = request.get_json()
+#    method_id = data['method_id']
+#    token = data['token']
+#
+#    return dumps(cart_get_payment_method(method_id, token))
+#
+#    # return {
+#    #   'body': {
+#    #       'cardholder_name': 
+#    #       'card_number': 
+#    #       'cvv':
+#    #       'expiration_date':
+#    #   }
+#    # }
+#
+#@APP.route('/cart/payment-method/list', methods=['POST'])
+#def cart_payment_method_list():
+## Returns list of payment methods
+#    data = request.get_json()
+#    token = data['token']
+#
+#    return dumps(cart_list_payment_methods(token))
+#    # return {
+#    #   'body': [
+#    #       {
+#    #           'method_id': 2
+#    #           'cardholder_name': 
+#    #           'card_number': 
+#    #           'cvv':
+#    #           'expiration_date':
+#    #       },
+#    #       {
+#    #           'method_id': 2
+#    #           'cardholder_name': 
+#    #           'card_number': 
+#    #           'cvv':
+#    #           'expiration_date':
+#    #       },
+#    #   ]
+#    # }
+#
+#@APP.route('/cart/display', methods=['POST'])
+#def cart_display():
+#    data = request.get_json()
+#    cart_id = data['cart_id']
+#    token = data['token']
+#    return dumps(cart_display_details(cart_id, token))
+## Displays cart given id
+#
+## @APP.route('/cart/display/active', methods=['POST'])
+## def cart_display():
+##     data = request.get_json()
+##     token = data['token']
+##     return dumps(cart_display_details(token))
+## # Displays currently active cart
+#
+#@APP.route('/cart/display/all')
+#def cart_display_all():
+#    data = request.get_json()
+#    token = data['token']
+## Gets list of all carts given user id
+#    return dumps(cart_display_all_details(token))
+#
+#@APP.route('/cart/order', methods=['POST'])
+#def cart_order():
+#    # Places order using stored data in db
+#    # Post request so we have the option to send token for emails?
+#    # Get request will also need email supplied
+#    data = request.get_json()
+#    method_id = data['method_id']
+#    deliver_by = data['deliver_by']
+#    deliver_loc = data['delivery_address']
+#    token = data['token']
+#
+#    return dumps(cart_make_order(method_id, deliver_by, deliver_loc, token))
+#
+#@APP.route('/cart/past-orders', methods=['POST'])
+#def cart_past_orders():
+#    data = request.get_json()
+#    token = data['token']
+#
+#    return dumps(cart_fetch_past_orders_all(token))
+#
+#    # return {
+#    #   'body': [
+#    #       {
+#    #           'order_id': ,
+#    #           'order_number': ,
+#    #           'payment_amount': ,
+#    #           'order_status': ,
+#    #       },
+#    #       {
+#    #           'order_id': ,
+#    #           'order_number': ,
+#    #           'payment_amount': ,
+#    #           'order_status': ,
+#    #       },
+#    #   ]
+#    # }
+#
+#@APP.route('/cart/past-orders/get', methods=['POST'])
+#def cart_past_orders_get():
+#    data = request.get_json()
+#    order_id = data['order_id']
+#    token = data['token']
+#
+#    return dumps(cart_fetch_past_order_details(order_id, token))
+#
+#    # return {
+#    #   'body': {
+#    #       order_id        SERIAL,
+#    #       order_number    CHAR(10) NOT NULL UNIQUE,
+#    #       cart_id         INTEGER NOT NULL,
+#    #       placed_on       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+#    #       completed_on    TIMESTAMP,
+#    #       order_status    VARCHAR(10) NOT NULL DEFAULT ('pending'),
+#    #       payment_method_id INTEGER NOT NULL,
+#    #       delivery_time   TIMESTAMP NOT NULL,
+#    #       delivery_address TEXT NOT NULL,
+#    #       payment_amount  MONEY NOT NULL,
+#    #       'items': [
+#    #           {
+#    #               'item_id': 3
+#    #               'item_name':
+#    #               'item_quantity':
+#    #               'item_cost':
+#    #           },
+#    #           {
+#    #               'item_id': 2
+#    #               'item_name':
+#    #               'item_quantity':
+#    #               'item_cost':
+#    #           },
+#    #       ],
+#    #       'card_name': 
+#    #       'card_number': 
+#    #       'card_cvv':
+#    #       'card_exp_date':
+#    #   },
+#    # }
+#
+## 
+#
 # TODO:
 # Update user stories to allow only authenticated
 # 

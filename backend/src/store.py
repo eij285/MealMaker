@@ -6,6 +6,9 @@
 
 import csv
 
+def take_second(elem):
+    return elem[1]
+
 def recipe_item_to_cart(classification, req_quantity, unit_type):
     # Converts a recipe item to 1 or more cart items from the shop
     cart_items = []
@@ -20,18 +23,32 @@ def recipe_item_to_cart(classification, req_quantity, unit_type):
             if row['Classification'] == classification \
                     and row['Unit of Measurement'] == unit_type:
                 
-                valid_items.append(row)
+                valid_items.append((row, row['Quantity']))
+
+        # Sort by highest quantity to least quantity
+        valid_items.sort(key=take_second, reverse=True)
+        valid_items = [x[0] for x in valid_items]
+        print(valid_items)
 
         # Add as many items from the shop needed to reach the required quantity
-        # whilst minimising the cost
-        # TODO
         for item in valid_items:
-            cart_items.append({
-                'item_name': item['Product'],
-                'unit_type': unit_type,
-                'unit_quantity': item['Quantity'],
-                'item_cost': item['Cost']
-            })
+            while req_quantity - int(item['Quantity']) > 0:
+                cart_items.append({
+                    'item_name': item['Product'],
+                    'unit_type': unit_type,
+                    'unit_quantity': item['Quantity'],
+                    'item_cost': item['Cost']
+                })
+
+                req_quantity -= int(item['Quantity'])
+
+        # Add item with smallest quantity
+        cart_items.append({
+            'item_name': valid_items[-1]['Product'],
+            'unit_type': unit_type,
+            'unit_quantity': valid_items[-1]['Quantity'],
+            'item_cost': valid_items[-1]['Cost']
+        })
 
     return cart_items
 
