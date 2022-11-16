@@ -41,6 +41,10 @@ def recipe_item_to_cart(classification, req_quantity, unit_type):
 
                 req_quantity -= int(item['Quantity'])
 
+        # if valid_items is empty, exit here
+        if not valid_items:
+            return cart_items
+
         # Add item with smallest quantity
         cart_items.append({
             'item_name': valid_items[-1]['Product'],
