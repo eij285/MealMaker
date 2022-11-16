@@ -309,3 +309,10 @@ important than individual needs, especially true given the great amount of time
 and dedication I've contributed to writing most of the project code. We also had
 a meeting to discuss retrospective B. I also spent some time building some of
 the frontend layout and functionality for cookbook, messages and shopping cart.
+
+################################################################################
+
+Week 10
+=======
+Worked on completing everything in sprint 3 and the report this week ready for
+the final presentation and submission.
