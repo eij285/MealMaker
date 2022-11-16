@@ -55,17 +55,19 @@ export const GlobalProvider = ({ children }) => {
           efficiency: data.efficiency,
         });
       });
+      console.log(cartId);
       if (cartId === -1) {
-        /*const tmpCartId = parseInt(localStorage.getItem('cartId'));
+        const tmpCartId = parseInt(localStorage.getItem('cartId'));
         if (!isNaN(tmpCartId) && tmpCartId > -1) {
           setCartId(tmpCartId);
+          console.log(tmpCartId);
           const body = {
             cart_id: tmpCartId
           };
-          backendRequest('/cart/display/active', {}, 'POST', token, (data) => {
+          backendRequest('/cart/load', body, 'POST', token, (data) => {
             console.log(data);
           });
-        }*/
+        }
       }
     } else {
       // reset filter on logout

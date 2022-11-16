@@ -23,7 +23,7 @@ import {
   formatNutrient,
   getAverageRating
 } from '../../helpers';
-import { MediumDefaultButton, SmallDefaultButton } from '../Buttons';
+import { MediumDefaultButton } from '../Buttons';
 const config = require('../../config.json');
 
 const RecipeImgContainer = styled.div`
@@ -320,10 +320,7 @@ export const IngredientsListing = ({data, recipeId, reqImperial}) => {
       recipe_ingredient_id: ingredientId
     };
     backendRequest('/cart/add-ingredient/id', body, 'POST', token, (data) => {
-      console.log(cartItems);
-      /*setCartItems([...cartItems, {
-
-      }]);*/
+      setCartItems([...cartItems, ...data.body.ingredients]);
     }, (error) => {
       setToastMessage(error);
     });

@@ -597,7 +597,7 @@ def cart_display():
     return dumps(cart_display_details(cart_id, token))
 # Displays cart given id
 
-@APP.route('/cart/display/all')
+@APP.route('/cart/display/all', methods=['POST'])
 def cart_display_all():
     data = request.get_json()
     token = data['token']

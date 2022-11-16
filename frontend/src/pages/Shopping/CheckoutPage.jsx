@@ -27,32 +27,22 @@ import {
   FlexRowVCentred,
   FlexColumnVCentred
 } from '../../components/StyledNodes';
-import { PageTitle } from '../../components/TextNodes';
+import { PageTitle, SubPageTitle } from '../../components/TextNodes';
 import { LeftAlignedButton, MediumAlternateButton } from '../../components/Buttons';
 import { NumericInput, TextInput } from '../../components/InputFields';
 import { backendRequest, isPositiveInteger } from '../../helpers';
+import { CheckoutItemsTable } from '../../components/Shopping/ShoppingNodes';
 const config = require('../../config.json');
 
 function CheckoutPage () {
   const globals = React.useContext(GlobalContext);
   const token = globals.token;
 
-  const [quantity, setQuantity] = React.useState('');
-  const [ingredientUnit, setIngredientUnit] = React.useState(config.METRIC_UNITS[0]);
-  const [ingredientName, setIngredientName] = React.useState(config.INGREDIENTS[0]);
-
-  const [ingredientMessage, setIngredientMessage] = React.useState('');
-
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
 
   const cartId = globals.cartId;
   const cartItems = globals.cartItems;
-  const setCartItems = globals.setCartItems;
-
-  const dataGridStyles = {
-    height: 'calc(100vh - 600px)',
-  };
 
   const navigate = useNavigate();
 
@@ -77,9 +67,10 @@ function CheckoutPage () {
       <ErrorAlert message={responseError} setMessage={setResponseError} />}
       {cartItems.length < 1 &&
       <Typography sx={{fontSize: '18pt'}}>No items in cart</Typography>}
+      {cartItems.length > 0 &&
       <FlexColumn>
-        
-      </FlexColumn>
+        <CheckoutItemsTable cartItems={cartItems} />
+      </FlexColumn>}
     </ExploreLayout>
   );
 }

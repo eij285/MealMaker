@@ -271,6 +271,9 @@ export const formatNutrient = (qty, isMass, reqImperial) => {
 };
 
 const formatIngredientUnit = (qty, unit) => {
+  if (unit === 'pieces') {
+    return '';
+  }
   return qty === 1 ? unit.replace(/s$/, '') : unit;
 };
 
