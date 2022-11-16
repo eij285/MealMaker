@@ -214,7 +214,8 @@ def cart_add_by_id(ing_id, token):
 
     # Map each item to its count value and aggregate
     cart_items = [(x, cart_items.count(x)) for x in cart_items]
-    cart_items = list(set(cart_items))
+    cart_items = \
+            [x for i, x in enumerate(cart_items) if x not in cart_items[i + 1:]]
 
     ingredients_body_content = []
 
@@ -296,7 +297,8 @@ def cart_add_by_name(ing_name, ing_unit, ing_quantity, token):
 
     # Map each item to its count value and aggregate
     cart_items = [(x, cart_items.count(x)) for x in cart_items]
-    cart_items = list(set(cart_items))
+    cart_items = \
+            [x for i, x in enumerate(cart_items) if x not in cart_items[i + 1:]]
 
     ingredients_body_content = []
 
@@ -956,9 +958,10 @@ def cart_fetch_past_order_details(order_id, token):
         'card_exp_date': card_exp_date
     }
 
-# if __name__ == "__main__":
-#     pprint(cart_add_all_ingredients(1, 10, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
-#     pprint(cart_save_payment_method('Elijah', '3131232301010002', datetime.now(), '323', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
-#     pprint(cart_make_order(1, datetime.now(), datetime.now(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
-#     pprint(cart_fetch_past_orders_all("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
-#     pprint(cart_fetch_past_order_details(15, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+if __name__ == "__main__":
+    pprint(cart_add_by_id(1, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_add_all_ingredients(1, 10, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_save_payment_method('Elijah', '3131232301010002', datetime.now(), '323', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_make_order(1, datetime.now(), datetime.now(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_fetch_past_orders_all("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_fetch_past_order_details(15, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
