@@ -8,16 +8,17 @@ import {
   ErrorAlert, FlexRowWrap, UserImageNameLink
 } from '../../components/StyledNodes';
 import { PageTitle, SubPageTitle } from '../../components/TextNodes';
-import { backendRequest } from '../../helpers';
+import { backendRequest, tokenToUserId } from '../../helpers';
 
-function FollowersPage () {
+function SubscribersPage () {
   const token = React.useContext(GlobalContext).token;
   const [followers, setFollowers] = React.useState([]);
   const [followMessage, setFollowMessage]  = React.useState('');
   const [responseError, setResponseError] = React.useState('');
 
-  const loadFollowers = () => {
-    backendRequest('/user/get/subscribers', {}, 'POST', token, (data) => {
+  const loadSubscribers = () => {
+    const reqURL = `/user/get/subscribers?user_id=${tokenToUserId(token)}`;
+    backendRequest(reqURL, null, 'GET', null, (data) => {
       setFollowers([...data.followers]);
       if (data.visibility === 'public') {
         const nSubs = data.followers.length;
@@ -35,13 +36,13 @@ function FollowersPage () {
   };
 
   React.useEffect(() => {
-    loadFollowers();
+    loadSubscribers();
   }, [token]);
 
   return (
     <ManageLayout>
       <Grid item xl={8} lg={12} xs={12}>
-        <PageTitle>Followers</PageTitle>
+        <PageTitle>Subscribers</PageTitle>
         {responseError !== '' &&
         <ErrorAlert message={responseError} setMessage={setResponseError} />}
         {followMessage !== '' && <SubPageTitle>{followMessage}</SubPageTitle>}
@@ -56,4 +57,4 @@ function FollowersPage () {
   );
 }
 
-export default FollowersPage;
+export default SubscribersPage;

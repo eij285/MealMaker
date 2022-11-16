@@ -71,6 +71,7 @@ function UserPublicPage () {
       loadCookbooks();
       setIsOwnProfile(parseInt(userId) === tokenToUserId(token));
     }, (error) => {
+      console.log(error);
       setResponseError(error);
     });
   };
@@ -80,20 +81,6 @@ function UserPublicPage () {
     const reqMethod = userProfile.is_subscribed ? 'POST' : 'PUT';
     const body = {
       id: userProfile.id
-    };
-
-    backendRequest(reqURL, body, reqMethod, token, () => {
-      loadProfile();
-    }, (error) => {
-      setResponseError(error);
-    });
-  };
-
-  const unfollowUser = (user) => {
-    const reqURL = `/user/${user.is_subscribed?'unsubscribe':'subscribe'}`;
-    const reqMethod = user.is_subscribed ? 'POST' : 'PUT';
-    const body = {
-      id: user.id
     };
 
     backendRequest(reqURL, body, reqMethod, token, () => {
@@ -246,16 +233,14 @@ function UserPublicPage () {
               <CardContent>
                 <List>
                   {userProfile.followers.map((follower, index) => (
-                    <ListItem
-                      secondaryAction={
-                        <Button variant="outlined" color="error">
-                          Remove
-                        </Button>
-                      }
-                    >
-                      <ListItemAvatar sx={{ mx: 2 }}>
-                        <Avatar src={follower.base64_image} sx={{height: 60, width: 60}} />
-                      </ListItemAvatar>
+                    <ListItem>
+                      <Button component={RouterLink} to={`/user/${follower.id}`}>
+                        <ListItemAvatar sx={{ mx: 2 }}>
+                          <Avatar
+                            src={follower.base64_image}
+                            sx={{height: 60, width: 60}} />
+                        </ListItemAvatar>
+                      </Button>
                       <ListItemText primary={follower.display_name} />
                     </ListItem>
                   ))}
@@ -336,9 +321,13 @@ function UserPublicPage () {
                         </Button>
                       }
                     >
-                      <ListItemAvatar sx={{ mx: 2 }}>
-                        <Avatar src={following.base64_image} sx={{height: 60, width: 60}} />
-                      </ListItemAvatar>
+                      <Button component={RouterLink} to={`/user/${following.id}`}>
+                        <ListItemAvatar sx={{ mx: 2 }}>
+                          <Avatar
+                            src={following.base64_image}
+                            sx={{height: 60, width: 60}} />
+                        </ListItemAvatar>
+                      </Button>
                       <ListItemText primary={following.display_name} />
                     </ListItem>
                   ))}
@@ -356,12 +345,6 @@ function UserPublicPage () {
         <ErrorAlert message={responseError} setMessage={setResponseError} />
       </Box>}
       {Object.keys(userProfile).length > 0 && <ProfileContainer>
-      {!isNaN(userId) && isOwnProfile &&
-      <Box sx={{position: 'absolute', zIndex: 1, right: 0, top: 0}}>
-        <MediumAlternateButton component={RouterLink} to={'/user-profile'}>
-          Edit Profile
-        </MediumAlternateButton>
-      </Box>}
       <Grid container spacing={30} alignItems="baseline">
         <Grid item key="UserImgAndInfo">
           {userProfile.hasOwnProperty('base64_image') &&
@@ -414,6 +397,9 @@ function UserPublicPage () {
         <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
           <CookbookItem cookbook={cookbook} />
         </Grid>))}
+      </Grid>
+      <Grid container direction={"row"}>
+        
       </Grid>
     
     </>}
