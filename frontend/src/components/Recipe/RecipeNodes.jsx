@@ -319,13 +319,8 @@ export const IngredientsListing = ({data, recipeId, reqImperial}) => {
     const body = {
       recipe_ingredient_id: ingredientId
     };
-    console.log(body);
-    //console.log(ingredientId);
     backendRequest('/cart/add-ingredient/id', body, 'POST', token, (data) => {
-      console.log(cartItems);
-      /*setCartItems([...cartItems, {
-
-      }]);*/
+      setCartItems([...cartItems, ...data.body.ingredients]);
     }, (error) => {
       setToastMessage(error);
     });
