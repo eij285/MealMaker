@@ -1,11 +1,13 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { Box, IconButton, Rating, Tooltip, Typography } from '@mui/material';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
-import { FlexRow, FlexRowWrapSpaced, FlexColumn } from '../StyledNodes';
+import GlobalContext from '../../utils/GlobalContext';
+import { AlertToast, FlexRow, FlexRowVCentred, FlexRowWrapSpaced } from '../StyledNodes';
 import {
   MediumGreyText,
   MediumBlackText,
@@ -15,11 +17,13 @@ import {
 } from '../TextNodes';
 import { NumericInput } from '../../components/InputFields';
 import {
+  backendRequest,
   customPrepTime,
   formatIngredient,
   formatNutrient,
   getAverageRating
 } from '../../helpers';
+import { MediumDefaultButton, SmallDefaultButton } from '../Buttons';
 const config = require('../../config.json');
 
 const RecipeImgContainer = styled.div`
@@ -251,24 +255,37 @@ const IngredientsListingContainer = styled.div`
   flex-direction: column;
 `;
 
-const IngredientsListingGrid = styled.div`
-  display: grid;
-  grid-template-columns: max-content auto;
-  column-gap: 8px;
-  row-gap: 4px;
-  margin-bottom: 30px;
-`;
+const IngredientsListingGrid = ({useThreeCols, children}) => {
+  const cols = 'max-content max-content' + (useThreeCols ? ' max-content' : '');
+  const styles = {
+    display: 'grid',
+    gridTemplateColumns: cols,
+    columnGap: '8px',
+    rowGap: '4px',
+    marginBottom: '30px',
+    alignItems: 'center'
+  };
+  return (
+    <Box sx={styles}>
+      {children}
+    </Box>
+  );
+};
 
 /**
  * Displays information for a single ingredient
  */
-const SingleIngredient = ({ingredient, reqImperial}) => {
+const SingleIngredient = ({ingredient, reqImperial, addToCart, token}) => {
   return (
     <>
       <Typography sx={{fontWeight: '600'}}>
         {formatIngredient(ingredient, reqImperial)}
       </Typography>
       <Typography>{ingredient.ingredient_name}</Typography>
+      {token &&
+      <IconButton size="small" onClick={() => addToCart(ingredient.ingredient_id)}>
+        <AddShoppingCartIcon />
+      </IconButton>}
     </>
   );
 };
@@ -276,16 +293,58 @@ const SingleIngredient = ({ingredient, reqImperial}) => {
 /**
  * Displays a listing of all ingredients
  */
-export const IngredientsListing = ({data, reqImperial}) => {
-  return (
+export const IngredientsListing = ({data, recipeId, reqImperial}) => {
+  const globals = React.useContext(GlobalContext);
+  const token = globals.token;
+  const setCartId = globals.setCartId;
+  const cartItems = globals.cartItems;
+  const setCartItems = globals.setCartItems;
+  const servings = parseInt(data.servings);
+  const [toastMessage, setToastMessage] = React.useState('');
+  const [toastState, setToastState] = React.useState('error');
+  const addToCart = () => {
+    const body = {
+      recipe_id: recipeId,
+      servings: servings
+    };
+    backendRequest('/cart/add-all', body, 'POST', token, (data) => {
+      setCartId(data.body.cart_id);
+      setCartItems([...cartItems, ...data.body.ingredients]);
+    }, (error) => {
+      setToastMessage(error);
+    });
+  };
+
+  const addOneToCart = (ingredientId) => {
+    const body = {
+      recipe_ingredient_id: ingredientId
+    };
+    backendRequest('/cart/add-ingredient/id', body, 'POST', token, (data) => {
+      console.log(cartItems);
+      /*setCartItems([...cartItems, {
+
+      }]);*/
+    }, (error) => {
+      setToastMessage(error);
+    });
+  };
+  return (<>
     <IngredientsListingContainer>
-      <SubPageTitle>Ingredients</SubPageTitle>
-      <IngredientsListingGrid>
+      <FlexRowVCentred>
+        <SubPageTitle>Ingredients</SubPageTitle>
+        {token &&
+        <MediumDefaultButton onClick={addToCart} disabled={isNaN(servings)}>
+          <AddShoppingCartIcon />&nbsp;Add all to cart
+        </MediumDefaultButton>}
+      </FlexRowVCentred>
+      <IngredientsListingGrid useThreeCols={token !== null && token !== ''}>
       {data.ingredients.map((ingredient, index) => (
-        <SingleIngredient ingredient={ingredient} key={index}
-          reqImperial={reqImperial} />
+        <SingleIngredient key={index} ingredient={ingredient}
+          reqImperial={reqImperial} addToCart={addOneToCart} token={token} />
       ))}
       </IngredientsListingGrid>
     </IngredientsListingContainer>
-  );
+    <AlertToast content={toastMessage} setContent={setToastMessage}
+      state={toastState} />
+  </>);
 };

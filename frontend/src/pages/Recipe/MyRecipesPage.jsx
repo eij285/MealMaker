@@ -84,7 +84,6 @@ function MyRecipesPage () {
     }, (error) => {
       setResponseError(error);
     });
-    console.log(index);
   };
 
   React.useEffect(() => {

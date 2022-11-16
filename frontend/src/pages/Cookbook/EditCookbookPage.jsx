@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import styled from '@emotion/styled';
 import {
   Box,
@@ -12,9 +12,7 @@ import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
 import { PageTitle, SubPageTitle } from '../../components/TextNodes';
 import {
-  ConfirmationDialog,
   FlexColumn,
-  FlexRow,
   ErrorAlert,
   SuccessAlert
 } from '../../components/StyledNodes';
@@ -49,7 +47,7 @@ const RecipeAdder = ({recipesInCookbook, ownRecipes, setAddRecipeIds}) => {
         setIds([...ids, selectedId]);
       }
     } else {
-      setIds([...ids.filter((id) => id != selectedId)]);
+      setIds([...ids.filter((id) => id !== selectedId)]);
     }
   };
   const innerBoxStyles = {
@@ -67,7 +65,7 @@ const RecipeAdder = ({recipesInCookbook, ownRecipes, setAddRecipeIds}) => {
         <Box sx={innerBoxStyles}>
           {ownRecipes.filter((recipe) => {
             for (let r of recipesInCookbook) {
-              if (r.body.recipe_id === recipe.recipe_id) {
+              if (r.recipe_id === recipe.recipe_id) {
                 return false;
               }
             }
@@ -134,8 +132,8 @@ function EditCookbookPage () {
     const body = {
       cookbook_id: cookbookId
     };
-    backendRequest('/cookbook/view', body, 'POST', token, (data) => {
-      setRecipesInCookbook([...data.body.recipes]);
+    backendRequest('/cookbook/all-recipes', body, 'POST', token, (data) => {
+      setRecipesInCookbook([...data.recipes]);
     }, (error) => {
       setResponseError(error);
     });
@@ -151,7 +149,7 @@ function EditCookbookPage () {
 
   // remove recipe from cookbook then reload recipes
   const removeFromCookbook = (index) => {
-    const recipeId = recipesInCookbook[index].body.recipe_id;
+    const recipeId = recipesInCookbook[index].recipe_id;
     const requestBody = {
       cookbook_id: cookbookId,
       recipe_id: recipeId
@@ -175,10 +173,7 @@ function EditCookbookPage () {
         };
         requests.push(
           backendRequest('/cookbook/add/recipe', requestBody,  'PUT', token,
-          (data) => {
-            
-          })
-        );
+          (data) => {}, (error) => { setResponseError(error); }));
       }
       Promise.all(requests).then(() => {
         loadRecipesInCookbook();
@@ -218,7 +213,7 @@ function EditCookbookPage () {
         <Grid container mt={4}>
           {recipesInCookbook.map((recipe, index) => (
             <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
-              <OwnCookbookRecipeItem data={recipe.body} index={index}
+              <OwnCookbookRecipeItem data={recipe} index={index}
                 setRemove={removeFromCookbook} />
             </Grid>))}
         </Grid>}

@@ -19,7 +19,10 @@ import {
   IconButton,
   Link,
   Paper,
+  Slide,
   Slider,
+  Snackbar,
+  Switch,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -30,7 +33,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import GlobalContext from '../utils/GlobalContext';
 import parse from 'html-react-parser';
 import { MediumDefaultButton, MediumAlternateButton } from './Buttons';
-import { SubPageTitle } from './TextNodes';
+import { SmallBlackText, SubPageTitle } from './TextNodes';
 import { CentredElementsForm } from '../components/Forms';
 
 const CustomAlert = ({props, status, message, setMessage}) => {
@@ -58,6 +61,26 @@ export const SuccessAlert = ({props, message, setMessage}) => {
       setMessage={setMessage} />
   );
 };
+
+export const AlertToast = ({content, setContent, state}) => {
+  return (
+    <Snackbar
+      open={content !== ''}
+      onClose={() => setContent('')}
+      TransitionComponent={props => <Slide {...props} direction="left" />}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      autoHideDuration={5000}
+    >
+      <Alert severity={state}>
+        {content}
+        <IconButton aria-label="close" color="inherit" size="small"
+          onClick={() => { setContent(''); }}>
+          <CloseIcon fontSize="inherit" />
+        </IconButton>
+      </Alert>
+    </Snackbar>
+  );
+}
 
 export const FlexColumnNoGap = styled.div`
   display: flex;
@@ -223,6 +246,24 @@ export const ConfirmationDialog = ({ title, description, acceptContent,
   );
 };
 
+const FilterEnableDisable = ({userPreferences, setUserPreferences}) => {
+  const handleToggle = (e) => {
+    setUserPreferences({
+      ...userPreferences,
+      filtersEnabled: e.target.checked
+    });
+  };
+  return (
+    <FormControlLabel sx={{marginLeft: 0}} control={<>
+      <SmallBlackText>on</SmallBlackText>
+      <Switch checked={userPreferences.filtersEnabled}
+        onChange={handleToggle} />
+      <SmallBlackText>&emsp;off</SmallBlackText>
+    </>}
+    label="Filters: " labelPlacement="start" />
+  );
+};
+
 export const UserPreferencesComponent = () => {
   const globals = React.useContext(GlobalContext);
   const userPreferences = globals.userPreferences;
@@ -326,6 +367,9 @@ export const UserPreferencesComponent = () => {
         sx={drawerStyles}
       >
         <Container maxWidth={false} sx={{pt: 8}}>
+          <FilterEnableDisable userPreferences={userPreferences}
+            setUserPreferences={setUserPreferences} />
+          {userPreferences.filtersEnabled && <>
           <CentredElementsForm noValidate onChange={handlePrefsChange}>
             <FormGroup>
               <SubPageTitle>Meals</SubPageTitle>
@@ -411,6 +455,7 @@ export const UserPreferencesComponent = () => {
               </Grid>
             </Grid>
           </FlexColumn>
+          </>}
         </Container>
         <Paper component={IconButton} disableRipple={true} sx={ closeBtnStyles }
           onClick={() => setOpen(false)} elevation={3}>

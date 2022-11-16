@@ -8,9 +8,7 @@ import {
   FlexColumnNoGap,
   WYSIWYGOutput
 } from '../../components/StyledNodes';
-import {
-  MediumAlternateButton, MediumDefaultButton,
-} from '../../components/Buttons';
+import { MediumAlternateButton } from '../../components/Buttons';
 import {
   UserImg,
   ProfileContainer,
@@ -19,6 +17,7 @@ import {
 import { backendRequest, tokenToUserId } from '../../helpers';
 import { SingleAuthorRecipeItem } from '../../components/Recipe/RecipeItems';
 import { SubPageTitle } from '../../components/TextNodes';
+import { CookbookItem } from '../../components/Cookbook/CookbookItems';
 
 function UserPublicPage () {
   const { userId } = useParams();
@@ -26,6 +25,7 @@ function UserPublicPage () {
   const token = globals.token;
   const [userProfile, setUserProfile] = React.useState({});
   const [recipesList, setRecipesList] = React.useState([]);
+  const [cookbooksList, setCookbooksList] = React.useState([]);
   const [responseError, setResponseError] = React.useState('');
   const [isOwnProfile, setIsOwnProfile] = React.useState(false);
 
@@ -38,6 +38,15 @@ function UserPublicPage () {
     });
   };
 
+  const loadCookbooks = () => {
+    const reqURL = `/cookbooks/user/published?user_id=${userId}`;
+    backendRequest(reqURL, null, 'GET', null, (data) => {
+      setCookbooksList([...data.cookbooks]);
+    }, (error) => {
+      setResponseError(error);
+    });
+  };  
+
   const loadProfile = () => {
     const body = {
       id: userId
@@ -48,6 +57,7 @@ function UserPublicPage () {
       // sends back)
       setUserProfile({...data});
       loadRecipes();
+      loadCookbooks();
       setIsOwnProfile(parseInt(userId) === tokenToUserId(token));
     }, (error) => {
       setResponseError(error);
@@ -138,6 +148,16 @@ function UserPublicPage () {
             level={userProfile.visitor_efficiency} />
         </Grid>))}
       </Grid>
+      </>}
+      {cookbooksList.length > 0 && <>
+      <SubPageTitle>Cook Books</SubPageTitle>
+      <Grid container spacing={2}>
+        {cookbooksList.map((cookbook, index) => (
+        <Grid item xl={3} lg={4} md={6} sm={6} xs={12} key={index}>
+          <CookbookItem cookbook={cookbook} />
+        </Grid>))}
+      </Grid>
+    
     </>}
     </ExploreLayout>
   );

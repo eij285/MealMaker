@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import styled from '@emotion/styled';
 import {
   FormControl,
@@ -8,7 +9,7 @@ import {
 } from '@mui/material';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { ImageInput, TextInput } from '../../components/InputFields';
-import { LeftAlignedSubmitButton } from '../../components/Buttons';
+import { LeftAlignedSubmitButton, LeftAltButton } from '../../components/Buttons';
 import { CentredElementsForm } from '../../components/Forms';
 import { FlexRow } from '../StyledNodes';
 
@@ -126,6 +127,11 @@ export const CreateEditCookbookForm = ({data, callFunction}) => {
           {data.cookbookId < 0 && <>Create </>}
           Cook Book
         </LeftAlignedSubmitButton>
+        {data.cookbookId >= 0 &&
+        <LeftAltButton component={RouterLink}
+          to={`/cookbook/${data.cookbookId}`}>
+          View Cook Book
+        </LeftAltButton>}
       </FlexRow>
     </CentredElementsForm>
   );

@@ -13,6 +13,7 @@ import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
 import PasswordResetPage from './pages/Auth/PasswordResetPage';
+import DashboardPage from './pages/DashboardPage';
 import UserProfilePage from './pages/User/UserProfilePage';
 import UpdatePasswordPage from './pages/Auth/UpdatePasswordPage';
 import UserPreferencesPage from './pages/User/UserPreferencesPage';
@@ -32,6 +33,8 @@ import MessageRoomsPage from './pages/Message/MessageRoomsPage';
 import SingleMessageRoomPage from './pages/Message/SingleMessageRoomPage';
 import ManageShoppingPage from './pages/Shopping/ManageShoppingPage';
 import AddEditPaymentMethodPage from './pages/Shopping/AddEditPaymentMethodPage';
+import ViewCartPage from './pages/Shopping/ViewCartPage';
+import CheckoutPage from './pages/Shopping/CheckoutPage';
 import Forbidden403Page from './pages/Error/Forbidden403Page';
 import NotFound404Page from './pages/Error/NotFound404Page';
 import './App.css';
@@ -53,6 +56,7 @@ function App() {
             <Route path="/search" order={0} element={<SearchPage />} />
             <Route path="/search/:query" order={1} element={<SearchPage />} />
             <Route element={<AuthorisedRoute />}>
+              <Route exact path="/dashboard" element={<DashboardPage />} />
               <Route exact path="/user-profile" element={<UserProfilePage />} />
               <Route exact path="/update-password" element={<UpdatePasswordPage />} />
               <Route exact path="/user-preferences" element={<UserPreferencesPage />} />
@@ -69,6 +73,8 @@ function App() {
               <Route exact path="/manage-shopping" element={<ManageShoppingPage />} />
               <Route exact path="/add-payment-method" element={<AddEditPaymentMethodPage />} />
               <Route path="/edit-payment-method/:methodId" element={<AddEditPaymentMethodPage />} />
+              <Route path="/cart" element={<ViewCartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
             </Route>
             <Route exact path="/forbidden-403" element={<Forbidden403Page />} />
             <Route path="*" element={<NotFound404Page />} />

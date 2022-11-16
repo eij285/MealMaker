@@ -2,6 +2,7 @@
 -- Please make database schema changes directly to this file then run
 -- http://localhost:5000/reset
 
+DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS cookbook_followers;
 DROP TABLE IF EXISTS cookbook_recipes;
 DROP TABLE IF EXISTS cookbooks;
@@ -165,12 +166,14 @@ CREATE TABLE shopping_carts (
 
 CREATE TABLE cart_items (
     item_id         SERIAL,
-    ingredient_name VARCHAR(30) NOT NULL,
+    ingredient_name VARCHAR(100) NOT NULL,
     ingredient_quantity INTEGER NOT NULL,
     ingredient_cost MONEY NOT NULL,
+    unit_type       VARCHAR(10) NOT NULL,
     cart_id         INTEGER NOT NULL,
     PRIMARY KEY (item_id),
-    FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE
+    FOREIGN KEY (cart_id) REFERENCES shopping_carts(cart_id) ON DELETE CASCADE,
+    CONSTRAINT valid_unit_type CHECK (unit_type in ('litres', 'ml', 'grams', 'kg', 'cups', 'tbsp', 'tsp', 'pieces'))
 );
 
 CREATE TABLE payment_methods (
@@ -203,12 +206,14 @@ CREATE TABLE orders (
 
 CREATE TABLE order_items (
     item_id         SERIAL,
-    ingredient_name VARCHAR(30) NOT NULL,
+    ingredient_name VARCHAR(100) NOT NULL,
     ingredient_quantity INTEGER NOT NULL,
     ingredient_cost MONEY NOT NULL,
+    unit_type       VARCHAR(10) NOT NULL,
     order_id        INTEGER NOT NULL,
     PRIMARY KEY (item_id),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    CONSTRAINT valid_unit_type CHECK (unit_type in ('litres', 'ml', 'grams', 'kg', 'cups', 'tbsp', 'tsp', 'pieces'))
 );
 
 CREATE TABLE message_rooms (
@@ -290,4 +295,15 @@ CREATE TABLE cookbook_followers (
     FOREIGN KEY (cookbook_id) REFERENCES cookbooks(cookbook_id) ON DELETE CASCADE,
     FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT unique_cookbook_followers UNIQUE(cookbook_id, follower_id)
+);
+
+CREATE TABLE notifications (
+    notification_id     SERIAL,
+    reciever_id         INTEGER NOT NULL,
+    notification_content TEXT NOT NULL,
+    sender_id           INTEGER NOT NULL DEFAULT -1,
+    sender_name         VARCHAR(30) NOT NULL DEFAULT ('anon'),
+	time_sent           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (notification_id),
+    FOREIGN KEY (reciever_id) REFERENCES users(id) ON DELETE CASCADE
 );
