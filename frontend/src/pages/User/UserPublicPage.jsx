@@ -346,7 +346,7 @@ function UserPublicPage () {
       </Box>}
       {Object.keys(userProfile).length > 0 && <ProfileContainer>
       <Grid container spacing={30} alignItems="baseline">
-        <Grid item key="UserImgAndInfo">
+        <Grid item key="UserImgAndInfo" maxWidth={370}>
           {userProfile.hasOwnProperty('base64_image') &&
           userProfile.hasOwnProperty('display_name') && <>
           <AvatarWithFolowBadge />

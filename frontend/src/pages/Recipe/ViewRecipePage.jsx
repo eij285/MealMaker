@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
-import { Box, Grid } from '@mui/material';
+import { Avatar, Box, Button, Grid, Typography } from '@mui/material';
 import GlobalContext from '../../utils/GlobalContext';
 import ExploreLayout from '../../components/Layout/ExploreLayout';
 import NotFound404Page from '../Error/NotFound404Page';
@@ -214,9 +214,16 @@ function ViewRecipePage () {
                       likeRecipe={likeRecipe} />
                   </FlexRow>
                   <FlexRow>
-                    <UserImageNameLink src={recipeData.author_image}
-                      name={recipeData.author_display_name}
-                      to={`/user/${recipeData.author_id}`} />
+                    <Button component={RouterLink} to={`/user/${recipeData.author_id}`}
+                      sx={{textTransform: 'none', color: 'black'}}
+                    >
+                      <Avatar src={recipeData.author_image}
+                        sx={{mr: 1}}
+                      />
+                      <Typography>
+                        {recipeData.author_display_name}
+                      </Typography>
+                    </Button>
                     {token && !recipeData.user_is_author &&
                     <SmallAlternateButton onClick={subscribeToUser}>
                       {!recipeData.is_subscribed && <>Follow</>}

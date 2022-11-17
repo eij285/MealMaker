@@ -22,6 +22,8 @@ import { RecipePrepartionTime } from './RecipeNodes';
 import { SmallAlternateButton, SmallDefaultButton } from '../Buttons';
 import { getAverageRating } from '../../helpers';
  
+import Avatar from '@mui/material/Avatar';
+
 const RecipeItemActionPanel = styled.div`
   box-shadow: -10px 40px 5px -10px rgba(0,0,0,0.75) inset;
   height: 35px;
@@ -265,7 +267,9 @@ export const SingleAuthorRecipeItem = ({recipe, level}) => {
   const navigate = useNavigate();
   return (
     <RecipeItemPaperCursor
-      onClick={() => navigate(`/recipe/${recipe.recipe_id}`)}>
+      sx={{borderRadius: '10px'}}
+      onClick={() => navigate(`/recipe/${recipe.recipe_id}`)}
+    >
       <Box sx={{position: 'relative'}}>
         <RecipeItemActionPanel>
           <RecipeItemTitle>{recipe.cuisine}</RecipeItemTitle>
@@ -291,7 +295,16 @@ const RecipeRatingNameAuthor = ({data}) => {
     <FlexColumn>
       <AlternativeRatingSummary data={data} />
       <Typography>{data.recipe_name}</Typography>
-      <UserImageName src={data.author_image} name={data.author_display_name} />
+      <Button component={RouterLink} to={`/user/${data.author_id}`}
+        sx={{textTransform: 'none', color: 'black'}}
+      >
+        <Avatar src={data.author_image}
+          sx={{mr: 1}}
+        />
+        <Typography>
+          {data.author_display_name}
+        </Typography>
+      </Button>
     </FlexColumn>
   )
 };
@@ -300,6 +313,7 @@ export const RecipeItem = ({recipe, level}) => {
   const navigate = useNavigate();
   return (
     <RecipeItemPaperCursor
+      sx={{borderRadius: '10px'}}
       onClick={() => navigate(`/recipe/${recipe.recipe_id}`)}>
       <Box sx={{position: 'relative'}}>
         <RecipeItemActionPanel>
