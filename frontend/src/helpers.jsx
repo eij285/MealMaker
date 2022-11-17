@@ -288,13 +288,13 @@ export const formatIngredient = (ingredient, reqImperial) => {
     return `${formatNumString(quantity)} ${formatIngredientUnit(quantity, unit)}`;
   }
   let obj = null;
-  //"litres", "ml", "grams", "kg", "cups", "tbsp", "tsp", "pieces"
+  //"litres", "mL", "grams", "kg", "cups", "tbsp", "tsp", "pieces"
   if (unit === 'gram' || unit === 'grams') {
     obj = convert(quantity, 'gram').to('best', 'imperial');
   } else if (unit === 'kg' || unit === 'kilogram' || unit === 'kilograms') {
     obj = convert(quantity, 'kilogram').to('best', 'imperial');
-  } else if (unit === 'ml' || unit === 'millilitres' || unit === 'milliliters') {
-    obj = convert(quantity, 'ml').to('best', 'imperial');
+  } else if (unit === 'mL' || unit === 'millilitres' || unit === 'milliliters') {
+    obj = convert(quantity, 'mL').to('best', 'imperial');
   } else if (unit === 'litre' || unit === 'litres' || unit === 'liter' ||
              unit === 'liters') {
     obj = convert(quantity, 'litre').to('best', 'imperial');

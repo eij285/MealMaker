@@ -3,9 +3,15 @@ import PropTypes from 'prop-types';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
   AppBar,
+  Avatar,
   Box,
   IconButton,
   InputAdornment,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  MenuList,
+  SpeedDialIcon,
   TextField,
   Toolbar,
   Typography
@@ -18,9 +24,21 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
 import GlobalContext from '../../utils/GlobalContext';
-import { backendRequest } from '../../helpers';
+import { backendRequest, tokenToUserId } from '../../helpers';
 import Logo from '../../assets/chef-hat.png'
+import UserProfilePage from '../../pages/User/UserProfilePage';
+import Button from '@mui/material/Button';
 
+import SettingsIcon from '@mui/icons-material/Settings';
+import Message from '@mui/icons-material/Message';
+import Divider from '@mui/material/Divider';
+import Menu from '@mui/material/Menu';
+import Tooltip from '@mui/material/Tooltip';
+
+import SpeedIcon from '@mui/icons-material/Speed';
+
+import { Restaurant } from '@mui/icons-material';
+import MenuBook from '@mui/icons-material/MenuBook';
 const HeaderButtonTypo = ({children}) => {
   const styles = {
     paddingLeft: '6px',
@@ -35,45 +53,17 @@ const HeaderButtonTypo = ({children}) => {
   );
 };
 
-const LogoutButton = () => {
-  const globals = React.useContext(GlobalContext);
-  const token = globals.token;
-  const logout = globals.logout;
-  const navigate = useNavigate();
-
-  const userLogout = (e) => {
-    e.preventDefault();
-    if (token) {
-      // send to backend
-      backendRequest('/auth/logout', {}, 'POST', token, (data) => {
-        logout();
-        navigate('/');
-      }, (error) => {
-        logout();
-        navigate('/');
-      });
-    }
-  };
-
-  return (
-    <HeaderButton onClick={userLogout}>
-      <LogoutIcon />
-      <HeaderButtonTypo>Log out</HeaderButtonTypo>
-    </HeaderButton>
-  );
-};
-
 const SearchInput = () => {
   const navigate = useNavigate();
   const styles = {
     background: '#ffffff',
-    borderRadius: '4px',
+    borderRadius: '16px',
     padding: 0,
     border: '1px solid #cccccc',
     '& input' : {
       background: '#ffffff',
       padding: '8px',
-      borderRadius: 0
+      borderRadius: 16
     },
     '@media screen and (max-width: 40em)': {
       '& .MuiInputBase-root, & input': {
@@ -94,10 +84,11 @@ const SearchInput = () => {
     : 'search';
 
   return (
-    <TextField type="text" size="small" sx={ styles } placeholder={placeHold}
+    <TextField type="text" size="small" sx={ styles } placeholder={placeHold} variant="standard"
       InputProps={{
+        disableUnderline: true,
         startAdornment: (
-          <InputAdornment position="start">
+          <InputAdornment position="start" sx={{ml: 2}}>
             <SearchIcon />
           </InputAdornment>
         )
@@ -153,6 +144,42 @@ function Header ({ incSearch, incButtons }) {
   const globals = React.useContext(GlobalContext);
   const token = globals.token;
   const cartItems = globals.cartItems;
+  const logout = globals.logout;
+  const navigate = useNavigate();
+
+  const [userAvatar, setUserAvatar] = React.useState('');
+  const [responseError, setResponseError] = React.useState('');
+
+  const userLogout = (e) => {
+    e.preventDefault();
+    if (token) {
+      // send to backend
+      backendRequest('/auth/logout', {}, 'POST', token, (data) => {
+        logout();
+        navigate('/');
+      }, (error) => {
+        logout();
+        navigate('/');
+      });
+    }
+  };
+
+  const loadUserAvatar = () => {
+    const body = {
+      user_id: tokenToUserId(token)
+    };
+    backendRequest('/user/stats', body, 'POST', token, (data) => {
+      setUserAvatar(data.body.user_image);
+    }, (error) => {
+      console.log(tokenToUserId(token));
+      console.log(error);
+      setResponseError(error);
+    });
+  };
+
+  React.useEffect(() => {
+    loadUserAvatar();
+  }, [token]);
 
   const toolbarStyles = {
     flexDirection: 'row',
@@ -163,6 +190,105 @@ function Header ({ incSearch, incButtons }) {
     flexDirection: 'row',
     columnGap: '10px',
   };
+
+  const AccountMenu = () => {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
+    return (
+      <React.Fragment>
+        <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+          <Tooltip title="Account settings">
+            <IconButton
+              onClick={handleClick}
+              size="small"
+              sx={{ ml: 2 }}
+              aria-controls={open ? 'account-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+            >
+              <Avatar sx={{ width: 32, height: 32, background: '#666666'}} />
+            </IconButton>
+          </Tooltip>
+        </Box>
+        <Menu
+          anchorEl={anchorEl}
+          id="account-menu"
+          open={open}
+          onClose={handleClose}
+          onClick={handleClose}
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              overflow: 'visible',
+              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+              mt: 1.5,
+              '& .MuiAvatar-root': {
+                width: 32,
+                height: 32,
+                ml: -0.5,
+                mr: 1,
+              },
+              '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+              },
+            },
+          }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        >
+          <MenuItem component={RouterLink} to={`/user/${tokenToUserId(token)}`}>
+            <Avatar /> Profile
+          </MenuItem>
+          <MenuItem component={RouterLink} to={`/my-recipes`}>
+            <ListItemIcon>
+              <Restaurant />
+            </ListItemIcon>
+            Recipes
+          </MenuItem>
+          <MenuItem component={RouterLink} to={'/my-cookbooks'}>
+            <ListItemIcon>
+              <MenuBook />
+            </ListItemIcon>
+            Cook Books
+          </MenuItem>
+          <MenuItem component={RouterLink} to={'/dashboard'}>
+            <ListItemIcon>
+              <SpeedIcon />
+            </ListItemIcon>
+          Dashboard
+          </MenuItem>
+          <Divider />
+          <MenuItem component={RouterLink} to={'/user-preferences'}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            Settings
+          </MenuItem>
+          <MenuItem onClick={userLogout}>
+            <ListItemIcon>
+              <LogoutIcon/>
+            </ListItemIcon>
+            Logout
+          </MenuItem>
+        </Menu>
+      </React.Fragment>
+    );
+  }
 
   return (
     <AppBar position="fixed" color="default" sx={{zIndex: 1000}}>
@@ -181,17 +307,30 @@ function Header ({ incSearch, incButtons }) {
           </HeaderButton>
           </>}
           {incButtons && token && <>
-          <HeaderButton component={RouterLink} to="/cart">
-            <ShoppingCartIcon />
-            <Typography component="span" variant="span">
-              {cartItems.length}
-            </Typography>
-          </HeaderButton>
-          <HeaderButton component={RouterLink} to="/dashboard">
-            <AccountCircleIcon />
-            <HeaderButtonTypo>Dashboard</HeaderButtonTypo>
-          </HeaderButton>
-          <LogoutButton />
+          <Tooltip title="Messages">
+            <IconButton
+              aria-label="messages"
+              component={RouterLink} to="/message-rooms"
+              disableRipple={true}
+              sx={{'&:hover': {color: '#000000'}}}
+            >
+              <Message />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Shopping cart">
+            <IconButton 
+              aria-label="shopping cart"
+              component={RouterLink} to="/cart"
+              disableRipple={true}
+              sx={{'&:hover': {color: '#000000'}}}
+            >
+              <ShoppingCartIcon />
+              <Typography component="span" variant="span">
+                {cartItems.length}
+              </Typography>
+            </IconButton>
+          </Tooltip>
+          <AccountMenu />
           </>}
         </Box>
       </Toolbar>

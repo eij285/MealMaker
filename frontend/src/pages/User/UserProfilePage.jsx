@@ -24,7 +24,10 @@ import { validateDisplayName, validateEmail, backendRequest, emptyStringToNull, 
 const config = require('../../config.json');
 
 function UserProfilePage () {
-  const token = React.useContext(GlobalContext).token;
+  const globals = React.useContext(GlobalContext);
+  const token = globals.token;
+  const globalUserPreferences = globals.userPreferences;
+  const setGlobalUserPreferences = globals.setUserPreferences;
 
   // user data
   const [pronoun, setPronoun] = React.useState('Mr');
@@ -37,6 +40,28 @@ function UserProfilePage () {
   const [about, setAbout] = React.useState('');
   const [visibility, setVisibility] = React.useState('private');
 
+  // recommended meal preferences
+  const [breakfast, setBreakfast] = React.useState(true);
+  const [lunch, setLunch] = React.useState(true);
+  const [dinner, setDinner] = React.useState(true);
+  const [snack, setSnack] = React.useState(true);
+
+  // dietary needs
+  const [vegetarian, setVegetarian] = React.useState(false);
+  const [vegan, setVegan] = React.useState(false);
+  const [kosher, setKosher] = React.useState(false);
+  const [halal, setHalal] = React.useState(false);
+  const [dairyFree, setDairyFree] = React.useState(false);
+  const [glutenFree, setGlutenFree] = React.useState(false);
+  const [nutFree, setNutFree] = React.useState(false);
+  const [eggFree, setEggFree] = React.useState(false);
+  const [shellfishFree, setShellfishFree] = React.useState(false);
+  const [soyFree, setSoyFree] = React.useState(false);
+
+  // user preferences
+  const [efficiency, setEfficiency] = React.useState(config.EFFICIENCY[1]);
+  const [measuringUnits, setMeasuringUnits] = React.useState(config.UNITS[0]);
+
   // error messages
   const [displayNameMessage, setDisplayNameMessage] = React.useState('');
   const [emailMessage, setEmailMessage] = React.useState('');
@@ -44,6 +69,25 @@ function UserProfilePage () {
   // response messages
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
+
+  const loadPreferences = (data) => {
+    setBreakfast(data.breakfast);
+    setLunch(data.lunch);
+    setDinner(data.dinner);
+    setSnack(data.snack);
+    setVegetarian(data.vegetarian);
+    setVegan(data.vegan);
+    setKosher(data.kosher);
+    setHalal(data.halal);
+    setDairyFree(data.dairy_free);
+    setGlutenFree(data.gluten_free);
+    setNutFree(data.nut_free);
+    setEggFree(data.egg_free);
+    setShellfishFree(data.shellfish_free);
+    setSoyFree(data.soy_free);
+    setEfficiency(data.efficiency);
+    setMeasuringUnits(data.units);
+  };
 
   const loadUserData = (data) => {
     setPronoun(data.pronoun ? data.pronoun : config.PRONOUNS[0]);
@@ -58,12 +102,68 @@ function UserProfilePage () {
   };
 
   React.useEffect(() => {
+    // backend request for user info
     backendRequest('/user/info', {}, 'POST', token, (data) => {
       loadUserData(data);
     }, (error) => {
       setResponseError(error);
     });
+    // backend request for user preferences
+    backendRequest('/user/preferences', {}, 'POST', token, (data) => {
+      loadPreferences(data);
+    }, (error) => {
+      setResponseError(error);
+    });
   }, [token]);
+
+  const updateGlobalPreferences = (data) => {
+    setGlobalUserPreferences({
+      ...globalUserPreferences,
+      breakfast: data.breakfast,
+      lunch: data.lunch,
+      dinner: data.dinner,
+      snack: data.snack,
+      vegetarian: data.vegetarian,
+      vegan: data.vegan,
+      kosher: data.kosher,
+      halal: data.halal,
+      dairyFree: data.dairy_free,
+      glutenFree: data.gluten_free,
+      nutFree: data.nut_free,
+      eggFree: data.egg_free,
+      shellfishFree: data.shellfish_free,
+      soyFree: data.soy_free,
+      efficiency: data.efficiency,
+    });
+  };
+
+  const updatePreferences = (e) => {
+    e.preventDefault();
+    const body = {
+      breakfast: breakfast,
+      lunch: lunch,
+      dinner: dinner,
+      snack: snack,
+      vegetarian: vegetarian,
+      vegan: vegan,
+      kosher: kosher,
+      halal: halal,
+      dairy_free: dairyFree,
+      gluten_free: glutenFree,
+      nut_free: nutFree,
+      egg_free: eggFree,
+      shellfish_free: shellfishFree,
+      soy_free: soyFree,
+      efficiency: efficiency,
+      units: measuringUnits,
+    };
+    backendRequest('/user/preferences/update', body, 'PUT', token, (data) => {
+      setResponseSuccess('Details Updated Successfully');
+      updateGlobalPreferences(body);
+    }, (error) => {
+      setResponseError(error);
+    });
+  }
 
   const updateProfile = (e) => {
     e.preventDefault();
@@ -96,7 +196,7 @@ function UserProfilePage () {
   return (
     <ManageLayout>
       <Grid item xl={6} lg={8} md={10} sm={12} xs={12}>
-        <PageTitle>User Profile</PageTitle>
+        <PageTitle>Settings</PageTitle>
         <FlexColumn>
           <FlexRow>
             <LeftAlignedButton component={RouterLink} to="/update-password">

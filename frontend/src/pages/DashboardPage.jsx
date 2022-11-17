@@ -125,12 +125,12 @@ function DashboardPage () {
                 </CentredContentContainer>
               </Grid>
               <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
-                <CentredContentContainer component={RouterLink} to="/subscriptions">
+                <CentredContentContainer component={RouterLink} to="/following">
                   {userStats.num_followings} Subscriptions
                 </CentredContentContainer>
               </Grid>
               <Grid item xl={3} lg={6} md={12} sm={12} xs={12}>
-                <CentredContentContainer component={RouterLink} to="/subscribers">
+                <CentredContentContainer component={RouterLink} to="/followers">
                   {userStats.num_followers} Subscribers
                 </CentredContentContainer>
               </Grid>

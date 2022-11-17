@@ -134,7 +134,7 @@ function UserPreferencesPage () {
   return (
     <ManageLayout>
       <Grid item xl={4} lg={6} md={8} sm={10} xs={12}>
-        <PageTitle>User Preferences</PageTitle>
+        <PageTitle>Settings</PageTitle>
         <FlexColumn>
           {responseSuccess !== '' &&
           <SuccessAlert message={responseSuccess} setMessage={setResponseSuccess} />}

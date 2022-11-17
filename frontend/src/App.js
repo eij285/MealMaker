@@ -23,8 +23,8 @@ import CreateRecipePage from './pages/Recipe/CreateRecipePage';
 import EditRecipePage from './pages/Recipe/EditRecipePage';
 import ViewRecipePage from './pages/Recipe/ViewRecipePage';
 import SearchPage from './pages/SearchPage';
-import SubscriptionsPage from './pages/User/SubscriptionsPage';
-import SubscribersPage from './pages/User/SubscribersPage';
+import FollowingPage from './pages/User/FollowingPage';
+import FollowersPage from './pages/User/FollowersPage';
 import MyCookbooksPage from './pages/Cookbook/MyCookbooksPage';
 import CreateCookbookPage from './pages/Cookbook/CreateCookbookPage';
 import EditCookbookPage from './pages/Cookbook/EditCookbookPage';
@@ -64,8 +64,8 @@ function App() {
               <Route exact path="/my-recipes" element={<MyRecipesPage />} />
               <Route exact path="/create-recipe" element={<CreateRecipePage />} />
               <Route path="/edit-recipe/:recipeId" element={<EditRecipePage />} />
-              <Route exact path="/subscriptions" element={<SubscriptionsPage />} />
-              <Route exact path="/subscribers" element={<SubscribersPage />} />
+              <Route exact path="/following" element={<FollowingPage />} />
+              <Route exact path="/followers" element={<FollowersPage />} />
               <Route exact path="/my-cookbooks" element={<MyCookbooksPage/>} />
               <Route exact path="/create-cookbook" element={<CreateCookbookPage />} />
               <Route path="/edit-cookbook/:cookbookId" element={<EditCookbookPage />} />

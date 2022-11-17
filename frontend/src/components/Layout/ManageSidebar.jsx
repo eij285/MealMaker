@@ -17,7 +17,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import SettingsIcon from '@mui/icons-material/Settings';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import MessageIcon from '@mui/icons-material/Message';
+import { Restaurant } from '@mui/icons-material';
 import SpeedIcon from '@mui/icons-material/Speed';
 import StoreIcon from '@mui/icons-material/Store';
 
@@ -154,13 +154,9 @@ export default function ManageSidebar() {
       </SidebarToggle>
       <Divider />
       <List sx={{ paddingTop: 0 }}>
-        <SidebarItem to="/dashboard" text="Dashboard" open={open} icon={<SpeedIcon />} />
-        <SidebarItem to="/my-recipes" text="My Recipes" open={open} icon={<FoodBankIcon />} />
-        <SidebarItem to="/my-cookbooks" text="Cook Books" open={open} icon={<MenuBookIcon />} />
-        <SidebarItem to="/message-rooms" text="Message Rooms" open={open} icon={<MessageIcon />} />
         <SidebarItem to="/manage-shopping" text="Shopping" open={open} icon={<StoreIcon />} />
         <SidebarItem to="/user-profile" text="User Profile" open={open} icon={<AccountBoxIcon />} />
-        <SidebarItem to="/user-preferences" text="Preferences" open={open} icon={<SettingsIcon />} />
+        <SidebarItem to="/user-preferences" text="Settings" open={open} icon={<SettingsIcon />} />
       </List>
     </Sidebar>
   );
