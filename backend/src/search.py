@@ -138,12 +138,15 @@ def search(search_term):
         output = []
         for i in range(0, len(title_similarity)):
             similarity = {}            
-            similarity["similarity"] = (title_similarity[i] + ingredient_match[i] + cuisine_similarity[i])
-            similarity["id"] = (all_id[i])            
-            if similarity["similarity"] > 0.2:
+            similarity["similarity"] = (title_similarity[i] * 0.2 + ingredient_match[i] * 0.6 + cuisine_similarity[i] * 0.2)
+            similarity["id"] = (all_id[i])  
+            print(similarity["similarity"])
+            if similarity["similarity"] > 0.15:
                 output.append(similarity)
         
         sorted_dict = sorted(output, key=itemgetter('similarity'), reverse=True) 
+        if len(sorted_dict) > 3:
+            sorted_dict = sorted_dict[0:3]
         output = []
         for i in sorted_dict:
             id = i["id"]

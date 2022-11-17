@@ -55,7 +55,16 @@ function ShoppingCartPage () {
   const setCartItems = globals.setCartItems;
 
   const dataGridStyles = {
-    height: 'calc(100vh - 600px)',
+    height: '100vh',
+    '@media (min-height: 560px)': {
+      height: 'calc(100vh - 250px)',
+    },
+    '@media (min-height: 768px)': {
+      height: 'calc(100vh - 400px)',
+    },
+    '@media (min-height: 1024px)': {
+      height: 'calc(100vh - 600px)',
+    }
   };
 
   React.useEffect(() => {
