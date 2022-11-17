@@ -214,7 +214,8 @@ def cart_add_by_id(ing_id, token):
 
     # Map each item to its count value and aggregate
     cart_items = [(x, cart_items.count(x)) for x in cart_items]
-    cart_items = list(set(cart_items))
+    cart_items = \
+            [x for i, x in enumerate(cart_items) if x not in cart_items[i + 1:]]
 
     ingredients_body_content = []
 
@@ -296,7 +297,8 @@ def cart_add_by_name(ing_name, ing_unit, ing_quantity, token):
 
     # Map each item to its count value and aggregate
     cart_items = [(x, cart_items.count(x)) for x in cart_items]
-    cart_items = list(set(cart_items))
+    cart_items = \
+            [x for i, x in enumerate(cart_items) if x not in cart_items[i + 1:]]
 
     ingredients_body_content = []
 
@@ -772,7 +774,7 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
     if not sql_result:
         seed = 1
     else:
-        seed, = sql_result[0]
+        seed = sql_result
         seed = int(seed)
 
     # Generate order number
@@ -789,14 +791,14 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
     cur.execute(sql_query, (order_no, m_id, deliver_by, deliver_loc, '0', \
                 str(u_id)))
     
-    order_id, = cur.fetchone()[0]
+    order_id = cur.fetchone()[0]
 
     # Get active cart and its ingredients
     sql_query = "SELECT i.ingredient_name, i.ingredient_quantity, \
                  i.ingredient_cost, i.unit_type, i.item_quantity \
-                 FROM shopping_cart c LEFT JOIN cart_items i \
-                 ON s.cart_id = i.cart_id \
-                 WHERE s.owner_id = %s AND s.cart_status = 'active';"
+                 FROM shopping_carts c LEFT JOIN cart_items i \
+                 ON c.cart_id = i.cart_id \
+                 WHERE c.owner_id = %s AND c.cart_status = 'active';"
     cur.execute(sql_query, (str(u_id),))
 
     sql_result = cur.fetchall()
@@ -805,7 +807,7 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
     # Insert all results into order_items and add cost to order
     for result in sql_result:
         ing_name, ing_quantity, ing_cost, unit_type, item_quantity = result
-        total_cost += float(ing_cost) * int(item_quantity)
+        total_cost += float(ing_cost[1:]) * int(item_quantity)
 
         # Add items to order_items
         sql_query = "INSERT INTO order_items(ingredient_name, \
@@ -816,7 +818,7 @@ def cart_make_order(m_id, deliver_by, deliver_loc, token):
                     item_quantity, order_id))
         
     sql_query = "UPDATE orders SET payment_amount = %s WHERE order_id = %s;"
-    cur.execute(sql_query, (str(total_cost), str(u_id)))
+    cur.execute(sql_query, (str(total_cost), str(order_id)))
 
     conn.commit()
     cur.close()
@@ -908,7 +910,7 @@ def cart_fetch_past_order_details(order_id, token):
         }
 
     _, order_number, placed_on, completed_on, order_status, payment_method_id, \
-            delivery_time, delivery_address, payment_amount = sql_result[0]
+            delivery_time, delivery_address, payment_amount, _ = sql_result[0]
     
     # Get order item details
     sql_query = "SELECT * FROM order_items WHERE order_id = %s;"
@@ -936,7 +938,7 @@ def cart_fetch_past_order_details(order_id, token):
                  FROM payment_methods WHERE method_id = %s;"
     cur.execute(sql_query, (str(payment_method_id),))
 
-    card_name, card_number, card_cvv, card_exp_date = cur.fetchone()[0]
+    card_name, card_number, card_cvv, card_exp_date = cur.fetchone()
 
 
     return {
@@ -956,5 +958,46 @@ def cart_fetch_past_order_details(order_id, token):
         'card_exp_date': card_exp_date
     }
 
+def cart_delete_id(cart_id, token):
+
+    # Connect to database
+    try:
+        conn = psycopg2.connect(DB_CONN_STRING)
+        cur = conn.cursor()
+    except:
+        return {
+            'status_code': 500,
+            'error': 'Unable to connect to database'
+        }
+
+    # Verify token
+    token_valid = verify_token(token)
+    if not token_valid:
+        return {
+            'status_code': 401,
+            'error': 'Invalid token'
+        }
+    else:
+        u_id = token_valid
+
+    sql_query = "DELETE FROM shopping_carts WHERE cart_id = %s \
+                 AND owner_id = %s;"
+    cur.execute(sql_query, (str(cart_id), str(u_id)))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        'status_code': 200,
+        'body': {}
+    }
+
 if __name__ == "__main__":
-    pprint(cart_make_order(3, datetime.now(), datetime.now(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTA3NzJ9.rhh0O0fVKrKOY0DiQplEaBDg6_xknlWhO8XC9qB-txE"))
+    pprint(cart_delete_id(1, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_add_by_id(1, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_add_all_ingredients(1, 10, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_save_payment_method('Elijah', '3131232301010002', datetime.now(), '323', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_make_order(1, datetime.now(), datetime.now(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_fetch_past_orders_all("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))
+    # pprint(cart_fetch_past_order_details(15, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1X2lkIjoxLCJleHAiOjE2NjkxOTkyNjR9.tWpkY-6BoNWczG8rcjq6FPSzsx8mTbLesqggWPHP9go"))

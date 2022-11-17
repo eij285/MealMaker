@@ -4,7 +4,6 @@ import { Box, Button, Grid, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
 import { backendRequest } from '../../helpers';
@@ -40,17 +39,49 @@ function AddEditPaymentMethodPage () {
       return;
     }
     const body = {
-      method_id: 'method_id'
+      method_id: methodId
     };
     backendRequest('/cart/payment-method/get', body, 'POST', token, (data) => {
       console.log(data);
-      setCardholderName(data.body.card_name);
+      setCardholderName(data.body.cardholder_name);
       setCardNumber(data.body.card_number);
-      setExpirationDate(data.body.card_exp_date);
-      setCardCvv(data.body.card_cvv);
+      setExpirationDate(moment(data.body.card_exp_date));
+      setCardCvv(data.body.cvv);
+      console.log(data);
     }, (error) => {
       setResponseError(error);
     });
+  };
+
+  const validateCardholderName = () => {
+    setCardholderNameMessage(cardholderName?'':'Cardholder name required');
+    console.log(cardholderName);
+  };
+
+  const validateCardNumber = () => {
+    if (!cardNumber) {
+      setCardNumberMessage('Card number required')
+      // basic validation only (check digits only and length 8-19 numbers)
+    } else if (/^[0-9]{8,19}$/.test(cardNumber) === false) {
+      setCardNumberMessage('Invalid card number format');
+    } else {
+      setCardNumberMessage('');
+    }
+  };
+
+  const validateExpirationDate = () => {
+    setExpirationDateMessage(expirationDate?'':'Expiration date required');
+  };
+
+  const validateCardCvv = () => {
+    if (!cardCvv) {
+      setCardCvvMessage('CVV required');
+      // basic validation only (check digits only and length 3-4 numbers)
+    } else if (/^[0-9]{3,4}$/.test(cardCvv) === false) {
+      setCardCvvMessage('Invalid CVV format');
+    } else {
+      setCardCvvMessage('');
+    }
   };
 
   const addOrUpdatePayment = (e) => {
@@ -69,24 +100,17 @@ function AddEditPaymentMethodPage () {
       backendRequest(reqUrl, body, 'POST', token, (data) => {
         const methodId = data.body.method_id;
         setResponseSuccess(
-          `Successfully ${isEdit ? 'updated': 'added'} payment method (${methodId})`);
+          `Successfully ${isEdit ? 'updated': 'added'} payment method
+          (method id: ${methodId})`);
         navigate(`/edit-payment-method/${methodId}`);
       }, (error) => {
         setResponseError(error);
       });
     } else {
-      if (cardholderName === '') {
-        setCardholderNameMessage('Cardholder name required');
-      }
-      if (cardNumber === '') {
-        setCardNumberMessage('Card number required');
-      }
-      if (expirationDate === null) {
-        setExpirationDateMessage('Expiration date required');
-      }
-      if (cardCvv === '') {
-        setCardCvvMessage('CVV required');
-      }
+      validateCardholderName();
+      validateCardNumber();
+      validateExpirationDate();
+      validateCardCvv();
     }
   };
 
@@ -112,9 +136,7 @@ function AddEditPaymentMethodPage () {
               required
               value={cardholderName}
               onChange={(e) => setCardholderName(e.target.value)}
-              onBlur={(e) =>
-                setCardholderNameMessage(
-                  e.target.value?'':'Cardholder name required')}
+              onBlur={validateCardholderName}
               error={cardholderNameMessage !== ''}
               helperText={cardholderNameMessage}
             />
@@ -123,8 +145,7 @@ function AddEditPaymentMethodPage () {
               required
               value={cardNumber}
               onChange={(e) => setCardNumber(e.target.value)}
-              onBlur={(e) =>
-                setCardNumberMessage(e.target.value?'':'Card number required')}
+              onBlur={validateCardNumber}
               error={cardNumberMessage !== ''}
               helperText={cardNumberMessage}
             />
@@ -139,7 +160,7 @@ function AddEditPaymentMethodPage () {
                 value={expirationDate}
                 onChange={(newValue) => {
                   setExpirationDate(newValue);
-                  setExpirationDateMessage(newValue?'':'Expiration date required');
+                  validateExpirationDate();
                 }}
                 renderInput={(params) =>
                   <TextField required {...params}
@@ -153,7 +174,7 @@ function AddEditPaymentMethodPage () {
               required
               value={cardCvv}
               onChange={(e) => setCardCvv(e.target.value)}
-              onBlur={(e) => setCardCvvMessage(e.target.value?'':'CVV required')}
+              onBlur={validateCardCvv}
               error={cardCvvMessage !== ''}
               helperText={cardCvvMessage}
             />

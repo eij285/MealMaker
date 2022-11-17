@@ -4,17 +4,74 @@ import { Box, Button, Grid } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import GlobalContext from '../../utils/GlobalContext';
 import ManageLayout from '../../components/Layout/ManageLayout';
-import { backendRequest } from '../../helpers';
-import { ErrorAlert, FlexColumn, FlexRow, SuccessAlert } from '../../components/StyledNodes';
+import {
+  ConfirmationDialog,
+  ErrorAlert,
+  FlexColumn,
+  FlexRow,
+  SuccessAlert
+} from '../../components/StyledNodes';
 import { PageTitle, SubPageTitle } from '../../components/TextNodes';
-import { TextInput } from '../../components/InputFields';
+import {
+  PaymentMethodsContainer,
+  SinglePaymentMethod,
+  ShoppingCartsContainer,
+  SingleShoppingCart
+} from '../../components/Shopping/ShoppingNodes';
+import { backendRequest } from '../../helpers';
 
 function ManageShoppingPage () {
-  // TODO: complete this page
   const token = React.useContext(GlobalContext).token;
-  const [deliveryAddress, setDeliveryAddress] = React.useState('');
+  const [paymentMethods, setPaymentMethods] = React.useState([]);
+  const [shoppingCarts, setShoppingCarts] = React.useState([]);
+
   const [responseError, setResponseError] = React.useState('');
   const [responseSuccess, setResponseSuccess] = React.useState('');
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [deleteCartId, setDeleteCartId] = React.useState(-1);
+  const [deleteDescription, setDeleteDesciption] = React.useState('');
+
+  const loadShoppingCarts = () => {
+    backendRequest('/cart/display/all', {}, 'POST', token, (data) => {
+      setShoppingCarts([...data.carts]);
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
+  const loadPaymentMethods = () => {
+    backendRequest('/cart/payment-method/list', {}, 'POST', token, (data) => {
+      setPaymentMethods([...data.body]);
+    }, (error) => {
+      setResponseError(error);
+    });
+  };
+
+  const deleteCart = () => {
+    const body = {
+      cart_id: deleteCartId
+    };
+    backendRequest('/cart/delete', body, 'POST', token, (data) => {
+      console.log(data);
+      setResponseSuccess('Successfully deleted shopping cart');
+      loadShoppingCarts();
+    }, (error) => {
+      setResponseError(error);
+    });
+    setDialogOpen(false);
+  };
+
+  React.useEffect(() => {
+    loadShoppingCarts();
+    loadPaymentMethods();
+  }, [token]);
+
+  React.useEffect(() => {
+    if (!dialogOpen) {
+      setDeleteCartId(-1);
+    }
+  }, [dialogOpen, deleteCartId]);
 
   return (
     <ManageLayout>
@@ -30,9 +87,21 @@ function ManageShoppingPage () {
           </Box>
           <Box>
             <SubPageTitle>Saved Shopping Carts</SubPageTitle>
+            <ShoppingCartsContainer>
+            {shoppingCarts.map((cart, index) => (
+              <SingleShoppingCart key={index} data={cart}
+                setDeleteId={setDeleteCartId} setDialogOpen={setDialogOpen}
+                setDeleteDesciption={setDeleteDesciption} />
+            ))}
+            </ShoppingCartsContainer>
           </Box>
           <Box>
             <SubPageTitle>Payment Methods</SubPageTitle>
+            <PaymentMethodsContainer>
+            {paymentMethods.map((method, index) => (
+              <SinglePaymentMethod key={index} data={method} />
+            ))}
+            </PaymentMethodsContainer>
             <FlexRow>
               <Button color="success"
                 component={RouterLink}
@@ -44,18 +113,13 @@ function ManageShoppingPage () {
               </Button>
             </FlexRow>
           </Box>
-          <Box>
-            <SubPageTitle>Delivery Options</SubPageTitle>
-            <TextInput
-              label="Delivery Address"
-              multiline
-              minRows={5}
-              value={deliveryAddress}
-              onChange={(e) => setDeliveryAddress(e.target.value)}
-            />
-          </Box>
         </FlexColumn>
       </Grid>
+      <ConfirmationDialog title="Are you sure you want to delete shopping cart?"
+        description={deleteDescription}
+        acceptContent="Delete" rejectContent="Cancel"
+        openState={dialogOpen} setOpenState={setDialogOpen} 
+        execOnAccept={deleteCart} />
     </ManageLayout>
   );
 }
