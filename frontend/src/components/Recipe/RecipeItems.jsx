@@ -248,8 +248,11 @@ export const CookbookScrollerRecipeItem = ({data, index, addRemove}) => {
             {data.cuisine}<br/>
             ({data.recipe_status})
           </Typography>
-          <Checkbox disabled={isDraft}
-            onChange={(e) => addRemove(index, e.target.checked)} />
+          <Checkbox
+            disabled={isDraft}
+            onChange={(e) => addRemove(index, e.target.checked)}
+            sx={{color: 'white'}}
+          />
         </RecipeItemActionPanel>
         <RecipeItemPhoto src={data.recipe_photo} alt={data.recipe_name} />
         <SmallBlackText align="left">{data.recipe_name}</SmallBlackText>
