@@ -219,8 +219,8 @@ function ViewRecipePage () {
                       to={`/user/${recipeData.author_id}`} />
                     {token && !recipeData.user_is_author &&
                     <SmallAlternateButton onClick={subscribeToUser}>
-                      {!recipeData.is_subscribed && <>Subscribe</>}
-                      {recipeData.is_subscribed && <>Unubscribe</>}
+                      {!recipeData.is_subscribed && <>Follow</>}
+                      {recipeData.is_subscribed && <>Unfollow</>}
                     </SmallAlternateButton>}
                   </FlexRow>
                 </FlexRowWrapSpaced>

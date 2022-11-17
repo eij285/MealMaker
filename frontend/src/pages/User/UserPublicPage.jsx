@@ -217,7 +217,7 @@ function UserPublicPage () {
             open={followersBackdrop}
             onClick={handleCloseFollowersBackdrop}
           >
-            <Card sx={{ maxHeight: 600, width: 600}}>
+            <Card sx={{ maxHeight: 600, width: 600, overflow: 'auto'}}>
               <CardHeader
                 action={
                   <IconButton on={handleCloseFollowersBackdrop}>
@@ -294,7 +294,7 @@ function UserPublicPage () {
             open={followingBackdrop}
             onClick={handleCloseFollowingBackdrop}
           >
-            <Card sx={{ maxHeight: 600, width: 600}}>
+            <Card sx={{ maxHeight: 600, width: 600, overflow: 'auto'}}>
               <CardHeader
                 action={
                   <IconButton on={handleCloseFollowingBackdrop}>
