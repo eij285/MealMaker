@@ -327,7 +327,7 @@ export const customPrepTime = (hours, minutes, level) => {
  */
 export const defaultFilterOptions = () => {
   return {
-    filtersEnabled: true,
+    filtersEnabled: false,
     breakfast: true,
     lunch: true,
     dinner: true,
