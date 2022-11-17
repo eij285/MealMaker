@@ -1,7 +1,8 @@
 {
   "BACKEND_SERVER": "http://localhost:5000",
   "PRONOUNS": ["Mr", "Ms", "Mrs", "Miss", "Dr"],
-  "COUNTRIES": ["Afghanistan", 
+  "COUNTRIES": ["",
+  "Afghanistan", 
   "Albania", 
   "Algeria", 
   "Andorra",
