@@ -1,75 +1,72 @@
-Product,Classification,Brand,Unit of Measurement,Quantity,Cost,Price per unit
-Woolworths Almonds Natural,almonds,Woolworths,grams,150,3.15,0.0210
-Woolworths Almonds Natural,almonds,Woolworths,grams,450,7.70,0.0171
-Woolworths Almonds Kernels,almonds,Woolworths,grams,750,10.00,0.0133
-Woolworths Almonds Slivered,almonds,Woolworths,grams,120,3.50,?
-Woolworths Dry Roasted Almonds Nuts,almonds,Woolworths,grams,400,7.50,?
-Macro Natural Almond Kernels,almonds,Macro,grams,250,7.00,?
-Lucky Slivered Almonds,almonds,Lucky,grams,110,3.50,?
-Lucky Flaked Almonds,almonds,Lucky,grams,110,3.50,?
-Fresh Pink Lady Apples,apple,Woolworths,pieces,1,0.86,?
-Fresh Granny Smith Apples,apple,Woolworths,pieces,1,0.86,?
-Apple Royal Gala,apple,Woolworths,pieces,1,0.78,?
-Woolworths Fresh Pink Lady Apples,apple,Woolworths,kg,1,4.90,?
-Woolworths Royal Gala Apple 1kg Punnet,apple,Woolworths,kg,1,4.90,?
-Jazz Apple,apple,Woolworths,pieces,1,1.14,?
-Kanzi Apple,apple,Woolworths,pieces,1,1.14,?
-D'orsogna Middle Bacon Per Kg,bacon,D'orsogna,kg,1,14.00,?
-D'orsogna Shortcut Bacon Per Kg,bacon,D'orsogna,kg,1,15.00,?
-Woolworths Shortcut Bacon,bacon,Woolworths,grams,500,7.00,?
-D'orsogna Plain Streaky Bacon From The Deli Per Kg,bacon,D'orsogna,kg,1,18.00,?
-D'orsogna Maple Glazed Streaky Bacon From The Deli Per Kg,bacon,D'orsogna,kg,1,18.00,?
-Woolworths Shortcut Bacon,bacon,Woolworths,grams,200,3.80,?
-Woolworths Shortcut Bacon,bacon,Woolworths,kg,1,10.25,?
-Woolworths Middle Bacon,bacon,Woolworths,kg,1,10.25,?
-Woolworths Middle Bacon,bacon,Woolworths,grams,250,4.00,?
-Woolworths Green Basil Fresh Herb 15g Punnet,basil,Woolworths,grams,15,3.00,?
-Beans Round Per Kg,beans,Woolworths,kg,1,6.90,?
-Woolworths Beanette Pre Pack Punnet,beans,Woolworths,grams,400,3.20,?
-Mulgowie Green Beans Cleaned & Cut,beans,Mulgowie,grams,340,5.00,?
-Woolworths Beef Stir Fry,beef,Woolworths,grams,500,13.00,?
-Woolworths Beef Sizzle Schnitzel,beef,Woolworths,grams,400,12.00,?
-Woolworths Beef Rump Steak Medallion Small,beef,Woolworths,grams,300,12.00,?
-Woolworths Beef Oyster Blade Steak,beef,Woolworths,grams,600,15.50,?
-Macro Grass Fed Australian Diced Beef,beef,Macro,grams,500,13.00,?
-Macro Grass Fed Australian Stir-fry Beef,beef,Macro,grams,500,13.00,?
-Woolworths Beef Mince,beef mince,Woolworths,kg,1,13.00,?
-Woolworths Beef Mince,beef mince,Woolworths,grams,500,7.00,?
-Woolworths Lean Beef Mince,beef mince,Woolworths,kg,1,16.00,?
-Woolworths Lean Beef Mince,beef mince,Woolworths,grams,500,9.50,?
-Woolworths Heart Smart Extra Lean Beef Mince,beef mince,Woolworths,grams,500,10.50,?
-Cw Farms Beef Mince Bulk Pack,beef mince,Cw Farms,kg,1.8,21.50,?
-Macro Organic Lean Beef Mince,beef mince,Macro,grams,500,13.75,?
-Woolworths Panko Bread Crumbs,bread crumbs,Woolworths,grams,220,1.50,?
-Essential Bread Crumbs,bread crumbs,Woolworths,grams,750,2.55,?
-Krummies Breadcrumbs,bread crumbs,Krummies,grams,375,3.00,?
-Mr Chen's Panko Bread Crumbs,bread crumbs,Mr Chen's,grams,350,2.00,?
-Essentials Salted Butter,butter,Woolworths,grams,500,6.00,?
-Essentials Unsalted Butter,butter,Woolworths,grams,500,6.00,?
-Western Star Original Spreadable,butter,Western Star,grams,500,6.00,?
-Essentials Salted Butter,butter,Woolworths,grams,250,3.45,?
-Western Star Original Butter Block,butter,Western Star,grams,500,7.00,?
-Mainland Buttersoft Pure Salted Butter,butter,Mainland,grams,375,7.00,?
-Chicken Thigh Fillet Per Kg,chicken,Woolworths,kg,1,13.00,?
-Macro Whole Chicken Free Range 1.1kg - 2.25kg,chicken,Macro,kg,1.1,14.63,?
-Woolworths Rspca Approved Chicken Stirfry,chicken,Woolworths,grams,500,9.00,?
-Macro Chicken Drumsticks Free Range 650g - 1.2kg,chicken,Woolworths,grams,650,7.20,?
-Ingham's Fresh Whole Chicken 1.1kg - 2.3kg,chicken,Ingram's,kg,1.1,11.50,?
-Woolworths Rspca Approved Chicken Breast Fillet Min. 250g,chicken breast,Woolworths,grams,250,9.00,?
-Macro Chicken Breast Fillets Free Range 570g - 1.1kg,chicken breast,Macro,grams,570,14.30,?
-Woolworths Chicken Breast Fillet Skinless Small 459g - 749g,chicken breast,Woolworths,grams,459,9.74,?
-Cholula Hot Sauce,chilli sauce,Cholula,ml,150,5.50,?
-Frank's Red Hot Buffalo Wings,chilli sauce,Frank's,ml,148,3.30,?
-Frank's Red Hot Buffalo Wings,chilli sauce,Frank's,ml,148,3.30,?
-Masterfoods Squeezy Hot Chilli Sauce,chilli sauce,Masterfoods,ml,250,2.80,?
-Woolworths Sweet Chilli Sauce,chilli sauce,Woolworths,ml,700,2.95,?
-Fountain Hot Chilli Sauce,chilli sauce,Fountain,ml,250,3.20,?
-Huy Fong Sriracha Hot Chilli Sauce,chilli sauce,Huy Fong,ml,266,5.50,?
-Woolworths Coconut Fine Desiccated,coconut,Woolworths,grams,500,3.60,?
-Woolworths Shredded Coconut,coconut,Woolworths,grams,250,1.80,?
-Mckenzie's Coconut Fine Desiccated,coconut,McKenzie's,grams,250,2.20,?
-Macro Organic Shredded Coconut,coconut,Macro,grams,200,4.40,?
-Macro Organic Desiccated Coconut,coconut,Macro,grams,250,5.00,?
+Product,Classification,Brand,Unit of Measurement,Quantity,Cost
+Woolworths Almonds Natural,almonds,Woolworths,grams,150,3.15
+Woolworths Almonds Natural,almonds,Woolworths,grams,450,7.70
+Woolworths Almonds Kernels,almonds,Woolworths,grams,750,10.00
+Woolworths Almonds Slivered,almonds,Woolworths,grams,120,3.50
+Woolworths Dry Roasted Almonds Nuts,almonds,Woolworths,grams,400,7.50
+Macro Natural Almond Kernels,almonds,Macro,grams,250,7.00
+Lucky Slivered Almonds,almonds,Lucky,grams,110,3.50
+Lucky Flaked Almonds,almonds,Lucky,grams,110,3.50
+Fresh Pink Lady Apples,apple,Woolworths,pieces,1,0.86
+Fresh Granny Smith Apples,apple,Woolworths,pieces,1,0.86
+Apple Royal Gala,apple,Woolworths,pieces,1,0.78
+Woolworths Fresh Pink Lady Apples,apple,Woolworths,kg,1,4.90
+Woolworths Royal Gala Apple 1kg Punnet,apple,Woolworths,kg,1,4.90
+Jazz Apple,apple,Woolworths,pieces,1,1.14
+Kanzi Apple,apple,Woolworths,pieces,1,1.14
+D'orsogna Middle Bacon Per Kg,bacon,D'orsogna,kg,1,14.00
+D'orsogna Shortcut Bacon Per Kg,bacon,D'orsogna,kg,1,15.00
+Woolworths Shortcut Bacon,bacon,Woolworths,grams,500,7.00
+D'orsogna Plain Streaky Bacon From The Deli Per Kg,bacon,D'orsogna,kg,1,18.00
+D'orsogna Maple Glazed Streaky Bacon From The Deli Per Kg,bacon,D'orsogna,kg,1,18.00
+Woolworths Shortcut Bacon,bacon,Woolworths,grams,200,3.80
+Woolworths Shortcut Bacon,bacon,Woolworths,kg,1,10.25
+Woolworths Middle Bacon,bacon,Woolworths,kg,1,10.25
+Woolworths Middle Bacon,bacon,Woolworths,grams,250,4.00
+Woolworths Green Basil Fresh Herb 15g Punnet,basil,Woolworths,grams,15,3.00
+Beans Round Per Kg,beans,Woolworths,kg,1,6.90
+Woolworths Beanette Pre Pack Punnet,beans,Woolworths,grams,400,3.20
+Mulgowie Green Beans Cleaned & Cut,beans,Mulgowie,grams,340,5.00
+Woolworths Beef Stir Fry,beef,Woolworths,grams,500,13.00
+Macro Grass Fed Australian Diced Beef,beef,Macro,grams,500,13.00
+Macro Grass Fed Australian Stir-fry Beef,beef,Macro,grams,500,13.00
+Woolworths Beef Mince,beef mince,Woolworths,kg,1,13.00
+Woolworths Beef Mince,beef mince,Woolworths,grams,500,7.00
+Woolworths Lean Beef Mince,beef mince,Woolworths,kg,1,16.00
+Woolworths Lean Beef Mince,beef mince,Woolworths,grams,500,9.50
+Woolworths Heart Smart Extra Lean Beef Mince,beef mince,Woolworths,grams,500,10.50
+Cw Farms Beef Mince Bulk Pack,beef mince,Cw Farms,kg,1.8,21.50
+Macro Organic Lean Beef Mince,beef mince,Macro,grams,500,13.75
+Woolworths Panko Bread Crumbs,bread crumbs,Woolworths,grams,220,1.50
+Essential Bread Crumbs,bread crumbs,Woolworths,grams,750,2.55
+Krummies Breadcrumbs,bread crumbs,Krummies,grams,375,3.00
+Mr Chen's Panko Bread Crumbs,bread crumbs,Mr Chen's,grams,350,2.00
+Essentials Salted Butter,butter,Woolworths,grams,500,6.00
+Essentials Unsalted Butter,butter,Woolworths,grams,500,6.00
+Western Star Original Spreadable,butter,Western Star,grams,500,6.00
+Essentials Salted Butter,butter,Woolworths,grams,250,3.45
+Western Star Original Butter Block,butter,Western Star,grams,500,7.00
+Mainland Buttersoft Pure Salted Butter,butter,Mainland,grams,375,7.00
+Chicken Thigh Fillet Per Kg,chicken,Woolworths,kg,1,13.00
+Macro Whole Chicken Free Range 1.1kg - 2.25kg,chicken,Macro,kg,1.1,14.63
+Woolworths Rspca Approved Chicken Stirfry,chicken,Woolworths,grams,500,9.00
+Macro Chicken Drumsticks Free Range 650g - 1.2kg,chicken,Woolworths,grams,650,7.20
+Ingham's Fresh Whole Chicken 1.1kg - 2.3kg,chicken,Ingham's,kg,1.1,11.50
+Woolworths Rspca Approved Chicken Breast Fillet Min. 250g,chicken breast,Woolworths,grams,250,9.00
+Macro Chicken Breast Fillets Free Range 570g - 1.1kg,chicken breast,Macro,grams,570,14.30
+Woolworths Chicken Breast Fillet Skinless Small 459g - 749g,chicken breast,Woolworths,grams,459,9.74
+Cholula Hot Sauce,chilli sauce,Cholula,ml,150,5.50
+Frank's Red Hot Buffalo Wings,chilli sauce,Frank's,ml,148,3.30
+Frank's Red Hot Buffalo Wings,chilli sauce,Frank's,ml,148,3.30
+Masterfoods Squeezy Hot Chilli Sauce,chilli sauce,Masterfoods,ml,250,2.80
+Woolworths Sweet Chilli Sauce,chilli sauce,Woolworths,ml,700,2.95
+Fountain Hot Chilli Sauce,chilli sauce,Fountain,ml,250,3.20
+Huy Fong Sriracha Hot Chilli Sauce,chilli sauce,Huy Fong,ml,266,5.50
+Woolworths Coconut Fine Desiccated,coconut,Woolworths,grams,500,3.60
+Woolworths Shredded Coconut,coconut,Woolworths,grams,250,1.80
+Mckenzie's Coconut Fine Desiccated,coconut,McKenzie's,grams,250,2.20
+Macro Organic Shredded Coconut,coconut,Macro,grams,200,4.40
+Macro Organic Desiccated Coconut,coconut,Macro,grams,250,5.00
 =======
 Product,Classification,Brand,Unit of Measurement,Quantity,Cost
 Woolworths Almonds Natural,almonds,Woolworths,grams,150,3.15
@@ -186,3 +183,59 @@ Woolworths White Cup Sliced Mushroom Punnet,mushrooms,Woolworths,grams,250,4.00
 Mushroom Cups Loose Premium Per Kg,mushrooms,Woolworths,kg,1,14.00
 Woolworths Mild American Mustard,mustard,Woolworths,grams,250,2.00
 Masterfoods Mustard Mild American Squeeze,mustard,Woolworths,grams,550,5.50
+Hakubaku Organic Japanese Somen Noodles 98% Fat Free,noodles,Hakubaku,grams,270,4.00
+Ayam Instant Noodles 10 Cakes,noodles,Ayam,grams,700,5.30
+Woolworths Extra Virgin Olive Oil,oil,Woolworths,ml,500,6.00
+Woolworths Extra Virgin Spanish Olive Oil,oil,Woolworths,litres,1,10.00
+Woolworths Oregano Leaves,oregano,Woolworths,grams,10,1.80
+Hoyts Oregano,oregano,Hoyts,grams,60,3.30
+Hoyts Oregano,oregano,Hoyts,grams,25,2.00
+Woolworths Paprika Ground,paprika,Woolworths,grams,30,1.60
+Masterfoods Paprika,paprika,Masterfoods,grams,115,6.60
+Essentials Parmesan Cheese,parmesan cheese,Woolworths,grams,100,1.60
+Woolworths Shredded Parmesan Cheese,parmesan cheese,grams,250,6.00
+Hoyts Parsley,parsley,Hoyts,grams,15,2.00
+Woolworths Parsley Flakes,parsley,Woolworths,grams,5,1.15
+Woolworths Frozen Australian Peas,peas,Woolworths,grams,1000,3.30
+Woolworths Frozen Australian Peas,peas,Woolworths,kg,1,3.30
+Woolworths Peas,peas,Woolworths,grams,500,2.10
+Saxa Black Whole Peppercorns Pepper,pepper,Saxa,grams,190,6.70
+Woolworths Pepper Grinder Black Peppercorn,pepper,Woolworths,grams,50g
+Woolworths Scotch Fillet Pork,pork,Woolworths,grams,600,11.00
+Woolworths Lean Pork Mince,pork mince,Woolworths,grams,500,6.00
+Woolworths Pork Mince,pork mince,Woolworths,grams,800,7.00
+Just Caught Raw Prawn Cutlets,prawns,Just Caught,grams,850,30.00
+Woolworths White Rice Long Grain,rice,Woolworths,grams,1000,1.40
+Woolworths White Rice Long Grain,rice,Woolworths,kg,1,1.40
+Sunrice White Rice Calrose Medium Grain,rice,Sunrice,kg,10,38.00
+Sunrice White Rice Calrose Medium Grain,rice,Sunrice,grams,10000,38.00
+Saxa Table Salt Drum,salt,Saxa,grams,750,3.50
+Saxa Table Salt Picnic Pack,salt,Saxa,grams,125,2.50
+Devondale Skim Long Life Milk,skim milk,Devondale,ml,1000,2.20
+Devondale Skim Long Life Milk,skim milk,Devondale,litres,1,2.20
+Fountain Soy Sauce,soy sauce,Fountain,ml,250,3.20
+Woolworths Pasta Spaghetti,spaghetti,Woolworths,grams,500,1.00
+Woolworths Baby Spinach,spinach,Woolworths,grams,280,5.00
+Woolworths Baby Spinach,spinach,Woolworths,grams,60,2.00
+Woolworths Beef Sizzle Schnitzel,steak,Woolworths,grams,400,12.00
+Woolworths Beef Rump Steak Medallion Small,steak,Woolworths,grams,300,12.00
+Woolworths Beef Oyster Blade Steak,steak,Woolworths,grams,600,15.50
+Fresh Strawberry,strawberries,Woolworths,grams,250,3.00
+Fresh Strawberry,strawberries,Woolworths,grams,450,5.90
+Essentials White Sugar,sugar,Woolworths,grams,1000,1.70
+Essentials White Sugar,sugar,Woolworths,kg,1,1.70
+Bega Tasty Cheese,tasty cheese,Bega,grams,500,8.50
+Bega Farmers' Tasty Cheese,tasty cheese,grams,250,7.00
+Truss Tomatoes,tomato,Woolworths,pieces,1,0.69
+Woolworths Solanato Tomato,tomato,Woolworths,grams,200,3.00
+Essentials Tomato Paste,tomato paste,Woolworths,grams,500,1.40
+Essentials Tomato Paste,tomato paste,Woolworths,grams,170,0.95
+Essentials Tuna Chunks In Spring Water,tuna,Woolworths,grams,425,3.50
+Ingham's Turkey Mince,turkey,Ingham's,grams,500,8.00
+Ingham's Classic Turkey Breast Oven Roasted,turkey,Ingham's,grams,800,22.50
+Mazzetti Balsamic Vinegar Of Modena,vinegar,Mazzetti,ml,500,5.00
+Mazzetti Balsamic Vinegar Of Modena,vinegar,Mazzetti,ml,250,3.50
+Dairy Farmers Full Cream Milk,whole milk,Dairy Farmers,ml,3000,5.90
+Dairy Farmers Full Cream Milk,whole milk,Dairy Farmers,litres,3,5.90
+Dairy Farmers Full Cream Milk,whole milk,Dairy Farmers,ml,2000,4.10
+Dairy Farmers Full Cream Milk,whole milk,Dairy Farmers,litres,2,4.10
